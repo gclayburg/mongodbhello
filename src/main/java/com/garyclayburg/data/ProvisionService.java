@@ -18,17 +18,19 @@
 
 package com.garyclayburg.data;
 
-import com.mongodb.BasicDBObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by IntelliJ IDEA.
  * User: gclaybur
- * Date: 3/12/14
- * Time: 1:30 PM
+ * Date: 3/13/14
+ * Time: 11:11 AM
  */
-public class User extends BasicDBObject {
-    private static final Logger log = LoggerFactory.getLogger(User.class);
+public class ProvisionService {
+    private static final Logger log = LoggerFactory.getLogger(ProvisionService.class);
 
+    public  void provisionUser(String uid){
+
+    }
 }

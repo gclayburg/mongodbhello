@@ -18,17 +18,33 @@
 
 package com.garyclayburg.data;
 
-import com.mongodb.BasicDBObject;
+import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by IntelliJ IDEA.
  * User: gclaybur
- * Date: 3/12/14
- * Time: 1:30 PM
+ * Date: 3/13/14
+ * Time: 11:12 AM
  */
-public class User extends BasicDBObject {
-    private static final Logger log = LoggerFactory.getLogger(User.class);
+public class ProvisionServiceTest {
+    private static final Logger log = LoggerFactory.getLogger(ProvisionServiceTest.class);
 
+    @Test
+    public void testName() throws Exception {
+        ProvisionService provisionService = new ProvisionService();
+
+        UserService userServiceMock = Mockito.mock(UserService.class);
+
+//        when(userServiceMock.getUserById("500")).thenReturn()
+
+        UserService userService = new UserService();
+        User user500 = userService.getUserById("500");
+
+        User u = new User();
+//        provisionService.provisionUser();
+
+    }
 }
