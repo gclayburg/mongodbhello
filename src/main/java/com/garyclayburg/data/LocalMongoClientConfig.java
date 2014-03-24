@@ -18,26 +18,35 @@
 
 package com.garyclayburg.data;
 
-import com.mongodb.BasicDBObject;
+import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import java.util.Map;
+import java.net.UnknownHostException;
 
 /**
  * Created by IntelliJ IDEA.
- * User: gclaybur
- * Date: 3/12/14
- * Time: 1:30 PM
+ * Date: 3/21/14
+ * Time: 4:21 PM
+ *
+ * @author Gary Clayburg
  */
-public class User extends BasicDBObject {
-    private static final Logger log = LoggerFactory.getLogger(User.class);
+@Configuration
+public class LocalMongoClientConfig {
+    private static final Logger log = LoggerFactory.getLogger(LocalMongoClientConfig.class);
 
-    public User() {
-    }
-
-    public User(Map m) {
-        super(m);
+    @Bean
+    public Mongo getMongo(){
+        MongoClient mongoClient = null;
+        try {
+            mongoClient = new MongoClient("localhost",27017);
+        } catch (UnknownHostException e) {
+            log.warn("kaboom",e);
+        }
+        return mongoClient;
     }
 
 }

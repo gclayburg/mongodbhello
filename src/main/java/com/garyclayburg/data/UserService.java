@@ -21,8 +21,8 @@ package com.garyclayburg.data;
 import com.mongodb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.net.UnknownHostException;
 import java.util.Date;
 
 /**
@@ -33,24 +33,22 @@ import java.util.Date;
  */
 public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
-    private final DBCollection collection;
+    private DBCollection collection;
+
+    @Autowired
+    private Mongo mongoClient;
 
     public UserService() {
-        MongoClient mongoclient;
-        DB db1 = null;
-        try {
-            mongoclient = new MongoClient("localhost",27017);
-            db1 = mongoclient.getDB("IowaState");
-        } catch (UnknownHostException e) {  //todo fix exception handling - maybe after convert to spring?
-            log.warn("kaboom",e);
-        }
-        collection = db1.getCollection("userstore");
-        collection.setObjectClass(User.class);
     }
 
     public User getUserById(String id) {
+        User existingUser = null;
         BasicDBObject searchQuery = createUserQuery(id);
-        return (User) collection.findOne(searchQuery);
+        DBObject one = collection.findOne(searchQuery);
+        if (one != null) {
+            existingUser = new User(one.toMap()); //MongoDB java driver does not support a direct cast to User
+        }
+        return existingUser;
     }
 
     private BasicDBObject createUserQuery(String id) {
@@ -62,7 +60,8 @@ public class UserService {
     public void dropAllusers() {
         collection.drop();
     }
-    public long countUsers(){
+
+    public long countUsers() {
         return collection.count();
     }
 
@@ -77,5 +76,13 @@ public class UserService {
 
         BasicDBObject searchQuery = createUserQuery(uidToMatch);
         collection.update(searchQuery,updateObj,true,false);
+    }
+
+    public void setMongoClient(Mongo mongoClient) {
+        this.mongoClient = mongoClient;
+        DB db1;
+        db1 = mongoClient.getDB("IowaState");
+        collection = db1.getCollection("userstore");
+        collection.setObjectClass(User.class);
     }
 }

@@ -24,6 +24,7 @@ import com.garyclayburg.data.UserService;
 import com.mongodb.BasicDBObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,18 +33,22 @@ import java.io.IOException;
 
 /**
  * Created by IntelliJ IDEA.
- * User: gclaybur
  * Date: 3/6/14
  * Time: 12:33 PM
+ *
+ * @author Gary Clayburg
  */
 public class CsvImporter {
     private static final Logger log = LoggerFactory.getLogger(CsvImporter.class);
+
+    @Autowired
+    private UserService userService;
 
     public int importFile(File csvinput) {
         assert (csvinput.exists());
         int processedRecords = 0;
         try {
-            UserService userService = new UserService();
+//            UserService userService = new UserService();
             BasicDBObject document;
 
             CSVReader csvReader = new CSVReader(new FileReader(csvinput));

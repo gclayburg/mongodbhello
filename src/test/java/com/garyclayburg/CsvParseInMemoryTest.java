@@ -22,15 +22,14 @@ import com.garyclayburg.data.ServiceConfig;
 import com.garyclayburg.data.User;
 import com.garyclayburg.data.UserService;
 import com.garyclayburg.importer.CsvImporter;
+import com.github.fakemongo.Fongo;
+import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
 import com.mongodb.Mongo;
-import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
-import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.MongodConfig;
-import de.flapdoodle.embed.mongo.config.RuntimeConfig;
-import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.extract.UserTempNaming;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,29 +41,29 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.UnknownHostException;
 
+import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder.newMongoDbRule;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by IntelliJ IDEA.
- * User: gclaybur
- * Date: 3/6/14
- * Time: 12:29 PM
+ * Created by IntelliJ IDEA.<p>
+ * This test uses an in-memory MongoDB Java server and MongoDB Java driver.  The test runs faster that a
+ * FlapDoodle server, but the MongoDB Java driver imposes limitations on sub-classing BasicDBObject
+ * http://stackoverflow.com/questions/15348022/java-lang-classcastexception-when-mapping-to-custom-object
+ * <br>User: gclaybur
+ * <br>Date: 3/6/14
+ * <br>Time: 12:29 PM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(classes = {LocalServiceConfig.class})
-@ContextConfiguration(classes = {ServiceConfig.class,CsvParseTestIntegration.FlapDoodleMongo.class})
-//@ContextConfiguration(classes = {ServiceConfig.class,CsvParseTestIntegration.FongoMongoConfig.class})
-public class CsvParseTestIntegration {
+@ContextConfiguration(classes = {ServiceConfig.class,CsvParseInMemoryTest.FongoMongoConfig.class})
+public class CsvParseInMemoryTest {
 
-    private static final Logger log = LoggerFactory.getLogger(CsvParseTestIntegration.class);
-    private static final String LOCALHOST = "127.0.0.1";
-    private static final String DB_NAME = "itest";
-    private static final int MONGO_TEST_PORT = 27028;
+    private static final Logger log = LoggerFactory.getLogger(CsvParseInMemoryTest.class);
+
+    @Rule
+    public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("demo-test");
 
     @Autowired
     private ApplicationContext applicationContext; // nosql-unit requirement
@@ -77,27 +76,6 @@ public class CsvParseTestIntegration {
 
     private static MongodProcess mongoProcess;
     private static Mongo mongo;
-
-    @BeforeClass
-    public static void initializeDB() throws IOException {
-
-        RuntimeConfig config = new RuntimeConfig();
-        config.setExecutableNaming(new UserTempNaming());
-
-        MongodStarter starter = MongodStarter.getInstance(config);
-
-        MongodExecutable mongoExecutable = starter.prepare(new MongodConfig(Version.V2_2_0,MONGO_TEST_PORT,false));
-        mongoProcess = mongoExecutable.start();
-
-        mongo = new Mongo(LOCALHOST,MONGO_TEST_PORT);
-        mongo.getDB(DB_NAME);
-    }
-
-    @AfterClass
-    public static void shutdownDB() throws InterruptedException {
-        mongo.close();
-        mongoProcess.stop();
-    }
 
     @Before
     public void setUp() throws URISyntaxException {
@@ -149,12 +127,12 @@ public class CsvParseTestIntegration {
     }
 
     @Configuration
-    static class FlapDoodleMongo {
+    static class FongoMongoConfig {
         @Bean
-        public Mongo mongo() throws UnknownHostException {
-            mongo = new Mongo(LOCALHOST,MONGO_TEST_PORT);
-            mongo.getDB(DB_NAME);
-            return mongo;
+        public Mongo mongo() {
+            // uses fongo for in-memory tests
+            return new Fongo("mongo-test").getMongo();
         }
     }
+
 }

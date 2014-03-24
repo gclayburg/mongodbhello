@@ -16,28 +16,41 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.garyclayburg.data;
+package com.garyclayburg.persistence.repository;
 
-import com.mongodb.BasicDBObject;
+import com.garyclayburg.persistence.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.stereotype.Repository;
 
 /**
  * Created by IntelliJ IDEA.
- * User: gclaybur
- * Date: 3/12/14
- * Time: 1:30 PM
+ * Date: 3/20/14
+ * Time: 1:20 PM
+ *
+ * @author Gary Clayburg
  */
-public class User extends BasicDBObject {
-    private static final Logger log = LoggerFactory.getLogger(User.class);
+@Repository
+public class UserRepository {
+    private static final Logger log = LoggerFactory.getLogger(UserRepository.class);
 
-    public User() {
+    @Autowired MongoTemplate mongoTemplate;
+
+    public UserRepository() {
     }
 
-    public User(Map m) {
-        super(m);
+    public long totalCount() {
+        long count = mongoTemplate.count(null,User.class);
+        return count;
     }
 
+//    public long getUser(){
+//        mongoTemplate.find(new BasicQuery(),User.class);
+//    }
+
+    public void deleteAll() {
+
+    }
 }

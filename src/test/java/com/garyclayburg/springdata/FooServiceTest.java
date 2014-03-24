@@ -16,55 +16,36 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.garyclayburg.data;
+package com.garyclayburg.springdata;
 
-import com.garyclayburg.persistence.MongoConfig;
-import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder.newMongoDbRule;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by IntelliJ IDEA.
  * User: gclaybur
- * Date: 3/13/14
- * Time: 11:12 AM
+ * Date: 3/19/14
+ * Time: 11:38 PM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {ServiceConfig.class,MongoConfig.class})
-public class ProvisionServiceTest {
-    private static final Logger log = LoggerFactory.getLogger(ProvisionServiceTest.class);
+@ContextConfiguration(classes = {FooConfig.class})
+public class FooServiceTest {
 
-    @Autowired UserService userService;
+    private static final Logger log = LoggerFactory.getLogger(FooServiceTest.class);
 
-    @Rule
-    public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("demo-test");
-
-    @Autowired
-    private ApplicationContext applicationContext; // nosql-unit requirement
+    //autowire simple bean
+    @Autowired FooService fooService;
 
     @Test
-    public void testName() throws Exception {
-        ProvisionService provisionService = new ProvisionService();
-
-        UserService userServiceMock = Mockito.mock(UserService.class);
-
-//        when(userServiceMock.getUserById("500")).thenReturn()
-
-//        UserService userService = new UserService();
-        User user500 = userService.getUserById("500");
-
-        User u = new User();
-//        provisionService.provisionUser();
-
+    public void testSomething() {
+        assertNotNull(fooService);
     }
+
 }

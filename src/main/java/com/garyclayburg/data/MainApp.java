@@ -18,26 +18,29 @@
 
 package com.garyclayburg.data;
 
-import com.mongodb.BasicDBObject;
+import com.mongodb.Mongo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  * Created by IntelliJ IDEA.
- * User: gclaybur
- * Date: 3/12/14
- * Time: 1:30 PM
+ * Date: 3/21/14
+ * Time: 2:53 PM
+ *
+ * @author Gary Clayburg
  */
-public class User extends BasicDBObject {
-    private static final Logger log = LoggerFactory.getLogger(User.class);
+public class MainApp {
+    private static final Logger log = LoggerFactory.getLogger(MainApp.class);
 
-    public User() {
+    public static void main(String[] args) {
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(ServiceConfig.class);
+
+        Mongo mongoClient = ctx.getBean(Mongo.class);
+        log.info("wired mongo is " + mongoClient);
+
+        UserService us = ctx.getBean(UserService.class);
+        log.info("wired userservice: " + us);
     }
-
-    public User(Map m) {
-        super(m);
-    }
-
 }

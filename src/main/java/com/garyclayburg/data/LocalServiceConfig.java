@@ -18,26 +18,18 @@
 
 package com.garyclayburg.data;
 
-import com.mongodb.BasicDBObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Map;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 /**
  * Created by IntelliJ IDEA.
- * User: gclaybur
- * Date: 3/12/14
- * Time: 1:30 PM
+ * Date: 3/21/14
+ * Time: 4:28 PM
+ *
+ * @author Gary Clayburg
  */
-public class User extends BasicDBObject {
-    private static final Logger log = LoggerFactory.getLogger(User.class);
-
-    public User() {
-    }
-
-    public User(Map m) {
-        super(m);
-    }
+@Configuration
+@Import({ServiceConfig.class,LocalMongoClientConfig.class})
+public class LocalServiceConfig {
 
 }

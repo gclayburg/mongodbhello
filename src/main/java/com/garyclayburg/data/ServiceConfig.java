@@ -18,26 +18,38 @@
 
 package com.garyclayburg.data;
 
-import com.mongodb.BasicDBObject;
+import com.garyclayburg.importer.CsvImporter;
+import com.mongodb.Mongo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Created by IntelliJ IDEA.
- * User: gclaybur
- * Date: 3/12/14
- * Time: 1:30 PM
+ * Date: 3/21/14
+ * Time: 2:12 PM
+ *
+ * @author Gary Clayburg
  */
-public class User extends BasicDBObject {
-    private static final Logger log = LoggerFactory.getLogger(User.class);
+@Configuration
+public class ServiceConfig {
+    private static final Logger log = LoggerFactory.getLogger(ServiceConfig.class);
 
-    public User() {
+    @Autowired
+    private Mongo mongoClient;
+
+    @Bean
+    public UserService userService() {
+        UserService userService = new UserService();
+        userService.setMongoClient(mongoClient);
+        return userService;
     }
 
-    public User(Map m) {
-        super(m);
+    @Bean
+    public CsvImporter csvImporter() {
+        return new CsvImporter();
     }
 
 }

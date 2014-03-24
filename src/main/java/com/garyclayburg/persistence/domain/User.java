@@ -16,28 +16,59 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.garyclayburg.data;
+package com.garyclayburg.persistence.domain;
 
-import com.mongodb.BasicDBObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Created by IntelliJ IDEA.
- * User: gclaybur
- * Date: 3/12/14
- * Time: 1:30 PM
+ * Date: 3/20/14
+ * Time: 12:54 PM
+ *
+ * @author Gary Clayburg
  */
-public class User extends BasicDBObject {
+@Document
+public class User {
     private static final Logger log = LoggerFactory.getLogger(User.class);
 
-    public User() {
+    @Id
+    private String userId;
+    private String firstName;
+    private String lastName;
+    private String email;
+
+    public String getUserId() {
+        return userId;
     }
 
-    public User(Map m) {
-        super(m);
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
