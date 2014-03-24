@@ -57,11 +57,11 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 //@ContextConfiguration(classes = {LocalServiceConfig.class})
-@ContextConfiguration(classes = {ServiceConfig.class,CsvParseTestIntegration.FlapDoodleMongo.class})
-//@ContextConfiguration(classes = {ServiceConfig.class,CsvParseTestIntegration.FongoMongoConfig.class})
-public class CsvParseTestIntegration {
+@ContextConfiguration(classes = {ServiceConfig.class,CsvParseTest.FlapDoodleMongo.class})
+//@ContextConfiguration(classes = {ServiceConfig.class,CsvParseTest.FongoMongoConfig.class})
+public class CsvParseTest {
 
-    private static final Logger log = LoggerFactory.getLogger(CsvParseTestIntegration.class);
+    private static final Logger log = LoggerFactory.getLogger(CsvParseTest.class);
     private static final String LOCALHOST = "127.0.0.1";
     private static final String DB_NAME = "itest";
     private static final int MONGO_TEST_PORT = 27028;
