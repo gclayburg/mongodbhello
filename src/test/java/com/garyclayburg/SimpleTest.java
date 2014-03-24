@@ -32,25 +32,6 @@ public class SimpleTest {
 
     private static final Logger log = LoggerFactory.getLogger(SimpleTest.class);
 
-    @BeforeClass
-    public static void switchOn() {
-        log.debug("Switch on");
-    }
-
-    @AfterClass
-    public static void switchOff() {
-        log.debug("Switch off");
-    }
-
-    @Before
-    public void setUp() {
-        log.debug("setUp test");
-    }
-
-    @After
-    public void tearDown() {
-        log.debug("teardown test");
-    }
 
     @Test
     public void bareBones(){
