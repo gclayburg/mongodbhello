@@ -19,6 +19,7 @@
 package com.garyclayburg.persistence.repository;
 
 import com.garyclayburg.persistence.MongoConfig;
+import com.garyclayburg.persistence.repository.UserRepository;
 import com.github.fakemongo.Fongo;
 import com.lordofthejars.nosqlunit.annotation.UsingDataSet;
 import com.lordofthejars.nosqlunit.core.LoadStrategyEnum;

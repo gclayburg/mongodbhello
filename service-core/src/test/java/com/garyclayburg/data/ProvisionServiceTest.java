@@ -20,6 +20,7 @@ package com.garyclayburg.data;
 
 import com.garyclayburg.persistence.MongoConfig;
 import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +54,7 @@ public class ProvisionServiceTest {
     private ApplicationContext applicationContext; // nosql-unit requirement
 
     @Test
+    @Ignore
     public void testName() throws Exception {
         ProvisionService provisionService = new ProvisionService();
 

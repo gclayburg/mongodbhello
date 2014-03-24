@@ -22,6 +22,7 @@ import com.mongodb.Mongo;
 import com.mongodb.ServerAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
@@ -48,6 +49,7 @@ public class MongoConfig extends AbstractMongoConfiguration {
         return "demo";
     }
 
+//    @Bean
     @Override
     public Mongo mongo() throws Exception {
         /**
