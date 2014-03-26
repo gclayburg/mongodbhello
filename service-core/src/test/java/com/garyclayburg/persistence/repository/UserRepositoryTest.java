@@ -18,8 +18,9 @@
 
 package com.garyclayburg.persistence.repository;
 
+import com.garyclayburg.BootUp;
 import com.garyclayburg.persistence.MongoConfig;
-import com.garyclayburg.persistence.repository.UserRepository;
+import com.garyclayburg.persistence.domain.User;
 import com.github.fakemongo.Fongo;
 import com.lordofthejars.nosqlunit.annotation.UsingDataSet;
 import com.lordofthejars.nosqlunit.core.LoadStrategyEnum;
@@ -31,6 +32,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -42,6 +44,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder.newMongoDbRule;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Created by IntelliJ IDEA.
@@ -52,6 +55,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {MongoConfig.class})
+@SpringApplicationConfiguration(classes = BootUp.class)
 public class UserRepositoryTest {
     private static final Logger log = LoggerFactory.getLogger(UserRepositoryTest.class);
 
@@ -61,21 +65,39 @@ public class UserRepositoryTest {
     @Autowired
     private ApplicationContext applicationContext; // nosql-unit requirement
 
+    @SuppressWarnings("SpringJavaAutowiringInspection")  //IntelliJ gets confused by spring boot
     @Autowired private UserRepository userRepository;
+
+    @SuppressWarnings("SpringJavaAutowiringInspection")  //IntelliJ gets confused by spring boot
+    @Autowired private AutoUserRepo autoUserRepo;
 
     @Test
     public void testSpringAutoWiredHelloWorld() throws Exception {
     }
 
     @Test
-    @UsingDataSet(locations = {"/two-users.json"},loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
+    @UsingDataSet(locations = {"/one-user-field-mismatch.json"}, loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
+    public void testFindByEmailInvalid() throws Exception {
+        assertNull(autoUserRepo.findByEmail("nonetobefound"));
+    }
+
+    @Test
+    @UsingDataSet(locations = {"/one-user-field-mismatch.json"}, loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
+    public void testFindByEmailAuto() throws Exception {
+        User johan = autoUserRepo.findByEmail("johan@nowhere.info");
+        assertEquals("Johan",johan.getFirstName());
+
+    }
+
+    @Test
+    @UsingDataSet(locations = {"/two-users.json"}, loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
     public void testCount() {
         long total = userRepository.totalCount();
         assertEquals(2l,total);
     }
 
     @Test
-    @UsingDataSet(locations = {"/one-user-field-mismatch.json"},loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
+    @UsingDataSet(locations = {"/one-user-field-mismatch.json"}, loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
     public void testFieldMismatch() {
         long total = userRepository.totalCount();
         assertEquals(1l,total);
