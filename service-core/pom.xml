@@ -15,11 +15,6 @@
     <url>http://maven.apache.org</url>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>4.10</junit.version>
-        <log4j.version>1.2.16</log4j.version>
-        <cxf.version>2.3.1</cxf.version>
-        <slf4j.version>1.6.6</slf4j.version>
     </properties>
 
     <build>
@@ -28,5 +23,17 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>com.lordofthejars</groupId>
+            <artifactId>nosqlunit-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+        </dependency>
     </dependencies>
 </project>
