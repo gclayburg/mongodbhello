@@ -90,6 +90,16 @@ public class UserRepositoryTest {
     }
 
     @Test
+    @UsingDataSet(locations = {"/one-user-field-mismatch.json"}, loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
+    public void testFindByEmailAutoCase() throws Exception {
+        User none = autoUserRepo.findByEmail("Johan@nowhere.info");
+        assertNull(none);
+        User johan = autoUserRepo.findByEmailIgnoreCase("Johan@nowhere.info");
+        assertEquals("Johan",johan.getFirstName());
+
+    }
+
+    @Test
     @UsingDataSet(locations = {"/two-users.json"}, loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
     public void testCount() {
         long total = userRepository.totalCount();
