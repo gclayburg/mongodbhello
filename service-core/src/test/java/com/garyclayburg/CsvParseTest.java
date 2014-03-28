@@ -151,7 +151,7 @@ public class CsvParseTest {
     }
 
     @Configuration
-    static class FlapDoodleMongo extends AbstractMongoConfiguration{
+    static class FlapDoodleMongo extends AbstractMongoConfiguration {
         @Override
         protected String getDatabaseName() { //userService gets the mongo DB from here
             return "demo-test";
@@ -160,7 +160,6 @@ public class CsvParseTest {
         @Bean
         public Mongo mongo() throws UnknownHostException {
             mongo = new MongoClient(LOCALHOST,MONGO_TEST_PORT);
-            mongo.getDB(DB_NAME);
             return mongo;
         }
     }

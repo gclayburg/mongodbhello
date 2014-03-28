@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
 /**
  * Created by IntelliJ IDEA.
@@ -34,6 +35,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Gary Clayburg
  */
 @Configuration
+//@EnableMongoAuditing
 public class ServiceConfig {
     private static final Logger log = LoggerFactory.getLogger(ServiceConfig.class);
 
@@ -52,4 +54,8 @@ public class ServiceConfig {
         return new CsvImporter();
     }
 
+//    @Bean
+//    public AuditorAware<AuditableUser> myAuditorProvider(){
+//        return new AuditorAwareImpl();
+//    }
 }
