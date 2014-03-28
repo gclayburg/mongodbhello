@@ -18,11 +18,12 @@
 
 package com.garyclayburg;
 
+import com.garyclayburg.data.DBUser;
 import com.garyclayburg.data.ServiceConfig;
-import com.garyclayburg.data.User;
 import com.garyclayburg.data.UserService;
 import com.garyclayburg.importer.CsvImporter;
 import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
@@ -38,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -89,7 +91,7 @@ public class CsvParseTest {
         MongodExecutable mongoExecutable = starter.prepare(new MongodConfig(Version.V2_2_0,MONGO_TEST_PORT,false));
         mongoProcess = mongoExecutable.start();
 
-        mongo = new Mongo(LOCALHOST,MONGO_TEST_PORT);
+        mongo = new MongoClient(LOCALHOST,MONGO_TEST_PORT);
         mongo.getDB(DB_NAME);
     }
 
@@ -117,7 +119,7 @@ public class CsvParseTest {
         int numImported = importOneCSV("testusers.csv");
         assertEquals(2,numImported);
 
-        User gclaybur = userService.getUserById("500");
+        DBUser gclaybur = userService.getUserById("500");
         assertEquals("Gary",gclaybur.get("firstname"));
         assertEquals(2,userService.countUsers());
     }
@@ -125,7 +127,7 @@ public class CsvParseTest {
     @Test
     public void testUserModifyExisting() throws URISyntaxException {
         importOneCSV("testusers2.csv");
-        User gclaybur = userService.getUserById("500");
+        DBUser gclaybur = userService.getUserById("500");
         assertEquals("Gary",gclaybur.get("firstname"));
         assertEquals("IA",gclaybur.get("state"));
         assertEquals(2,userService.countUsers());
@@ -134,7 +136,7 @@ public class CsvParseTest {
     @Test
     public void testUserModifyExistingLimited() throws URISyntaxException {
         importOneCSV("testusersLimited.csv");
-        User gclaybur = userService.getUserById("500");
+        DBUser gclaybur = userService.getUserById("500");
         assertEquals("Gary",gclaybur.get("firstname"));
         assertEquals("homeplate",gclaybur.get("address")); //from testusersLimited.csv
         assertEquals("CO",gclaybur.get("state")); // from testusers.csv
@@ -149,10 +151,15 @@ public class CsvParseTest {
     }
 
     @Configuration
-    static class FlapDoodleMongo {
+    static class FlapDoodleMongo extends AbstractMongoConfiguration{
+        @Override
+        protected String getDatabaseName() { //userService gets the mongo DB from here
+            return "demo-test";
+        }
+
         @Bean
         public Mongo mongo() throws UnknownHostException {
-            mongo = new Mongo(LOCALHOST,MONGO_TEST_PORT);
+            mongo = new MongoClient(LOCALHOST,MONGO_TEST_PORT);
             mongo.getDB(DB_NAME);
             return mongo;
         }
