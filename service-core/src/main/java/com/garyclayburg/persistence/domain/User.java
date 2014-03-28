@@ -30,16 +30,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
  *
  * @author Gary Clayburg
  */
-@Document
+
 public class User {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(User.class);
 
     @Id
     private String userId;
-    private String firstName;
     private String firstname;
-    private String lastName;
+    private String lastname;
     private String email;
     private String uid;
 
@@ -55,6 +54,14 @@ public class User {
         return uid;
     }
 
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
     public void setUid(String uid) {
         this.uid = uid;
     }
@@ -65,22 +72,6 @@ public class User {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public String getEmail() {

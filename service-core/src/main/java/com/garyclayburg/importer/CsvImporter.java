@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA.
@@ -54,6 +55,10 @@ public class CsvImporter {
 
             CSVReader csvReader = new CSVReader(new FileReader(csvinput));
             String[] headerRow = csvReader.readNext();
+            String[] lowerHeaderRow = new String[headerRow.length];
+            for (int i = 0; i < headerRow.length; i++) {
+                lowerHeaderRow[i] = headerRow[i].toLowerCase();
+            }
             String[] dataRow = csvReader.readNext();
             while (dataRow != null) {
                 processedRecords++;
@@ -61,8 +66,8 @@ public class CsvImporter {
                 int i;
                 String uidToMatch = null;
                 for (i = 0; i < dataRow.length; i++) {
-                    document.put(headerRow[i],dataRow[i]);
-                    if ("uid".equals(headerRow[i])) {
+                    document.put(lowerHeaderRow[i],dataRow[i]);
+                    if ("uid".equals(lowerHeaderRow[i])) {
                         uidToMatch = dataRow[i];
                     }
                 }

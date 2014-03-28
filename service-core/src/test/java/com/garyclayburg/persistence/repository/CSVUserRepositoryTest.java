@@ -110,6 +110,20 @@ public class CSVUserRepositoryTest {
 
     }
 
+    @Test
+    public void testImportCaps() throws Exception {
+        userService.dropAllusers();
+        int numImported = importOneCSV("testusersCAPS.csv");
+        assertEquals(2,numImported);
+        DBUser gclaybur = userService.getUserById("500");
+        assertEquals("Gary",gclaybur.get("firstname"));
+        assertEquals(2,userService.countUsers());
+
+        User garyUser = autoUserRepo.findByUid("500");
+        assertEquals("Gary",garyUser.getFirstname());
+
+    }
+
     private int importOneCSV(String csvFileName) throws URISyntaxException {
         URL testUsersCsv = this.getClass().getClassLoader().getResource(csvFileName);
         assert testUsersCsv != null;

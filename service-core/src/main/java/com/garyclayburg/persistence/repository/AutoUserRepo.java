@@ -34,6 +34,6 @@ public interface AutoUserRepo extends MongoRepository<User,String> {
 
     public User findByUid(String uid);
 
-    public User findByFirstName(String firstName);
+    public User findByFirstname(String firstName);
 //    public User findBy
 }

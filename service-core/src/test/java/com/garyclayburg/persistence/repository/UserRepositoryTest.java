@@ -87,7 +87,7 @@ public class UserRepositoryTest {
     @UsingDataSet(locations = {"/one-user-field-mismatch.json"}, loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
     public void testFindByEmailAuto() throws Exception {
         User johan = autoUserRepo.findByEmail("johan@nowhere.info");
-        assertEquals("Johan",johan.getFirstName());
+        assertEquals("Johan",johan.getFirstname());
 
     }
 
@@ -97,7 +97,7 @@ public class UserRepositoryTest {
         User none = autoUserRepo.findByEmail("Johan@nowhere.info");
         assertNull(none);
         User johan = autoUserRepo.findByEmailIgnoreCase("Johan@nowhere.info");
-        assertEquals("Johan",johan.getFirstName());
+        assertEquals("Johan",johan.getFirstname());
 
     }
 
@@ -113,31 +113,5 @@ public class UserRepositoryTest {
     public void testFieldMismatch() {
         long total = userRepository.totalCount();
         assertEquals(1l,total);
-    }
-
-    @Configuration
-    @EnableMongoRepositories
-//    @ComponentScan(basePackageClasses = {UserRepository.class})
-    // modified to not load configs from com.johnathanmarksmith.mongodb.example.MongoConfiguration
-    static class PersonRepositoryTestConfiguration extends AbstractMongoConfiguration {
-
-        @Override
-        protected String getDatabaseName() {
-            return "demo-test"; // use db demo-test
-        }
-
-        @Bean
-        @Override
-        public Mongo mongo() {
-            // uses fongo for in-memory tests
-            return new Fongo("mongo-test-from-UserRepositoryTest").getMongo();
-        }
-
-        @Override
-        protected String getMappingBasePackage() {
-            return "com.garyclayburg.persistence.domain";
-//            return "com.johnathanmarksmith.mongodb.example.domain";
-        }
-
     }
 }

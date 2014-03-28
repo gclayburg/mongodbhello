@@ -78,7 +78,7 @@ public class UserService {
         Date now = new Date();
         document.put("createDate",now);
         document.put("modifiedDate",now);
-        document.put("_class","com.garyclayburg.persistence.domain.User"); //spring Data needs this to auto-match find() to this class
+//        document.put("_class","com.garyclayburg.persistence.domain.User"); //spring Data needs this to auto-match find() to this class
 
         BasicDBObject updateObj = new BasicDBObject();
         updateObj.put("$set",document);  //make sure we don't just replace existing user document
