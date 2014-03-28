@@ -20,6 +20,9 @@ package com.garyclayburg.springdata;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,7 +30,12 @@ import org.slf4j.LoggerFactory;
  * Date: 3/19/14
  * Time: 10:40 PM
  */
+@Component
 public class FooServiceImpl implements FooService {
+    @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(FooServiceImpl.class);
+
+    @Autowired
+    private ApplicationContext applicationContext; // nosql-unit requirement
 
 }

@@ -21,11 +21,10 @@ package com.garyclayburg;
 import com.garyclayburg.data.ServiceConfig;
 import com.garyclayburg.data.UserService;
 import com.garyclayburg.persistence.repository.DummyUserRepository;
-import com.github.fakemongo.Fongo;
+import com.garyclayburg.persistence.repository.FongoMongoTestConfig;
 import com.lordofthejars.nosqlunit.annotation.UsingDataSet;
 import com.lordofthejars.nosqlunit.core.LoadStrategyEnum;
 import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
-import com.mongodb.Mongo;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,8 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -52,14 +49,17 @@ import static org.junit.Assert.assertEquals;
  */
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {ServiceConfig.class,SimpleNoSQLUnitTest.FongoMongoConfig.class,DummyUserRepository.class})
+@ContextConfiguration(classes = {ServiceConfig.class,FongoMongoTestConfig.class,DummyUserRepository.class})
 public class SimpleNoSQLUnitTest {
 
+    @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(SimpleNoSQLUnitTest.class);
     public static final String DEMO_TEST = "demo-test";
-    @Autowired private DummyUserRepository userRepository;
+    @Autowired
+    private DummyUserRepository userRepository;
 
-    @Autowired private UserService userService;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private ApplicationContext applicationContext; // nosql-unit requirement
@@ -68,20 +68,11 @@ public class SimpleNoSQLUnitTest {
     public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb(DEMO_TEST);
 
     @Test
-    @UsingDataSet(locations = {"/two-users.json"}, loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
+    @UsingDataSet(locations = {"/two-users.json"},loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
     public void testCount() {
 
         long total = userRepository.countUnderAgeTmp(DEMO_TEST);
         assertEquals(2l,total);
-    }
-
-    @Configuration
-    static class FongoMongoConfig {
-        @Bean
-        public Mongo mongo() {
-            // uses fongo for in-memory tests
-            return new Fongo("mongo-test").getMongo();
-        }
     }
 
 }

@@ -32,13 +32,32 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @Document
 public class User {
+    @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(User.class);
 
     @Id
     private String userId;
     private String firstName;
+    private String firstname;
     private String lastName;
     private String email;
+    private String uid;
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
 
     public String getUserId() {
         return userId;

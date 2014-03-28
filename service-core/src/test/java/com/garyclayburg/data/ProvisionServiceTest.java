@@ -43,6 +43,7 @@ import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {ServiceConfig.class,MongoConfig.class})
 public class ProvisionServiceTest {
+    @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(ProvisionServiceTest.class);
 
     @Autowired UserService userService;
@@ -63,9 +64,9 @@ public class ProvisionServiceTest {
 //        when(userServiceMock.getUserById("500")).thenReturn()
 
 //        UserService userService = new UserService();
-        User user500 = userService.getUserById("500");
+        DBUser DBUser500 = userService.getUserById("500");
 
-        User u = new User();
+        DBUser u = new DBUser();
 //        provisionService.provisionUser();
 
     }

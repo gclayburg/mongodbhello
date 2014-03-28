@@ -22,6 +22,8 @@ import com.mongodb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.MongoDbFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
@@ -31,24 +33,30 @@ import java.util.Date;
  * Date: 3/12/14
  * Time: 12:59 PM
  */
+@Component
 public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private DBCollection collection;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     private Mongo mongoClient;
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")
+    private MongoDbFactory mongoDbFactory;
 
     public UserService() {
     }
 
-    public User getUserById(String id) {
-        User existingUser = null;
+    public DBUser getUserById(String id) {
+        DBUser existingDBUser = null;
         BasicDBObject searchQuery = createUserQuery(id);
-        DBObject one = collection.findOne(searchQuery);
+        DBObject one = getCollection().findOne(searchQuery);
         if (one != null) {
-            existingUser = new User(one.toMap()); //MongoDB java driver does not support a direct cast to User
+            existingDBUser = new DBUser(one.toMap()); //MongoDB java driver does not support a direct cast to User
         }
-        return existingUser;
+        return existingDBUser;
     }
 
     private BasicDBObject createUserQuery(String id) {
@@ -58,11 +66,11 @@ public class UserService {
     }
 
     public void dropAllusers() {
-        collection.drop();
+        getCollection().drop();
     }
 
     public long countUsers() {
-        return collection.count();
+        return getCollection().count();
     }
 
     public void saveUser(BasicDBObject document,String uidToMatch) {
@@ -70,19 +78,30 @@ public class UserService {
         Date now = new Date();
         document.put("createDate",now);
         document.put("modifiedDate",now);
+        document.put("_class","com.garyclayburg.persistence.domain.User"); //spring Data needs this to auto-match find() to this class
 
         BasicDBObject updateObj = new BasicDBObject();
         updateObj.put("$set",document);  //make sure we don't just replace existing user document
 
         BasicDBObject searchQuery = createUserQuery(uidToMatch);
-        collection.update(searchQuery,updateObj,true,false);
+        getCollection().update(searchQuery,updateObj,true,false);
     }
 
     public void setMongoClient(Mongo mongoClient) {
         this.mongoClient = mongoClient;
-        DB db1;
-        db1 = mongoClient.getDB("IowaState");
-        collection = db1.getCollection("userstore");
-        collection.setObjectClass(User.class);
+    }
+
+    private DBCollection getCollection() {
+        if (collection == null) { //initialize collection only after all spring beans are autowired
+            log.debug("available database names on server: " + mongoClient.getDatabaseNames());
+
+            log.debug("db name from factory: " + mongoDbFactory.getDb());
+            DB db1;
+            db1 = mongoDbFactory.getDb();
+            collection = db1.getCollection("user");
+            collection.setObjectClass(DBUser.class);
+
+        }
+        return collection;
     }
 }

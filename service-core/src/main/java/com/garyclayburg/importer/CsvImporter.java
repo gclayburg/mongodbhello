@@ -19,7 +19,7 @@
 package com.garyclayburg.importer;
 
 import au.com.bytecode.opencsv.CSVReader;
-import com.garyclayburg.data.User;
+import com.garyclayburg.data.DBUser;
 import com.garyclayburg.data.UserService;
 import com.mongodb.BasicDBObject;
 import org.slf4j.Logger;
@@ -41,6 +41,7 @@ import java.io.IOException;
 public class CsvImporter {
     private static final Logger log = LoggerFactory.getLogger(CsvImporter.class);
 
+    @SuppressWarnings("SpringJavaAutowiringInspection")
     @Autowired
     private UserService userService;
 
@@ -65,7 +66,7 @@ public class CsvImporter {
                         uidToMatch = dataRow[i];
                     }
                 }
-                User existingUser = userService.getUserById(uidToMatch);
+                DBUser existingDBUser = userService.getUserById(uidToMatch);
                 //todo: create hook here to pre-process input via groovy script before saving/updating user
 
                 userService.saveUser(document,uidToMatch);

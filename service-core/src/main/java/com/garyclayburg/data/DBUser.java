@@ -30,13 +30,14 @@ import java.util.Map;
  * Date: 3/12/14
  * Time: 1:30 PM
  */
-public class User extends BasicDBObject {
-    private static final Logger log = LoggerFactory.getLogger(User.class);
+public class DBUser extends BasicDBObject {
+    @SuppressWarnings("UnusedDeclaration")
+    private static final Logger log = LoggerFactory.getLogger(DBUser.class);
 
-    public User() {
+    public DBUser() {
     }
 
-    public User(Map m) {
+    public DBUser(Map m) {
         super(m);
     }
 

@@ -16,15 +16,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.garyclayburg;
+package com.garyclayburg.persistence.repository;
 
+import com.garyclayburg.BootUp;
 import com.garyclayburg.data.DBUser;
 import com.garyclayburg.data.ServiceConfig;
 import com.garyclayburg.data.UserService;
 import com.garyclayburg.importer.CsvImporter;
-import com.garyclayburg.persistence.repository.FongoMongoTestConfig;
+import com.garyclayburg.persistence.domain.User;
 import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,7 +32,9 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
+import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -42,21 +44,20 @@ import java.net.URL;
 
 import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder.newMongoDbRule;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Created by IntelliJ IDEA.<p>
- * This test uses an in-memory MongoDB Java server and MongoDB Java driver.  The test runs faster that a
- * FlapDoodle server, but the MongoDB Java driver imposes limitations on sub-classing BasicDBObject
- * http://stackoverflow.com/questions/15348022/java-lang-classcastexception-when-mapping-to-custom-object
- * <br>User: gclaybur
- * <br>Date: 3/6/14
- * <br>Time: 12:29 PM
+ * Created by IntelliJ IDEA.
+ * Date: 3/28/14
+ * Time: 10:12 AM
+ *
+ * @author Gary Clayburg
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {ServiceConfig.class,FongoMongoTestConfig.class})
-public class CsvParseInMemoryTest {
-
-    private static final Logger log = LoggerFactory.getLogger(CsvParseInMemoryTest.class);
+@SpringApplicationConfiguration(classes = BootUp.class)
+public class CSVUserRepositoryTest {
+    private static final Logger log = LoggerFactory.getLogger(CSVUserRepositoryTest.class);
 
     @Rule
     public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("demo-test");
@@ -70,6 +71,12 @@ public class CsvParseInMemoryTest {
     @Autowired
     private CsvImporter csvImporter;
 
+    @Autowired
+    private AutoUserRepo autoUserRepo;
+
+    @Autowired
+    private MongoDbFactory mongoDbFactory;
+
     @Before
     public void setUp() throws URISyntaxException {
         log.debug("setUp() test method: " + this);
@@ -77,9 +84,10 @@ public class CsvParseInMemoryTest {
         importOneCSV("testusers.csv");
     }
 
-    @After
-    public void tearDown() {
-        log.debug("teardown called for test " + this + "\n");
+    @Test
+    public void testName() throws Exception {
+        assertTrue(true);
+
     }
 
     @Test
@@ -88,28 +96,18 @@ public class CsvParseInMemoryTest {
         int numImported = importOneCSV("testusers.csv");
         assertEquals(2,numImported);
 
+        log.info("find via userService");
         DBUser gclaybur = userService.getUserById("500");
         assertEquals("Gary",gclaybur.get("firstname"));
+        log.info("count via userService");
         assertEquals(2,userService.countUsers());
-    }
+        log.debug("db name from factory" + mongoDbFactory.getDb());
 
-    @Test
-    public void testUserModifyExisting() throws URISyntaxException {
-        importOneCSV("testusers2.csv");
-        DBUser gclaybur = userService.getUserById("500");
-        assertEquals("Gary",gclaybur.get("firstname"));
-        assertEquals("IA",gclaybur.get("state"));
-        assertEquals(2,userService.countUsers());
-    }
+        log.info("Starting find...");
+//        User garyUser = autoUserRepo.findByFirstName("Gary");
+        User garyUser = autoUserRepo.findByUid("500");
+        assertEquals("Gary",garyUser.getFirstname());
 
-    @Test
-    public void testUserModifyExistingLimited() throws URISyntaxException {
-        importOneCSV("testusersLimited.csv");
-        DBUser gclaybur = userService.getUserById("500");
-        assertEquals("Gary",gclaybur.get("firstname"));
-        assertEquals("homeplate",gclaybur.get("address")); //from testusersLimited.csv
-        assertEquals("CO",gclaybur.get("state")); // from testusers.csv
-        assertEquals(2,userService.countUsers());
     }
 
     private int importOneCSV(String csvFileName) throws URISyntaxException {
@@ -118,4 +116,5 @@ public class CsvParseInMemoryTest {
         File csvInputFile = new File(testUsersCsv.toURI());
         return csvImporter.importFile(csvInputFile);
     }
+
 }

@@ -31,5 +31,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface AutoUserRepo extends MongoRepository<User,String> {
     public User findByEmail(String email);
     public User findByEmailIgnoreCase(String email);
+
+    public User findByUid(String uid);
+
+    public User findByFirstName(String firstName);
 //    public User findBy
 }

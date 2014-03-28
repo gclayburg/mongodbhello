@@ -35,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -57,6 +56,7 @@ import static org.junit.Assert.assertNull;
 @ContextConfiguration(classes = {MongoConfig.class})
 @SpringApplicationConfiguration(classes = BootUp.class)
 public class UserRepositoryTest {
+    @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(UserRepositoryTest.class);
 
     @Rule
@@ -66,10 +66,12 @@ public class UserRepositoryTest {
     private ApplicationContext applicationContext; // nosql-unit requirement
 
     @SuppressWarnings("SpringJavaAutowiringInspection")  //IntelliJ gets confused by spring boot
-    @Autowired private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @SuppressWarnings("SpringJavaAutowiringInspection")  //IntelliJ gets confused by spring boot
-    @Autowired private AutoUserRepo autoUserRepo;
+    @Autowired
+    private AutoUserRepo autoUserRepo;
 
     @Test
     public void testSpringAutoWiredHelloWorld() throws Exception {
@@ -115,20 +117,20 @@ public class UserRepositoryTest {
 
     @Configuration
     @EnableMongoRepositories
-    @ComponentScan(basePackageClasses = {UserRepository.class})
+//    @ComponentScan(basePackageClasses = {UserRepository.class})
     // modified to not load configs from com.johnathanmarksmith.mongodb.example.MongoConfiguration
     static class PersonRepositoryTestConfiguration extends AbstractMongoConfiguration {
 
         @Override
         protected String getDatabaseName() {
-            return "demo-test";
+            return "demo-test"; // use db demo-test
         }
 
         @Bean
         @Override
         public Mongo mongo() {
             // uses fongo for in-memory tests
-            return new Fongo("mongo-test").getMongo();
+            return new Fongo("mongo-test-from-UserRepositoryTest").getMongo();
         }
 
         @Override
