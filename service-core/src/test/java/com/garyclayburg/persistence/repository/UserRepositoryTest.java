@@ -19,13 +19,11 @@
 package com.garyclayburg.persistence.repository;
 
 import com.garyclayburg.BootUp;
-import com.garyclayburg.persistence.MongoConfig;
+import com.garyclayburg.data.ServiceConfig;
 import com.garyclayburg.persistence.domain.User;
-import com.github.fakemongo.Fongo;
 import com.lordofthejars.nosqlunit.annotation.UsingDataSet;
 import com.lordofthejars.nosqlunit.core.LoadStrategyEnum;
 import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
-import com.mongodb.Mongo;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,10 +32,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -53,7 +47,7 @@ import static org.junit.Assert.assertNull;
  * @author Gary Clayburg
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {MongoConfig.class})
+@ContextConfiguration(classes = {ServiceConfig.class,FongoMongoTestConfig.class})
 @SpringApplicationConfiguration(classes = BootUp.class)
 public class UserRepositoryTest {
     @SuppressWarnings("UnusedDeclaration")
@@ -62,14 +56,10 @@ public class UserRepositoryTest {
     @Rule
     public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("demo-test");
 
+    @SuppressWarnings("UnusedDeclaration")
     @Autowired
     private ApplicationContext applicationContext; // nosql-unit requirement
 
-    @SuppressWarnings("SpringJavaAutowiringInspection")  //IntelliJ gets confused by spring boot
-    @Autowired
-    private UserRepository userRepository;
-
-    @SuppressWarnings("SpringJavaAutowiringInspection")  //IntelliJ gets confused by spring boot
     @Autowired
     private AutoUserRepo autoUserRepo;
 
@@ -99,19 +89,5 @@ public class UserRepositoryTest {
         User johan = autoUserRepo.findByEmailIgnoreCase("Johan@nowhere.info");
         assertEquals("Johan",johan.getFirstname());
 
-    }
-
-    @Test
-    @UsingDataSet(locations = {"/two-users.json"}, loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
-    public void testCount() {
-        long total = userRepository.totalCount();
-        assertEquals(2l,total);
-    }
-
-    @Test
-    @UsingDataSet(locations = {"/one-user-field-mismatch.json"}, loadStrategy = LoadStrategyEnum.CLEAN_INSERT)
-    public void testFieldMismatch() {
-        long total = userRepository.totalCount();
-        assertEquals(1l,total);
     }
 }

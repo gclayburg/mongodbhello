@@ -62,6 +62,7 @@ public class SimpleNoSQLUnitTest {
     private UserService userService;
 
     @Autowired
+    @SuppressWarnings("UnusedDeclaration")
     private ApplicationContext applicationContext; // nosql-unit requirement
 
     @Rule

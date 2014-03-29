@@ -21,7 +21,8 @@ package com.garyclayburg.persistence.domain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.Date;
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,42 +43,75 @@ public class User {
     private String email;
     private String uid;
 
+    private Date createDate;
+    private Date modifiedDate;
+
+    @SuppressWarnings("UnusedDeclaration")
+    public Date getCreateDate() {
+        return createDate;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public void setCreateDate(Date createDate) {
+        this.createDate = createDate;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public Date getModifiedDate() {
+        return modifiedDate;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public void setModifiedDate(Date modifiedDate) {
+        this.modifiedDate = modifiedDate;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
     public String getFirstname() {
         return firstname;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public void setFirstname(String firstname) {
         this.firstname = firstname;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public String getUid() {
         return uid;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public String getLastname() {
         return lastname;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public void setLastname(String lastname) {
         this.lastname = lastname;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public void setUid(String uid) {
         this.uid = uid;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public String getUserId() {
         return userId;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public String getEmail() {
         return email;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public void setEmail(String email) {
         this.email = email;
     }

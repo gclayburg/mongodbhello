@@ -69,6 +69,7 @@ public class CsvParseTest {
     private static final int MONGO_TEST_PORT = 27028;
 
     @Autowired
+    @SuppressWarnings("UnusedDeclaration")
     private ApplicationContext applicationContext; // nosql-unit requirement
 
     @Autowired

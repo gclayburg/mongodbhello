@@ -18,11 +18,15 @@
 
 package com.garyclayburg;
 
+import com.garyclayburg.data.ServiceConfig;
+import com.garyclayburg.persistence.MongoConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
 
 /**
  * Created by IntelliJ IDEA.
@@ -33,7 +37,9 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @EnableAutoConfiguration
+@Import({ServiceConfig.class,MongoConfig.class,RepositoryRestMvcConfiguration.class})
 public class BootUp {
+    @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(BootUp.class);
 
     public static void main(String[] args) {

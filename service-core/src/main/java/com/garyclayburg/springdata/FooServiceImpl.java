@@ -36,6 +36,7 @@ public class FooServiceImpl implements FooService {
     private static final Logger log = LoggerFactory.getLogger(FooServiceImpl.class);
 
     @Autowired
+    @SuppressWarnings("UnusedDeclaration")
     private ApplicationContext applicationContext; // nosql-unit requirement
 
 }

@@ -19,11 +19,11 @@
 package com.garyclayburg.persistence;
 
 import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
@@ -40,8 +40,9 @@ import java.util.ArrayList;
 @Configuration
 @EnableMongoRepositories
 //@ComponentScan(basePackageClasses = {MongoConfig.class})
-@ComponentScan(basePackages = "com.garyclayburg.persistence")
+//@ComponentScan(basePackages = "com.garyclayburg.persistence")
 public class MongoConfig extends AbstractMongoConfiguration {
+    @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(MongoConfig.class);
 
     @Override
@@ -49,7 +50,7 @@ public class MongoConfig extends AbstractMongoConfiguration {
         return "demo";
     }
 
-//    @Bean
+    @Bean
     @Override
     public Mongo mongo() throws Exception {
         /**
@@ -64,7 +65,7 @@ public class MongoConfig extends AbstractMongoConfiguration {
          * This is for a relset of db's
          */
 
-        return new Mongo(new ArrayList<ServerAddress>() {{
+        return new MongoClient(new ArrayList<ServerAddress>() {{
             add(new ServerAddress("127.0.0.1",27017));
             add(new ServerAddress("127.0.0.1",27027));
             add(new ServerAddress("127.0.0.1",27037));

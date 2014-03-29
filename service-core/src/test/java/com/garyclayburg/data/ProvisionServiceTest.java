@@ -52,6 +52,7 @@ public class ProvisionServiceTest {
     public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("demo-test");
 
     @Autowired
+    @SuppressWarnings("UnusedDeclaration")
     private ApplicationContext applicationContext; // nosql-unit requirement
 
     @Test

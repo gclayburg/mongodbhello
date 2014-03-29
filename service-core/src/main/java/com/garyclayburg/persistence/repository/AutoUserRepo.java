@@ -20,6 +20,8 @@ package com.garyclayburg.persistence.repository;
 
 import com.garyclayburg.persistence.domain.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,12 +30,18 @@ import org.springframework.data.mongodb.repository.MongoRepository;
  *
  * @author Gary Clayburg
  */
+// http://localhost:8080/visualusers/search/findByUid?uid=500
+@RepositoryRestResource(collectionResourceRel = "vusers",path="visualusers")
 public interface AutoUserRepo extends MongoRepository<User,String> {
-    public User findByEmail(String email);
-    public User findByEmailIgnoreCase(String email);
+    @SuppressWarnings("UnusedDeclaration")  //may be called via REST
+    public User findByEmail(@Param("email") String email);
 
-    public User findByUid(String uid);
+    @SuppressWarnings("UnusedDeclaration")  //may be called via REST
+    public User findByEmailIgnoreCase(@Param("email") String email);
 
-    public User findByFirstname(String firstName);
-//    public User findBy
+    @SuppressWarnings("UnusedDeclaration")  //may be called via REST
+    public User findByUid(@Param("uid") String uid);
+
+    @SuppressWarnings("UnusedDeclaration")  //may be called via REST
+    public User findByFirstname(@Param("firstname") String firstName);
 }
