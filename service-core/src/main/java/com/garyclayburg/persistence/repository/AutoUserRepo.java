@@ -31,8 +31,8 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
  * @author Gary Clayburg
  */
 // http://localhost:8080/visualusers/search/findByUid?uid=500
-@RepositoryRestResource(collectionResourceRel = "vusers",path="visualusers")
-public interface AutoUserRepo extends MongoRepository<User,String> {
+@RepositoryRestResource(collectionResourceRel = "vusers",path = "visualusers")
+public interface AutoUserRepo extends MongoRepository<User, String> {
     @SuppressWarnings("UnusedDeclaration")  //may be called via REST
     public User findByEmail(@Param("email") String email);
 
