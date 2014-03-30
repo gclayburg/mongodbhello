@@ -20,7 +20,6 @@ package com.garyclayburg.persistence.repository;
 
 import com.garyclayburg.BootUp;
 import com.garyclayburg.data.DBUser;
-import com.garyclayburg.data.ServiceConfig;
 import com.garyclayburg.data.UserService;
 import com.garyclayburg.importer.CsvImporter;
 import com.garyclayburg.persistence.domain.User;
@@ -35,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.MongoDbFactory;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
@@ -54,8 +52,7 @@ import static org.junit.Assert.assertTrue;
  * @author Gary Clayburg
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {ServiceConfig.class,FongoMongoTestConfig.class})
-@SpringApplicationConfiguration(classes = BootUp.class)
+@SpringApplicationConfiguration(classes = {BootUp.class,FongoMongoTestConfig.class})
 public class CSVUserRepositoryTest {
     private static final Logger log = LoggerFactory.getLogger(CSVUserRepositoryTest.class);
 
@@ -63,18 +60,22 @@ public class CSVUserRepositoryTest {
     public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("demo-test");
 
     @Autowired
-    @SuppressWarnings("UnusedDeclaration")
+    @SuppressWarnings({"UnusedDeclaration","SpringJavaAutowiredMembersInspection"})
     private ApplicationContext applicationContext; // nosql-unit requirement
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private UserService userService;
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private CsvImporter csvImporter;
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private AutoUserRepo autoUserRepo;
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private MongoDbFactory mongoDbFactory;
 

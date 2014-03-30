@@ -38,6 +38,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder.newMongoDbRule;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by IntelliJ IDEA.
@@ -48,7 +49,7 @@ import static org.junit.Assert.assertNull;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {ServiceConfig.class,FongoMongoTestConfig.class})
-@SpringApplicationConfiguration(classes = BootUp.class)
+@SpringApplicationConfiguration(classes = {BootUp.class})
 public class UserRepositoryTest {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(UserRepositoryTest.class);
@@ -65,6 +66,7 @@ public class UserRepositoryTest {
 
     @Test
     public void testSpringAutoWiredHelloWorld() throws Exception {
+        assertTrue(true);
     }
 
     @Test
