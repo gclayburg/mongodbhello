@@ -18,9 +18,11 @@
 
 package com.garyclayburg.persistence.domain;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.*;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
@@ -31,20 +33,71 @@ import java.util.Date;
  *
  * @author Gary Clayburg
  */
-
+@Document
 public class User {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(User.class);
 
     @Id
-    private String userId;
+    private String id;
     private String firstname;
     private String lastname;
     private String email;
     private String uid;
 
+    // added by csv import (writing directly to DB, avoiding this User.class)
     private Date createDate;
     private Date modifiedDate;
+
+    //spring data auditing
+    @CreatedDate
+    private DateTime createdAt;
+    @LastModifiedDate
+    private DateTime lastModifiedDate;
+    @CreatedBy
+    private String createdBy;
+    @LastModifiedBy
+    private String lastModifedBy;
+
+    @SuppressWarnings("UnusedDeclaration")
+    public DateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public void setCreatedAt(DateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public DateTime getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public void setLastModifiedDate(DateTime lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public String getLastModifedBy() {
+        return lastModifedBy;
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public void setLastModifedBy(String lastModifedBy) {
+        this.lastModifedBy = lastModifedBy;
+    }
 
     @SuppressWarnings("UnusedDeclaration")
     public Date getCreateDate() {
@@ -97,13 +150,13 @@ public class User {
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public String getUserId() {
-        return userId;
+    public String getId() {
+        return id;
     }
 
     @SuppressWarnings("UnusedDeclaration")
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @SuppressWarnings("UnusedDeclaration")

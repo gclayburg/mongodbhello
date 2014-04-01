@@ -92,4 +92,26 @@ public class UserRepositoryTest {
         assertEquals("Johan",johan.getFirstname());
 
     }
+
+    @Test
+    public void testAuditFields() throws Exception {
+        User newUser = new User();
+        newUser.setFirstname("Brad");
+        newUser.setLastname("Paisley");
+        autoUserRepo.save(newUser);
+
+        User foundUser = autoUserRepo.findByFirstname("Brad");
+        assertEquals("system user",foundUser.getCreatedBy());
+    }
+
+    @Test
+    public void testQueryDSL() throws Exception {
+        User user = new User();
+        user.setFirstname("Collin");
+        user.setFirstname("Raye");
+        autoUserRepo.save(user);
+
+
+
+    }
 }

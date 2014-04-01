@@ -21,6 +21,7 @@ package com.garyclayburg.persistence.domain;
 import com.garyclayburg.BootUp;
 import com.garyclayburg.persistence.repository.AutoUserRepo;
 import com.garyclayburg.persistence.repository.FongoMongoTestConfig;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,6 +90,36 @@ public class UserRestTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("visualusers")));
+
+    }
+
+    @Test
+    public void testCreateRead() throws Exception {
+        User gatlinBoys = new User();
+        gatlinBoys.setFirstname("Tommy");
+        gatlinBoys.setLastname("Yellow");
+        autoUserRepo.save(gatlinBoys);
+        mockMvc.perform(get("/visualusers/search/findByFirstname?firstname=Tommy"))
+                .andDo(print())
+                .andExpect(content().string(containsString("Tommy")));
+    }
+
+    @Test
+    public void testAuditModifyDate() throws Exception {
+        User hank = new User();
+        hank.setFirstname("Hank");
+        hank.setLastname("Williams");
+        autoUserRepo.save(hank);
+        User hankSaved = autoUserRepo.findByFirstname("Hank");
+        DateTime lastModifiedDate = hankSaved.getLastModifiedDate();
+        log.info("modified    : " +lastModifiedDate);
+
+        //resave same user
+        Thread.sleep(1500);
+        autoUserRepo.save(hank);
+        User hank2 = autoUserRepo.findByFirstname("Hank");
+        DateTime lastModifiedNow = hank2.getLastModifiedDate();
+        log.info("modified now: " + lastModifiedNow);
 
     }
 }

@@ -19,7 +19,6 @@
 package com.garyclayburg;
 
 import com.garyclayburg.data.DBUser;
-import com.garyclayburg.data.ServiceConfig;
 import com.garyclayburg.data.UserService;
 import com.garyclayburg.importer.CsvImporter;
 import com.mongodb.Mongo;
@@ -36,11 +35,11 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
@@ -59,8 +58,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 //@ContextConfiguration(classes = {LocalServiceConfig.class})
-@ContextConfiguration(classes = {ServiceConfig.class,CsvParseTest.FlapDoodleMongo.class})
-//@ContextConfiguration(classes = {ServiceConfig.class,CsvParseTest.FongoMongoConfig.class})
+@SpringApplicationConfiguration(classes = {BootUp.class,CsvParseTest.FlapDoodleMongo.class})
 public class CsvParseTest {
 
     private static final Logger log = LoggerFactory.getLogger(CsvParseTest.class);
@@ -68,13 +66,15 @@ public class CsvParseTest {
     private static final String DB_NAME = "itest";
     private static final int MONGO_TEST_PORT = 27028;
 
+    @SuppressWarnings({"UnusedDeclaration","SpringJavaAutowiredMembersInspection"})
     @Autowired
-    @SuppressWarnings("UnusedDeclaration")
     private ApplicationContext applicationContext; // nosql-unit requirement
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private UserService userService;
 
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
     private CsvImporter csvImporter;
 

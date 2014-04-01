@@ -16,48 +16,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.garyclayburg.data;
+package com.garyclayburg.persistence;
 
-import com.garyclayburg.importer.CsvImporter;
-import com.garyclayburg.persistence.repository.UserStore;
-import com.mongodb.Mongo;
+import com.garyclayburg.persistence.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.AuditorAware;
 
 /**
  * Created by IntelliJ IDEA.
- * Date: 3/21/14
- * Time: 2:12 PM
+ * Date: 3/30/14
+ * Time: 4:14 PM
  *
  * @author Gary Clayburg
  */
-@Configuration
-//@EnableMongoAuditing
-public class ServiceConfig {
+public class MongoAuditorUserProvider<T> implements AuditorAware<String> {
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(ServiceConfig.class);
+    private static final Logger log = LoggerFactory.getLogger(MongoAuditorUserProvider.class);
 
-    @Autowired
-    private Mongo mongoClient;
-
-    @Bean
-    public UserService userService() {
-        UserService userService = new UserService();
-        userService.setMongoClient(mongoClient);
-        return userService;
+    @Override
+    public String getCurrentAuditor() {
+        User user = new User();
+        user.setFirstname("bill");
+        user.setFirstname("firemarshall");
+        return "system user";
     }
-
-    @Bean
-    public CsvImporter csvImporter() {
-        return new CsvImporter();
-    }
-
-    @Bean
-    public UserStore auditedUserRepo(){
-        return new UserStore();
-    }
-
 }

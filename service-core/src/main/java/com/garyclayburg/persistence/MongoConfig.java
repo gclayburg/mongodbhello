@@ -25,7 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ import java.util.ArrayList;
  */
 @Configuration
 @EnableMongoRepositories
+@EnableMongoAuditing
 //@ComponentScan(basePackageClasses = {MongoConfig.class})
 //@ComponentScan(basePackages = "com.garyclayburg.persistence")
 public class MongoConfig extends AbstractMongoConfiguration {
@@ -79,4 +82,8 @@ public class MongoConfig extends AbstractMongoConfiguration {
         return "com.garyclayburg.persistence.domain";
     }
 
+    @Bean
+    public AuditorAware<String> auditorAware() {
+        return new MongoAuditorUserProvider<String>();
+    }
 }

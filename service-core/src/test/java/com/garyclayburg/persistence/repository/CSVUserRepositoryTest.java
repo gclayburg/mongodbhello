@@ -53,6 +53,7 @@ import static org.junit.Assert.assertTrue;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = {BootUp.class,FongoMongoTestConfig.class})
+//@SpringApplicationConfiguration(classes = {BootUp.class,MongoConfig.class})
 public class CSVUserRepositoryTest {
     private static final Logger log = LoggerFactory.getLogger(CSVUserRepositoryTest.class);
 

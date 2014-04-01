@@ -18,13 +18,16 @@
 
 package com.garyclayburg.persistence.repository;
 
+import com.garyclayburg.persistence.MongoAuditorUserProvider;
 import com.github.fakemongo.Fongo;
 import com.mongodb.Mongo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 /**
@@ -35,9 +38,9 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  * @author Gary Clayburg
  */
 
-
 @Configuration
 @EnableMongoRepositories
+@EnableMongoAuditing
 public class FongoMongoTestConfig extends AbstractMongoConfiguration {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(FongoMongoTestConfig.class);
@@ -57,6 +60,11 @@ public class FongoMongoTestConfig extends AbstractMongoConfiguration {
     @Override
     protected String getMappingBasePackage() {
         return "com.garyclayburg.persistence.domain";
+    }
+
+    @Bean
+    public AuditorAware<String> auditorAware() {
+        return new MongoAuditorUserProvider<String>();
     }
 
 }
