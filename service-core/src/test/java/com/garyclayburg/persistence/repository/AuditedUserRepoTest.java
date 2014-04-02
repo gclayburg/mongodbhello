@@ -18,7 +18,7 @@
 
 package com.garyclayburg.persistence.repository;
 
-import com.garyclayburg.BootUp;
+import com.garyclayburg.MongoInMemoryTestBase;
 import com.garyclayburg.persistence.domain.QUser;
 import com.garyclayburg.persistence.domain.QUserAudit;
 import com.garyclayburg.persistence.domain.User;
@@ -32,12 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,20 +55,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Gary Clayburg
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@SpringApplicationConfiguration(classes = {BootUp.class,FongoMongoTestConfig.class})
-public class AuditedUserRepoTest {
+public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AuditedUserRepoTest.class);
     private MockMvc mockMvc;
-
-    @Autowired
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    WebApplicationContext webApplicationContext;
-
-    @Autowired
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    AutoUserRepo autoUserRepo;
 
     @Qualifier("auditedUserRepo")
     @Autowired

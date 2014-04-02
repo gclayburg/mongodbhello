@@ -18,9 +18,8 @@
 
 package com.garyclayburg.persistence.domain;
 
-import com.garyclayburg.BootUp;
+import com.garyclayburg.MongoInMemoryTestBase;
 import com.garyclayburg.persistence.repository.AutoUserRepo;
-import com.garyclayburg.persistence.repository.FongoMongoTestConfig;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,12 +28,9 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertTrue;
@@ -51,21 +47,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Gary Clayburg
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
 /*
 all context configuration must be done via spring boot(@SpringApplicationContext) and not regular
 JUnit test context (@ContextConfiguration) so that spring boot web controllers can be found
  */
-@SpringApplicationConfiguration(classes = {BootUp.class,FongoMongoTestConfig.class})
-public class UserRestTest {
+public class UserRestTest extends MongoInMemoryTestBase {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(UserRestTest.class);
 
     private MockMvc mockMvc;
-
-    @Autowired
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    WebApplicationContext webApplicationContext;
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
@@ -112,7 +102,7 @@ public class UserRestTest {
         autoUserRepo.save(hank);
         User hankSaved = autoUserRepo.findByFirstname("Hank");
         DateTime lastModifiedDate = hankSaved.getLastModifiedDate();
-        log.info("modified    : " +lastModifiedDate);
+        log.info("modified    : " + lastModifiedDate);
 
         //resave same user
         Thread.sleep(1500);

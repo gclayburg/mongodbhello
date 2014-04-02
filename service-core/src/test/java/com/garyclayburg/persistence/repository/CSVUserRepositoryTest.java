@@ -18,29 +18,20 @@
 
 package com.garyclayburg.persistence.repository;
 
-import com.garyclayburg.BootUp;
+import com.garyclayburg.MongoInMemoryTestBase;
 import com.garyclayburg.data.DBUser;
-import com.garyclayburg.data.UserService;
-import com.garyclayburg.importer.CsvImporter;
 import com.garyclayburg.persistence.domain.User;
-import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder.newMongoDbRule;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -52,33 +43,8 @@ import static org.junit.Assert.assertTrue;
  * @author Gary Clayburg
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {BootUp.class,FongoMongoTestConfig.class})
-//@SpringApplicationConfiguration(classes = {BootUp.class,MongoConfig.class})
-public class CSVUserRepositoryTest {
+public class CSVUserRepositoryTest extends MongoInMemoryTestBase {
     private static final Logger log = LoggerFactory.getLogger(CSVUserRepositoryTest.class);
-
-    @Rule
-    public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("demo-test");
-
-    @Autowired
-    @SuppressWarnings({"UnusedDeclaration","SpringJavaAutowiredMembersInspection"})
-    private ApplicationContext applicationContext; // nosql-unit requirement
-
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private UserService userService;
-
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private CsvImporter csvImporter;
-
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private AutoUserRepo autoUserRepo;
-
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    @Autowired
-    private MongoDbFactory mongoDbFactory;
 
     @Before
     public void setUp() throws URISyntaxException {

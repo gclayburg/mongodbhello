@@ -19,28 +19,18 @@
 package com.garyclayburg;
 
 import com.garyclayburg.data.DBUser;
-import com.garyclayburg.data.ServiceConfig;
-import com.garyclayburg.data.UserService;
-import com.garyclayburg.importer.CsvImporter;
-import com.garyclayburg.persistence.repository.FongoMongoTestConfig;
-import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder.newMongoDbRule;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -53,23 +43,9 @@ import static org.junit.Assert.assertEquals;
  * <br>Time: 12:29 PM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {ServiceConfig.class,FongoMongoTestConfig.class})
-public class CsvParseInMemoryTest {
+public class CsvParseInMemoryTest extends MongoInMemoryTestBase {
 
     private static final Logger log = LoggerFactory.getLogger(CsvParseInMemoryTest.class);
-
-    @Rule
-    public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("demo-test");
-
-    @Autowired
-    @SuppressWarnings("UnusedDeclaration")
-    private ApplicationContext applicationContext; // nosql-unit requirement
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private CsvImporter csvImporter;
 
     @Before
     public void setUp() throws URISyntaxException {

@@ -68,18 +68,14 @@ public class SimpleTest {
 
     @Test
     public void testhi() throws Exception {
-        mockMvc.perform(get("/"))
-                .andDo(print())
-                .andExpect(content().string(containsString("hell")));
+        mockMvc.perform(get("/")).andDo(print()).andExpect(content().string(containsString("hell")));
 
     }
 
     @Test
     public void testExampleController() throws Exception {
         mockMvc = MockMvcBuilders.standaloneSetup(example).build();
-        mockMvc.perform(get("/"))
-                .andDo(print())
-                .andExpect(content().string(containsString("hell")));
+        mockMvc.perform(get("/")).andDo(print()).andExpect(content().string(containsString("hell")));
 
     }
 }
