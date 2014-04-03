@@ -56,12 +56,13 @@ import static org.junit.Assert.assertEquals;
  * Date: 3/6/14
  * Time: 12:29 PM
  */
+@Ignore("runs too slow; duplicated by in-memory test")
 @RunWith(SpringJUnit4ClassRunner.class)
 //@ContextConfiguration(classes = {LocalServiceConfig.class})
-@SpringApplicationConfiguration(classes = {BootUp.class,CsvParseTest.FlapDoodleMongo.class})
-public class CsvParseTest {
+@SpringApplicationConfiguration(classes = {BootUp.class,CsvParseFlapDoodleTest.FlapDoodleMongo.class})
+public class CsvParseFlapDoodleTest {
 
-    private static final Logger log = LoggerFactory.getLogger(CsvParseTest.class);
+    private static final Logger log = LoggerFactory.getLogger(CsvParseFlapDoodleTest.class);
     private static final String LOCALHOST = "127.0.0.1";
     private static final String DB_NAME = "itest";
     private static final int MONGO_TEST_PORT = 27028;

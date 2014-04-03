@@ -19,14 +19,18 @@
 package com.garyclayburg;
 
 import com.garyclayburg.data.ServiceConfig;
-import com.garyclayburg.persistence.MongoConfig;
+import com.garyclayburg.persistence.EmbeddedMongoConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
+
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA.
@@ -37,12 +41,24 @@ import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguratio
  */
 @Configuration
 @EnableAutoConfiguration
-@Import({ServiceConfig.class,MongoConfig.class,RepositoryRestMvcConfiguration.class})
-public class BootUp {
+@Import({ServiceConfig.class,EmbeddedMongoConfig.class,RepositoryRestMvcConfiguration.class})
+public class BootUp implements CommandLineRunner{
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(BootUp.class);
 
     public static void main(String[] args) {
-        SpringApplication.run(BootUp.class);
+        ApplicationContext ctx = SpringApplication.run(BootUp.class);
+        log.info("Beans loaded by spring / spring boot");
+        String[] beanNames = ctx.getBeanDefinitionNames();
+        Arrays.sort(beanNames);
+        for (String beanName : beanNames) {
+            log.info(beanName);
+        }
+        log.info("");
+        log.info("Server is ready for e-business");
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
     }
 }

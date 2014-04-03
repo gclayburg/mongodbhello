@@ -18,7 +18,7 @@
 
 package com.garyclayburg.data;
 
-import com.garyclayburg.persistence.MongoConfig;
+import com.garyclayburg.persistence.EmbeddedMongoConfig;
 import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -41,7 +41,7 @@ import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder
  * Time: 11:12 AM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {ServiceConfig.class,MongoConfig.class})
+@ContextConfiguration(classes = {ServiceConfig.class,EmbeddedMongoConfig.class})
 public class ProvisionServiceTest {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(ProvisionServiceTest.class);

@@ -34,7 +34,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class MainApp {
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
 
-    public static void main(String[] args) {
+    public static void mainJunk(String[] args) {
         ApplicationContext ctx = new AnnotationConfigApplicationContext(ServiceConfig.class);
 
         Mongo mongoClient = ctx.getBean(Mongo.class);
