@@ -46,7 +46,8 @@ public class ProvisionServiceTest {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(ProvisionServiceTest.class);
 
-    @Autowired UserService userService;
+    @Autowired
+    UserService userService;
 
     @Rule
     public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("demo-test");
@@ -71,4 +72,5 @@ public class ProvisionServiceTest {
 //        provisionService.provisionUser();
 
     }
+
 }
