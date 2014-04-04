@@ -71,10 +71,10 @@ public class AttributeService {
 
 
 
-        Set<Class<?>> attributesClass = reflections.getTypesAnnotatedWith(AttributesClass.class);
-        for (Class<?> aClass : attributesClass) {
-            log.info("class found : " + aClass);
-        }
+//        Set<Class<?>> attributesClass = reflections.getTypesAnnotatedWith(AttributesClass.class);
+//        for (Class<?> aClass : attributesClass) {
+//            log.info("class found : " + aClass);
+//        }
 
 
         Class groovyClass = null;
