@@ -70,8 +70,9 @@ public class AttributeService {
                 );
 
 
+        AttributesClass ac = matchAttributesClass();
 
-//        Set<Class<?>> attributesClass = reflections.getTypesAnnotatedWith(AttributesClass.class);
+        Set<Class<?>> attributesClass = reflections.getTypesAnnotatedWith(AttributesClass.class);
 //        for (Class<?> aClass : attributesClass) {
 //            log.info("class found : " + aClass);
 //        }
@@ -120,6 +121,15 @@ public class AttributeService {
         generatedAttributes.put(targetAttributeName,"Barney Rubble");
         generatedAttributes.put(targetAttributeName,attributeValue);
         return generatedAttributes;
+    }
+
+    private AttributesClass matchAttributesClass() {
+        return new AttributesClass() {
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return AttributesClass.class;
+            }
+        };
     }
 
     private TargetAttribute matchTargetAttribute(final String target,final String attributeName) {
