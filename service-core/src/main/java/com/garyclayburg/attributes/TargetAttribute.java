@@ -40,13 +40,13 @@ public @interface TargetAttribute {
      *
      * @return name of target system
      */
-    String target() default "no_target";
+    String target() default "";
 
     /**
      * Nameof the attribute generated for the user
      * @return attribute name, displayName, for example
      */
-    String attributeName() default "no_attribute_name";
+    String attributeName() default "";
 
 }
 

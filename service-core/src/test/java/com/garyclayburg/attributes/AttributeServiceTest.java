@@ -18,8 +18,12 @@
 
 package com.garyclayburg.attributes;
 
+import com.garyclayburg.delete.DeletionFileVisitor;
 import com.garyclayburg.persistence.domain.User;
 import groovy.lang.Binding;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,10 +31,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
@@ -68,6 +76,45 @@ public class AttributeServiceTest {
 
         Assert.assertEquals("Barney Rubble",generatedAttributes.get("cn"));
 
+        generatedAttributes = attributeService.generateAttributes(barney);
+
+        Assert.assertEquals("Barney Rubble",generatedAttributes.get("cn"));
+
+    }
+
+    @Test
+    public void testClassloaderResource() throws Exception {
+        ClassLoader cl = scriptRunner.getClassLoader();
+        Enumeration<URL> resources = cl.getResources("com/initech");
+        while (resources.hasMoreElements()) {
+            URL url = resources.nextElement();
+            log.info("url: " + url);
+        }
+
+        ClassLoader tcl = this.getClass()
+                .getClassLoader();
+        Enumeration<URL> resources1 = tcl.getResources("com/garyclayburg");
+        while (resources1.hasMoreElements()) {
+            URL url = resources1.nextElement();
+            log.info("thread url: " + url);
+        }
+
+    }
+
+    @Test
+    public void testLoadGroovyClasses() throws Exception {
+        AttributeService attributeService = new AttributeService();
+        attributeService.setScanPackage("com.initech",scriptRunner.getClassLoader(),scriptRunner);
+        List<Class> classList = attributeService.loadAllGroovyClasses();
+        assertEquals(3,classList.size());
+    }
+
+    @Test
+    public void testFindAnnotatedGroovyClasses() throws Exception {
+        AttributeService attributeService = new AttributeService();
+        attributeService.setScanPackage("com.initech",scriptRunner.getClassLoader(),scriptRunner);
+        List<Class> classList = attributeService.findAnnotatedGroovyClasses(AttributesClass.class);
+        assertEquals(1,classList.size());
     }
 
     @Test
@@ -78,14 +125,25 @@ public class AttributeServiceTest {
 
         Object obj = scriptRunner.execute("somescript.groovy",binding);
 
-        assertEquals("hello",(String) obj);
+        assertEquals("hello",obj);
     }
 
+    @Test
+    public void testDeleteTmp() throws Exception {
+        DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),"garbagedir*");
+        DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),"deleteme*");
+
+    }
+
+
     private String getScriptRoot(String partialFileName) throws URISyntaxException {
-        URL groovyURL = this.getClass().getClassLoader().getResource(partialFileName);
+        URL groovyURL = this.getClass()
+                .getClassLoader()
+                .getResource(partialFileName);
 
         assert groovyURL != null;
-        return new File(groovyURL.toURI()).getParentFile().getPath();
+        return new File(groovyURL.toURI()).getParentFile()
+                .getPath();
 
     }
 }

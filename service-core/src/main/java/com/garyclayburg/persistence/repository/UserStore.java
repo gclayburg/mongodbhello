@@ -26,10 +26,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -63,10 +62,24 @@ public class UserStore {
      * @param user user to save
      * @return user being saved, after fields such as "id" are inserted, if necessary
      */
-    public User save(User user) {
+    @RequestMapping(value="/auditedsave",method= RequestMethod.POST)
+    public @ResponseBody User save(@RequestBody User user) {
         User savedUser = autoUserRepo.save(user);
         UserAudit userAudit = new UserAudit(savedUser);
         userAuditRepo.save(userAudit);
         return savedUser;
+    }
+
+    @RequestMapping(value="/findUserAuditById", method=RequestMethod.GET)
+    public @ResponseBody
+    List<UserAudit> findUserAuditById(@RequestParam(value = "id", required = true) String id) {
+        return userAuditRepo.findById(id);
+    }
+
+    // http://localhost:8080/audited-users/findUserAuditByUserId/534304a0e4b0c2e2f8ad3215
+    @RequestMapping(value="/findUserAuditByUserId/{id}", method=RequestMethod.GET)
+    public @ResponseBody
+    List<UserAudit> findUserAuditByUserId(@PathVariable("id") User user) {
+        return userAuditRepo.findByUser(user);
     }
 }

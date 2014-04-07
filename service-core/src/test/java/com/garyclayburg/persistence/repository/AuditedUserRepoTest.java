@@ -122,12 +122,14 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     public void testSearchAudit() throws Exception {
         auditedUserRepo.save(hank);
 
-        UserAudit hankAuditEntry = userAuditRepo.findByUser(hank);
-        assertEquals("Williams",hankAuditEntry.getUser().getLastname());
+        List<UserAudit> hankAuditEntry = userAuditRepo.findByUser(hank);
+        assertEquals("Williams",hankAuditEntry.get(0)
+                .getUser()
+                .getLastname());
 
         hankAgain.setId(hank.getId()); //query must contain id of saved user
-        UserAudit hankAgainAuditEntry = userAuditRepo.findByUser(hankAgain);
-        assertEquals("Williams",hankAgainAuditEntry.getUser().getLastname());
+        List<UserAudit> hankAgainAuditEntry = userAuditRepo.findByUser(hankAgain);
+        assertEquals("Williams",hankAgainAuditEntry.get(0).getUser().getLastname());
     }
 
     @Test
@@ -186,7 +188,7 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     @Test
     public void testSearchAuditWithoutId() throws Exception {
         auditedUserRepo.save(hank);
-        assertNull(userAuditRepo.findByUser(hankAgain));
+        assertTrue(userAuditRepo.findByUser(hankAgain).isEmpty());
     }
 
     @Test

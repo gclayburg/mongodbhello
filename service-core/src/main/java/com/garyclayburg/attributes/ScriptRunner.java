@@ -38,10 +38,15 @@ public class ScriptRunner {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger logger = LoggerFactory.getLogger(ScriptRunner.class);
     private GroovyScriptEngine gse = null;
+    private String[] roots=null;
 
     public void setRoot(String[] strings) throws IOException {
         gse = new GroovyScriptEngine(strings);
+        roots=strings;
+    }
 
+    public String[] getRoots() {
+        return roots;
     }
 
     public Object execute(String scriptName,Binding bindingMap) throws ResourceException, ScriptException {
@@ -54,6 +59,15 @@ public class ScriptRunner {
     }
 
     public Class loadClass(String scriptName) throws ResourceException, ScriptException {
-        return gse.loadScriptByName(scriptName);
+        if (scriptName !=null){
+            String scrubbedName = scriptName.replaceAll("^/*","");
+            logger.debug("start loading groovy class: " + scrubbedName);
+            Class groovyClass = gse.loadScriptByName(scrubbedName);
+            logger.debug("DONE  loading groovy class: " + scrubbedName);
+            return groovyClass;
+        } else{
+            logger.error("Cannot load groovy class: null");
+            throw new ResourceException("Cannot load groovy class: null");
+        }
     }
 }

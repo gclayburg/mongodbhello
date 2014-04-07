@@ -1,3 +1,4 @@
+package com.initech
 import com.garyclayburg.attributes.AttributesClass
 import com.garyclayburg.attributes.TargetAttribute
 import com.garyclayburg.persistence.domain.User
@@ -41,5 +42,11 @@ class GeneratedAttributes {
     @TargetAttribute(target = "internalLDAP") //default attributeName is the name of the method - "objectclass" in this case
     static String objectclass(User user){
         return "top person inetorgperson"
+    }
+
+//    @TargetAttribute(target = "myAD",attributeName = "displayName")
+    @TargetAttribute(target = "myAD")
+    static String buildDisplayName(User user){
+        return user.lastname + ", " + user.firstname;
     }
 }
