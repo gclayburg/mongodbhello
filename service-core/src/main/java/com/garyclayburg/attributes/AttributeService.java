@@ -28,11 +28,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URISyntaxException;
 import java.util.*;
 
 import static org.reflections.ReflectionUtils.getAllMethods;
@@ -58,98 +56,71 @@ public class AttributeService {
         this.runner = runner;
     }
 
-    public Map<String, String> generateAttributes(User barney) {
+    public Map<String, String> generateAttributes(User user) {
+        long startTime = System.nanoTime();
+        log.info("start generating user attributes");
         HashMap<String, String> generatedAttributes = new HashMap<String, String>();
 
-        AttributesClass ac = matchAttributesClass();
-
-        Class groovyClass = null;
-        try {
-            groovyClass = runner.loadClass("com/initech/GeneratedAttributes.groovy");
-        } catch (ResourceException e) {
-            log.warn("kaboom",e);
-        } catch (ScriptException e) {
-            log.warn("kaboom",e);
-        }
-
-        String targetServer = "myAD";
-        String targetAttributeName = "cn";
-        TargetAttribute adServer = matchTargetAttribute("myAD","no_attribute_name");
-
-        TargetAttribute ta = matchTargetAttribute(targetServer,targetAttributeName);
         log.info("looking for method");
-        Set<Method> attributeMethods = getAllMethods(groovyClass,withAnnotation(TargetAttribute.class));
 
-        List<Method> methodList = new ArrayList<Method>(attributeMethods);
-        String attributeValue = null;
-        for (Method method : methodList) {
-//            Method method = methodList.get(0);
-            TargetAttribute annotation = method.getAnnotation(TargetAttribute.class);
+        List<Class> attributeClasses;
+        attributeClasses = findAnnotatedGroovyClasses(AttributesClass.class);
+        if (attributeClasses != null) {
+            for (Class groovyAttributeClass : attributeClasses) {
+                try {
+                    Object groovyObj = groovyAttributeClass.newInstance();
+                    Set<Method> attributeMethods =
+                            getAllMethods(groovyAttributeClass,withAnnotation(TargetAttribute.class));
 
-            try {
-                log.debug(
-                        "attribute method found: " + method.getDeclaringClass() + "." + method.getName() + " target: " +
-                        annotation.target() + " attribute name: " + annotation.attributeName()
-                );
-                Object groovyObj = groovyClass.newInstance();
-                attributeValue = (String) method.invoke(groovyObj,barney);
-                log.debug(
-                        "attribute value eval  : " + method.getDeclaringClass() + "." + method.getName() + " target: " +
-                        annotation.target() + " attribute name: " + annotation.attributeName() + " generated value: " +
-                        attributeValue
-                );
-                String attributeName = annotation.attributeName()
-                                               .equals("") ? method.getName() : annotation.attributeName();
-                generatedAttributes.put(attributeName,attributeValue);
-                log.debug("attribute name:value  for target " + annotation.target() + ": [" + attributeName + ":" +
-                          attributeValue + "]");
-            } catch (InstantiationException e) {
-                log.warn("kaboom",e);
-            } catch (IllegalAccessException e) {
-                log.warn("kaboom",e);
-            } catch (InvocationTargetException e) {
-                log.warn("kaboom",e);
+                    List<Method> methodList = new ArrayList<Method>(attributeMethods);
+                    for (Method method : methodList) {
+                        TargetAttribute annotation = method.getAnnotation(TargetAttribute.class);
+                        log.debug("attribute method found: " + method.getDeclaringClass() + "." + method.getName() +
+                                  " target: " +
+                                  annotation.target() + " attribute name: " + annotation.attributeName()
+                        );
+                        try {
+                            String attributeValue = (String) method.invoke(groovyObj,user);
+                            log.debug("attribute value eval  : " + method.getDeclaringClass() + "." + method.getName() +
+                                      " target: " +
+                                      annotation.target() + " attribute name: " + annotation.attributeName() +
+                                      " generated value: " +
+                                      attributeValue
+                            );
+                            String attributeName = annotation.attributeName()
+                                                           .equals("") ? method.getName() : annotation.attributeName();
+                            generatedAttributes.put(attributeName,attributeValue);
+                            log.debug(
+                                    "attribute name:value  for target " + annotation.target() + ": [" + attributeName +
+                                    ":" +
+                                    attributeValue + "]");
+                        } catch (IllegalAccessException e) {
+                            log.warn("Cannot invoke attribute method in groovy: " + method.getDeclaringClass() + "." +
+                                     method.getName(),e);
+                        } catch (InvocationTargetException e) {
+                            log.warn("Cannot call groovy attribute method: " + method.getDeclaringClass() + "." +
+                                     method.getName(),e);
+                        }
+
+                    }
+                } catch (InstantiationException e) {
+                    log.warn(
+                            "Cannot check groovy script for generated attributes: " + groovyAttributeClass.getName(),e);
+                } catch (IllegalAccessException e) {
+                    log.warn("Cannot check groovy script for generated attributes: ",e);
+                }
+
             }
+        } else {
+            log.warn("No groovy scripts found with @AttributesClass annotation. Users will not have generated attributes");
         }
-/*
-        } else if (methodList.size() > 1) {
-            log.warn("multiple attributes match target:" + targetServer + " with attribute: " + targetAttributeName);
-        } else if (methodList.size() < 1) {
-            log.warn("no attributes match match target:" + targetServer + " with attribute: " + targetAttributeName);
-        }
-        */
+        long endTime = System.nanoTime();
+        log.info("Generate user attributes found: " + generatedAttributes.size());
+        log.info("Generate user attributes time:  " + ((endTime - startTime) / 1000000000.0) + " secs");
         return generatedAttributes;
     }
 
-    private AttributesClass matchAttributesClass() {
-        return new AttributesClass() {
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return AttributesClass.class;
-            }
-        };
-    }
-
-    private TargetAttribute matchTargetAttribute(final String target,final String attributeName) {
-        return new TargetAttribute() {
-            @Override
-            public String target() {
-                return target;
-            }
-
-            @Override
-            public String attributeName() {
-                return attributeName;
-            }
-
-            @Override
-            public Class<? extends Annotation> annotationType() {
-                return TargetAttribute.class;
-            }
-        };
-    }
-
-    List<Class> loadAllGroovyClasses() throws IOException, URISyntaxException, ResourceException, ScriptException {
+    List<Class> loadAllGroovyClasses() {
         ArrayList<Class> loadedClasses = new ArrayList<Class>();
         String groovyRootPath = runner.getRoots()[0];
         log.info("Looking for groovy classes in path: " + groovyRootPath);
@@ -159,13 +130,19 @@ public class AttributeService {
         for (File listFile : listFiles) {
             String scriptName = listFile.getPath()
                     .replaceFirst(groovyRootPath,"");
-            loadedClasses.add(runner.loadClass(scriptName));
+            try {
+                loadedClasses.add(runner.loadClass(scriptName));
+            } catch (ResourceException e) {
+                log.error("Cannot access groovy script to load: " + scriptName + " Skipping.",e);
+            } catch (ScriptException e) {
+                log.error("Cannot parse groovy script: " + scriptName + " Skipping.",e);
+            }
         }
         log.info("Total groovy classes found in groovyRoot: " + listFiles.size());
         return loadedClasses;
     }
 
-    List<Class> findAnnotatedGroovyClasses(Class<? extends Annotation> desiredAnnotation) throws URISyntaxException, ResourceException, ScriptException, IOException {
+    List<Class> findAnnotatedGroovyClasses(Class<? extends Annotation> desiredAnnotation) {
         List<Class> foundClasses = new ArrayList<Class>();
         List<Class> allGroovyClasses = loadAllGroovyClasses();
         for (Class loadedGroovyClass : allGroovyClasses) {
