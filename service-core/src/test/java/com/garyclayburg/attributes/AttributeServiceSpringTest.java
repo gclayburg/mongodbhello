@@ -44,10 +44,10 @@ import static org.junit.Assert.assertEquals;
  * @author Gary Clayburg
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class AttributeServiceTestSpring extends MongoInMemoryTestBase{
+public class AttributeServiceSpringTest extends MongoInMemoryTestBase {
 
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(AttributeServiceTestSpring.class);
+    private static final Logger log = LoggerFactory.getLogger(AttributeServiceSpringTest.class);
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
@@ -60,7 +60,6 @@ public class AttributeServiceTestSpring extends MongoInMemoryTestBase{
     @Autowired
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     private UserStore auditedUserRepo;
-
 
     @Before
     public void setUp() throws IOException, URISyntaxException {
@@ -78,7 +77,7 @@ public class AttributeServiceTestSpring extends MongoInMemoryTestBase{
     }
 
     @Test
-    public void testGeneratedUser(){
+    public void testGeneratedUser() {
 //        AttributeService attributeService = new AttributeService();
         User luke = new User();
         luke.setFirstname("Luke");
