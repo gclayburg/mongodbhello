@@ -18,12 +18,8 @@
 
 package com.garyclayburg.attributes;
 
-import com.garyclayburg.delete.DeletionFileVisitor;
 import com.garyclayburg.persistence.domain.User;
 import groovy.lang.Binding;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,14 +27,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -53,11 +46,17 @@ public class AttributeServiceTest {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AttributeServiceTest.class);
     private ScriptRunner scriptRunner;
-    private String scriptRoot;
 
     @Before
     public void setUp() throws Exception {
-        scriptRoot = getScriptRoot("groovies/emptyscript.groovy");
+        URL groovyURL = this.getClass()
+                .getClassLoader()
+                .getResource("groovies/emptyscript.groovy");
+
+        assert groovyURL != null;
+
+        String scriptRoot = new File(groovyURL.toURI()).getParentFile()
+                .getPath();
         scriptRunner = new ScriptRunner();
         scriptRunner.setRoot(new String[]{scriptRoot});
 
@@ -71,7 +70,8 @@ public class AttributeServiceTest {
         barney.setLastname("Rubble");
         barney.setId("12345");
 
-        attributeService.setScanPackage("com.initech",scriptRunner.getClassLoader(),scriptRunner);
+        attributeService.setScriptRunner(scriptRunner);
+
         Map<String, String> generatedAttributes = attributeService.generateAttributes(barney);
 
         Assert.assertEquals("Barney Rubble",generatedAttributes.get("cn"));
@@ -104,7 +104,7 @@ public class AttributeServiceTest {
     @Test
     public void testLoadGroovyClasses() throws Exception {
         AttributeService attributeService = new AttributeService();
-        attributeService.setScanPackage("com.initech",scriptRunner.getClassLoader(),scriptRunner);
+        attributeService.setScriptRunner(scriptRunner);
         List<Class> classList = attributeService.loadAllGroovyClasses();
         assertEquals(3,classList.size());
     }
@@ -112,7 +112,7 @@ public class AttributeServiceTest {
     @Test
     public void testFindAnnotatedGroovyClasses() throws Exception {
         AttributeService attributeService = new AttributeService();
-        attributeService.setScanPackage("com.initech",scriptRunner.getClassLoader(),scriptRunner);
+        attributeService.setScriptRunner(scriptRunner);
         List<Class> classList = attributeService.findAnnotatedGroovyClasses(AttributesClass.class);
         assertEquals(1,classList.size());
     }
@@ -128,22 +128,4 @@ public class AttributeServiceTest {
         assertEquals("hello",obj);
     }
 
-    @Test
-    public void testDeleteTmp() throws Exception {
-        DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),"garbagedir*");
-        DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),"deleteme*");
-
-    }
-
-
-    private String getScriptRoot(String partialFileName) throws URISyntaxException {
-        URL groovyURL = this.getClass()
-                .getClassLoader()
-                .getResource(partialFileName);
-
-        assert groovyURL != null;
-        return new File(groovyURL.toURI()).getParentFile()
-                .getPath();
-
-    }
 }

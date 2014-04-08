@@ -39,25 +39,25 @@ public class User {
     private static final Logger log = LoggerFactory.getLogger(User.class);
 
     @Id
-    private String id;
-    private String firstname;
-    private String lastname;
-    private String email;
-    private String uid;
+    protected String id;
+    protected String firstname;
+    protected String lastname;
+    protected String email;
+    protected String uid;
 
     // added by csv import (writing directly to DB, avoiding this User.class)
-    private Date createDate;
-    private Date modifiedDate;
+    protected Date createDate;
+    protected Date modifiedDate;
 
     //spring data auditing
     @CreatedDate
-    private DateTime createdAt;
+    protected DateTime createdAt;
     @LastModifiedDate
-    private DateTime lastModifiedDate;
+    protected DateTime lastModifiedDate;
     @CreatedBy
-    private String createdBy;
+    protected String createdBy;
     @LastModifiedBy
-    private String lastModifedBy;
+    protected String lastModifedBy;
 
     @SuppressWarnings("UnusedDeclaration")
     public DateTime getCreatedAt() {

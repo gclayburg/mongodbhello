@@ -18,6 +18,8 @@
 
 package com.garyclayburg.data;
 
+import com.garyclayburg.attributes.AttributeService;
+import com.garyclayburg.attributes.ScriptRunner;
 import com.garyclayburg.importer.CsvImporter;
 import com.garyclayburg.persistence.repository.UserStore;
 import com.mongodb.Mongo;
@@ -26,6 +28,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA.
@@ -60,4 +65,20 @@ public class ServiceConfig {
         return new UserStore();
     }
 
+    @Bean
+    public ScriptRunner scriptRunner() throws IOException {
+        ScriptRunner scriptRunner = new ScriptRunner();
+
+        scriptRunner.setRoot(new String[]{"/tmp/groovies"});
+        return scriptRunner;
+    }
+
+    @Bean
+    public AttributeService attributeService() throws IOException {
+        AttributeService attributeService = new AttributeService();
+        ScriptRunner scriptRunner = scriptRunner();
+        log.info("setting up AttributeService "+ Arrays.toString(scriptRunner.getRoots()));
+        attributeService.setScriptRunner(scriptRunner);
+        return attributeService;
+    }
 }

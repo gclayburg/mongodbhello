@@ -19,6 +19,8 @@
 package com.garyclayburg.persistence.repository;
 
 import com.garyclayburg.BootUp;
+import com.garyclayburg.attributes.AttributeService;
+import com.garyclayburg.attributes.GeneratedUser;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.domain.UserAudit;
 import org.slf4j.Logger;
@@ -49,6 +51,9 @@ public class UserStore {
     @Qualifier("userAuditRepo")
     @Autowired
     private UserAuditRepo userAuditRepo;
+
+    @Autowired
+    private AttributeService attributeService;
 
     @RequestMapping(value ="/findByFirstname",method= RequestMethod.GET)
     public @ResponseBody
@@ -81,5 +86,13 @@ public class UserStore {
     public @ResponseBody
     List<UserAudit> findUserAuditByUserId(@PathVariable("id") User user) {
         return userAuditRepo.findByUser(user);
+    }
+
+    public GeneratedUser findGeneratedUserByFirstname(String name){
+        User u = findByFirstname(name);
+        GeneratedUser generatedUser = new GeneratedUser(u);
+        generatedUser.setAttributeService(attributeService);
+        return generatedUser;
+
     }
 }

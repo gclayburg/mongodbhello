@@ -24,6 +24,8 @@ import groovy.util.ScriptException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,19 +45,17 @@ import static org.reflections.ReflectionUtils.withAnnotation;
  *
  * @author Gary Clayburg
  */
+@Component
 public class AttributeService {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AttributeService.class);
-    private String scanPackage;
+
+    @Autowired
     private ScriptRunner runner;
 
-    public void setScanPackage(String scanPackage,ClassLoader classLoader,ScriptRunner runner) {
-        this.scanPackage = scanPackage;
+    public void setScriptRunner(ScriptRunner runner) {
+        log.info("setting scriptrunner...");
         this.runner = runner;
-    }
-
-    public String getScanPackage() {
-        return scanPackage;
     }
 
     public Map<String, String> generateAttributes(User barney) {
@@ -89,13 +89,15 @@ public class AttributeService {
             try {
                 log.debug(
                         "attribute method found: " + method.getDeclaringClass() + "." + method.getName() + " target: " +
-                        annotation.target() + " attribute name: " + annotation.attributeName());
+                        annotation.target() + " attribute name: " + annotation.attributeName()
+                );
                 Object groovyObj = groovyClass.newInstance();
                 attributeValue = (String) method.invoke(groovyObj,barney);
                 log.debug(
                         "attribute value eval  : " + method.getDeclaringClass() + "." + method.getName() + " target: " +
                         annotation.target() + " attribute name: " + annotation.attributeName() + " generated value: " +
-                        attributeValue);
+                        attributeValue
+                );
                 String attributeName = annotation.attributeName()
                                                .equals("") ? method.getName() : annotation.attributeName();
                 generatedAttributes.put(attributeName,attributeValue);

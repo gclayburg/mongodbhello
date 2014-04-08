@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Created by IntelliJ IDEA.
@@ -36,13 +37,14 @@ import java.io.IOException;
  */
 public class ScriptRunner {
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger logger = LoggerFactory.getLogger(ScriptRunner.class);
+    private static final Logger log = LoggerFactory.getLogger(ScriptRunner.class);
     private GroovyScriptEngine gse = null;
     private String[] roots=null;
 
     public void setRoot(String[] strings) throws IOException {
+        log.info("set script root to: " + Arrays.toString(strings));
         gse = new GroovyScriptEngine(strings);
-        roots=strings;
+        roots = strings;
     }
 
     public String[] getRoots() {
@@ -61,12 +63,12 @@ public class ScriptRunner {
     public Class loadClass(String scriptName) throws ResourceException, ScriptException {
         if (scriptName !=null){
             String scrubbedName = scriptName.replaceAll("^/*","");
-            logger.debug("start loading groovy class: " + scrubbedName);
+            log.debug("start loading groovy class: " + scrubbedName);
             Class groovyClass = gse.loadScriptByName(scrubbedName);
-            logger.debug("DONE  loading groovy class: " + scrubbedName);
+            log.debug("DONE  loading groovy class: " + scrubbedName);
             return groovyClass;
         } else{
-            logger.error("Cannot load groovy class: null");
+            log.error("Cannot load groovy class: null");
             throw new ResourceException("Cannot load groovy class: null");
         }
     }
