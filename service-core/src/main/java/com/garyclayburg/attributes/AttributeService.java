@@ -56,10 +56,20 @@ public class AttributeService {
         this.runner = runner;
     }
 
-    public Map<String, String> generateAttributes(User user) {
+    public Map<String, String> getGeneratedAttributes(User user, String targetId) {
+        Map<String, String> generatedAttributes = generateAttributes(user,targetId);
+
+        return generatedAttributes;
+    }
+
+    public Map<String,String> getGeneratedAttributes(User user) {
+        return generateAttributes(user,null);
+    }
+
+    private Map<String, String> generateAttributes(User user,String targetId) {
         long startTime = System.nanoTime();
-        log.info("start generating user attributes");
-        HashMap<String, String> generatedAttributes = new HashMap<String, String>();
+        log.info("start generating user attributes for target: "+targetId);
+        HashMap<String,String> attributeValues = new HashMap<String, String>(); //name,value
 
         log.info("looking for method");
 
@@ -89,7 +99,13 @@ public class AttributeService {
                             );
                             String attributeName = annotation.attributeName()
                                                            .equals("") ? method.getName() : annotation.attributeName();
-                            generatedAttributes.put(attributeName,attributeValue);
+                            if (targetId == null) {
+                                attributeValues.put(attributeName,attributeValue);
+                            } else if (targetId.equals(annotation.target())){
+                                attributeValues.put(attributeName,attributeValue);
+                            } else{
+                                log.debug("skipping attribute for target: "+annotation.target());
+                            }
                             log.debug(
                                     "attribute name:value  for target " + annotation.target() + ": [" + attributeName +
                                     ":" +
@@ -115,9 +131,9 @@ public class AttributeService {
             log.warn("No groovy scripts found with @AttributesClass annotation. Users will not have generated attributes");
         }
         long endTime = System.nanoTime();
-        log.info("Generate user attributes found: " + generatedAttributes.size());
+        log.info("Generate user attributes found: " + attributeValues.size());
         log.info("Generate user attributes time:  " + ((endTime - startTime) / 1000000000.0) + " secs");
-        return generatedAttributes;
+        return attributeValues;
     }
 
     List<Class> loadAllGroovyClasses() {

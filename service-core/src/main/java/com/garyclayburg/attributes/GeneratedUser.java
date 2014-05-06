@@ -57,7 +57,7 @@ public class GeneratedUser extends User {
 
     public String getAttribute(String generatedAttributeName) {
         //todo optimize this for speed?
-        Map<String, String> generatedAttributes = attributeService.generateAttributes(this);
+        Map<String, String> generatedAttributes = attributeService.getGeneratedAttributes(this);
         return generatedAttributes.get(generatedAttributeName);
     }
 

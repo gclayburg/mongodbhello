@@ -72,11 +72,11 @@ public class AttributeServiceTest {
 
         attributeService.setScriptRunner(scriptRunner);
 
-        Map<String, String> generatedAttributes = attributeService.generateAttributes(barney);
+        Map<String, String> generatedAttributes = attributeService.getGeneratedAttributes(barney);
 
         Assert.assertEquals("Barney Rubble",generatedAttributes.get("cn"));
 
-        generatedAttributes = attributeService.generateAttributes(barney);
+        generatedAttributes = attributeService.getGeneratedAttributes(barney);
 
         Assert.assertEquals("Barney Rubble",generatedAttributes.get("cn"));
 

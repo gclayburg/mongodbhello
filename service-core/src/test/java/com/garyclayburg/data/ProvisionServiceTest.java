@@ -18,21 +18,23 @@
 
 package com.garyclayburg.data;
 
-import com.garyclayburg.persistence.EmbeddedMongoConfig;
-import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
-import org.junit.Ignore;
-import org.junit.Rule;
+import com.garyclayburg.MongoInMemoryTestBase;
+import com.garyclayburg.attributes.AttributeService;
+import com.garyclayburg.attributes.ScriptRunner;
+import com.garyclayburg.persistence.domain.User;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder.newMongoDbRule;
+import java.io.File;
+import java.net.URL;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by IntelliJ IDEA.
@@ -41,36 +43,45 @@ import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder
  * Time: 11:12 AM
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {ServiceConfig.class,EmbeddedMongoConfig.class})
-public class ProvisionServiceTest {
+public class ProvisionServiceTest extends MongoInMemoryTestBase {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(ProvisionServiceTest.class);
 
     @Autowired
-    UserService userService;
-
-    @Rule
-    public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("demo-test");
+    ProvisionService provisionService;
 
     @Autowired
-    @SuppressWarnings("UnusedDeclaration")
-    private ApplicationContext applicationContext; // nosql-unit requirement
+    private AttributeService attributeService;
 
-    @Test
-    @Ignore
-    public void testName() throws Exception {
-        ProvisionService provisionService = new ProvisionService();
+    @Before
+    public void setUp() throws Exception {
+        URL groovyURL = this.getClass()
+                .getClassLoader()
+                .getResource("groovies/emptyscript.groovy");
 
-        UserService userServiceMock = Mockito.mock(UserService.class);
+        assert groovyURL != null;
 
-//        when(userServiceMock.getUserById("500")).thenReturn()
+        String scriptRoot = new File(groovyURL.toURI()).getParentFile()
+                .getPath();
+        ScriptRunner scriptRunner = new ScriptRunner();
+        scriptRunner.setRoot(new String[]{scriptRoot});
 
-//        UserService userService = new UserService();
-        DBUser DBUser500 = userService.getUserById("500");
-
-        DBUser u = new DBUser();
-//        provisionService.provisionUser();
-
+        attributeService.setScriptRunner(scriptRunner);
     }
 
+    @Test
+    public void testName() throws Exception {
+        User user = new User();
+        user.setFirstname("Kenny");
+        user.setLastname("Chesney");
+        user.setId("20148");
+
+        Map<String, String> generatedAttributes;
+
+        generatedAttributes = attributeService.getGeneratedAttributes(user,"o2cusers.csv");
+        assertEquals(0,generatedAttributes.size());
+
+        generatedAttributes = attributeService.getGeneratedAttributes(user,"myAD");
+        assertEquals(2,generatedAttributes.size());
+    }
 }

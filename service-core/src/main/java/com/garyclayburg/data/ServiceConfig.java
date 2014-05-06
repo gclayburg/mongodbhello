@@ -66,6 +66,11 @@ public class ServiceConfig {
     }
 
     @Bean
+    public ProvisionService provisionService() {
+        return new ProvisionService();
+    }
+
+    @Bean
     public ScriptRunner scriptRunner() throws IOException {
         ScriptRunner scriptRunner = new ScriptRunner();
 
