@@ -10,6 +10,7 @@
         <module>springbootboot</module>
         <module>service-core</module>
         <module>groovy-integration</module>
+        <!--<module>vconsole</module>-->
     </modules>
     <packaging>pom</packaging>
 
@@ -161,6 +162,22 @@
             <version>16.0.1</version>
         </dependency>
 
+        <!-- vaadin4spring -->
+        <dependency>
+            <groupId>org.vaadin.spring</groupId>
+            <artifactId>spring-boot-vaadin</artifactId>
+            <version>0.0.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-themes</artifactId>
+            <version>7.1.13</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-client-compiled</artifactId>
+            <version>7.1.13</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -206,6 +223,16 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository> <!-- needed for vaadin4spring -->
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
     </repositories>
     <pluginRepositories>
