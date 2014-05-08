@@ -33,12 +33,26 @@ import org.vaadin.spring.VaadinUI;
  * @author Gary Clayburg
  */
 //@VaadinUI(path = "/console")
-@VaadinUI  // maps to e.g.: localhost:8080/console via application.properties
+@VaadinUI(path = "/start")  // maps to e.g.: localhost:8080/console via application.properties
 public class VConsole extends UI {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(VConsole.class);
 
     protected void init(VaadinRequest vaadinRequest) {
+/*
+        final VerticalLayout layout = new VerticalLayout();
+        layout.setMargin(true);
+        setContent(layout);
+        Button button = new Button("Clicker");
+        button.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                layout.addComponent(new Label("thank you. may I have another.  yet one more"));
+            }
+        });
+        layout.addComponent(button);
+*/
+
         setContent(new Label("Hello vaadin spring"));
     }
 }

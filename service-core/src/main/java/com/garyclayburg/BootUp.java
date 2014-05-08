@@ -20,13 +20,13 @@ package com.garyclayburg;
 
 import com.garyclayburg.data.ServiceConfig;
 import com.garyclayburg.persistence.EmbeddedMongoConfig;
-import com.garyclayburg.vconsole.VConsole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.rest.webmvc.config.RepositoryRestMvcConfiguration;
@@ -42,7 +42,8 @@ import java.util.Arrays;
  */
 @Configuration
 @EnableAutoConfiguration
-@Import({ServiceConfig.class,EmbeddedMongoConfig.class,RepositoryRestMvcConfiguration.class,VConsole.class})
+@Import({ServiceConfig.class,EmbeddedMongoConfig.class,RepositoryRestMvcConfiguration.class})
+@ComponentScan(basePackages = "com.garyclayburg.vconsole") //spring4vaadin module requires UI class to be componentscaned
 public class BootUp implements CommandLineRunner{
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(BootUp.class);
