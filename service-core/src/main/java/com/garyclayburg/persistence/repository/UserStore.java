@@ -18,7 +18,6 @@
 
 package com.garyclayburg.persistence.repository;
 
-import com.garyclayburg.BootUp;
 import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.GeneratedUser;
 import com.garyclayburg.persistence.domain.User;
@@ -43,7 +42,7 @@ import java.util.List;
 @RequestMapping("/audited-users")
 public class UserStore {
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(BootUp.class);
+    private static final Logger log = LoggerFactory.getLogger(UserStore.class);
 
     @Qualifier("autoUserRepo")
     @Autowired
@@ -55,40 +54,47 @@ public class UserStore {
     @Autowired
     private AttributeService attributeService;
 
-    @RequestMapping(value ="/findByFirstname",method= RequestMethod.GET)
-    public @ResponseBody
-    User findByFirstname(@RequestParam(value="firstname",required =true) String firstname) {
+    @RequestMapping(value = "/findByFirstname",method = RequestMethod.GET)
+    public
+    @ResponseBody
+    User findByFirstname(@RequestParam(value = "firstname",required = true) String firstname) {
         log.info("returning a found user...");
         return autoUserRepo.findByFirstname(firstname);
     }
 
     /**
      * Adds auditing support for saving users.  All fields are saved.
+     *
      * @param user user to save
+     *
      * @return user being saved, after fields such as "id" are inserted, if necessary
      */
-    @RequestMapping(value="/auditedsave",method= RequestMethod.POST)
-    public @ResponseBody User save(@RequestBody User user) {
+    @RequestMapping(value = "/auditedsave",method = RequestMethod.POST)
+    public
+    @ResponseBody
+    User save(@RequestBody User user) {
         User savedUser = autoUserRepo.save(user);
         UserAudit userAudit = new UserAudit(savedUser);
         userAuditRepo.save(userAudit);
         return savedUser;
     }
 
-    @RequestMapping(value="/findUserAuditById", method=RequestMethod.GET)
-    public @ResponseBody
-    List<UserAudit> findUserAuditById(@RequestParam(value = "id", required = true) String id) {
+    @RequestMapping(value = "/findUserAuditById", method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<UserAudit> findUserAuditById(@RequestParam(value = "id",required = true) String id) {
         return userAuditRepo.findById(id);
     }
 
     // http://localhost:8080/audited-users/findUserAuditByUserId/534304a0e4b0c2e2f8ad3215
-    @RequestMapping(value="/findUserAuditByUserId/{id}", method=RequestMethod.GET)
-    public @ResponseBody
+    @RequestMapping(value = "/findUserAuditByUserId/{id}",method = RequestMethod.GET)
+    public
+    @ResponseBody
     List<UserAudit> findUserAuditByUserId(@PathVariable("id") User user) {
         return userAuditRepo.findByUser(user);
     }
 
-    public GeneratedUser findGeneratedUserByFirstname(String name){
+    public GeneratedUser findGeneratedUserByFirstname(String name) {
         User u = findByFirstname(name);
         GeneratedUser generatedUser = new GeneratedUser(u);
         generatedUser.setAttributeService(attributeService);

@@ -16,9 +16,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.garyclayburg.persistence;
+package com.garyclayburg.persistence.config;
 
 import com.garyclayburg.delete.DeletionFileVisitor;
+import com.garyclayburg.persistence.MongoAuditorUserProvider;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
@@ -32,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
@@ -50,6 +52,7 @@ import java.util.ArrayList;
 @Configuration
 @EnableMongoRepositories
 @EnableMongoAuditing
+@Profile("mongoembedded")
 //@ComponentScan(basePackageClasses = {MongoConfig.class})
 //@ComponentScan(basePackages = "com.garyclayburg.persistence")
 public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
@@ -90,6 +93,7 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
     @Bean
     @Override
     public Mongo mongo() throws Exception {
+        log.info("configuring embedded mongo");
         //Files that could be left over after a previous execution was (rudely) killed with kill -9
 
         DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),"embedmongo-db-*");

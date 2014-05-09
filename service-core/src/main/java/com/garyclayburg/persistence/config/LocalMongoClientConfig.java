@@ -16,14 +16,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.garyclayburg.data;
+package com.garyclayburg.persistence.config;
 
+import com.garyclayburg.persistence.MongoAuditorUserProvider;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.net.UnknownHostException;
 
@@ -35,11 +41,21 @@ import java.net.UnknownHostException;
  * @author Gary Clayburg
  */
 @Configuration
-public class LocalMongoClientConfig {
+@EnableMongoRepositories
+@EnableMongoAuditing
+@Profile("mongolocal")
+public class LocalMongoClientConfig extends AbstractMongoConfiguration{
     private static final Logger log = LoggerFactory.getLogger(LocalMongoClientConfig.class);
 
+    @Override
+    protected String getDatabaseName() {
+        return "demo";
+    }
+
+    @Override
     @Bean
-    public Mongo getMongo(){
+    public Mongo mongo() throws Exception {
+        log.info("configuring local mongo bean");
         MongoClient mongoClient = null;
         try {
             mongoClient = new MongoClient("localhost",27017);
@@ -47,6 +63,16 @@ public class LocalMongoClientConfig {
             log.warn("kaboom",e);
         }
         return mongoClient;
+    }
+
+    @Override
+    protected String getMappingBasePackage() {
+        return "com.garyclayburg.persistence.domain";
+    }
+
+    @Bean
+    public AuditorAware<String> auditorAware() {
+        return new MongoAuditorUserProvider<String>();
     }
 
 }

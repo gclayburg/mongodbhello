@@ -54,6 +54,7 @@ public class FongoMongoTestConfig extends AbstractMongoConfiguration {
     @Override
     public Mongo mongo() {
         // uses fongo for in-memory tests
+        log.info("configuring in-memory mongo");
         return new Fongo("fongo-mongo-test-from-FongoMongoTestConfig_class").getMongo();
     }
 
