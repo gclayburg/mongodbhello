@@ -35,7 +35,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.VaadinUI;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -57,8 +60,14 @@ public class VConsole extends UI {
     @Autowired
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     private AttributeService attributeService;
+    private Map<String, Window> targetWindows;
+
+    public VConsole() {
+        targetWindows = new HashMap<String, Window>();
+    }
 
     protected void init(VaadinRequest vaadinRequest) {
+        targetWindows = new HashMap<String, Window>();
         final VerticalLayout layout = new VerticalLayout();
         layout.setMargin(false);
         setContent(layout);
@@ -93,6 +102,11 @@ public class VConsole extends UI {
                 attributeLabel.setValue("we have " + selectedUser.getFirstname() + " " + selectedUser.getLastname());
                 populateItems(selectedUser,attributesBeanContainer);
 
+                Set<String> entitledTargets = attributeService.getEntitledTargets(selectedUser);
+                for (String entitledTarget : entitledTargets) {
+                    populateTargetWindow(selectedUser,entitledTarget);
+
+                }
             }
         });
 
@@ -105,8 +119,47 @@ public class VConsole extends UI {
         layout.addComponent(splitPanel);
     }
 
+    private void populateTargetWindow(User selectedUser,String entitledTarget) {
+        boolean addNewWindow = false;
+        Window window = targetWindows.get(entitledTarget);
+        if (window == null){
+            window = new Window(entitledTarget);
+            targetWindows.put(entitledTarget,window);
+            addNewWindow = true;
+        }
+
+        VerticalLayout windowContent = new VerticalLayout();
+        windowContent.setMargin(false);
+
+        final Table attributeTargetTable = new Table();
+        attributeTargetTable.setSizeFull();
+        attributeTargetTable.setSelectable(true);
+        attributeTargetTable.setMultiSelect(false);
+        attributeTargetTable.setImmediate(true);
+        final BeanContainer<String, GeneratedAttributesBean> attributesBeanContainer =
+                new BeanContainer<String, GeneratedAttributesBean>(GeneratedAttributesBean.class);
+        attributesBeanContainer.setBeanIdProperty("attributeName");
+        populateItems(selectedUser,attributesBeanContainer,entitledTarget);
+
+        attributeTargetTable.setContainerDataSource(attributesBeanContainer);
+
+        windowContent.addComponent(attributeTargetTable);
+        window.setContent(windowContent);
+        if (addNewWindow){
+            UI.getCurrent().addWindow(window);
+        }
+    }
+
     private void populateItems(User firstUser,BeanContainer<String, GeneratedAttributesBean> generatedAttributesBeanContainer) {
         List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(firstUser);
+        generatedAttributesBeanContainer.removeAllItems();
+        for (GeneratedAttributesBean generatedAttribute : generatedAttributes) {
+            generatedAttributesBeanContainer.addBean(generatedAttribute);
+        }
+    }
+
+    private void populateItems(User firstUser,BeanContainer<String, GeneratedAttributesBean> generatedAttributesBeanContainer,String targetName) {
+        List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(firstUser,targetName);
         generatedAttributesBeanContainer.removeAllItems();
         for (GeneratedAttributesBean generatedAttribute : generatedAttributes) {
             generatedAttributesBeanContainer.addBean(generatedAttribute);

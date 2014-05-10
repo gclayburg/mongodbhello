@@ -28,10 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -47,6 +44,8 @@ public class AttributeServiceTest {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AttributeServiceTest.class);
     private ScriptRunner scriptRunner;
+    private AttributeService attributeService;
+    private User barney;
 
     @Before
     public void setUp() throws Exception {
@@ -60,18 +59,17 @@ public class AttributeServiceTest {
                 .getPath();
         scriptRunner = new ScriptRunner();
         scriptRunner.setRoot(new String[]{scriptRoot});
+        attributeService = new AttributeService();
+        barney = new User();
+        barney.setFirstname("Barney");
+        barney.setLastname("Rubble");
+        barney.setId("12345");
+        attributeService.setScriptRunner(scriptRunner);
 
     }
 
     @Test
     public void testOne() throws Exception {
-        AttributeService attributeService = new AttributeService();
-        User barney = new User();
-        barney.setFirstname("Barney");
-        barney.setLastname("Rubble");
-        barney.setId("12345");
-
-        attributeService.setScriptRunner(scriptRunner);
 
         Map<String, String> generatedAttributes = attributeService.getGeneratedAttributes(barney);
 
@@ -84,13 +82,6 @@ public class AttributeServiceTest {
     }
     @Test
     public void testOneGeneratedBean() throws Exception {
-        AttributeService attributeService = new AttributeService();
-        User barney = new User();
-        barney.setFirstname("Barney");
-        barney.setLastname("Rubble");
-        barney.setId("12345");
-
-        attributeService.setScriptRunner(scriptRunner);
 
         List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(barney);
         boolean found = false;
@@ -101,6 +92,28 @@ public class AttributeServiceTest {
             }
         }
         assertTrue(found);
+    }
+
+    @Test
+    public void testOneGeneratedTargetBean() throws Exception {
+
+
+        List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(barney,"myAD");
+        assertEquals(2,generatedAttributes.size());
+        boolean found = false;
+        for (GeneratedAttributesBean generatedAttribute : generatedAttributes) {
+            if (generatedAttribute.getAttributeName().equals("cn")) {
+                assertEquals("Barney Rubble",generatedAttribute.getAttributeValue());
+                found=true;
+            }
+        }
+        assertTrue(found);
+    }
+
+    @Test
+    public void testKnownTargetList(){
+        Set<String> targetList = attributeService.getEntitledTargets(barney);
+        assertEquals(2,targetList.size());
     }
 
     @Test

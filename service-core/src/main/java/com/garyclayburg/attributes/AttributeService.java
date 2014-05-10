@@ -50,19 +50,34 @@ public class AttributeService {
 
     @Autowired
     private ScriptRunner runner;
+    private Set<String> detectedTargetIds;
+
+    public AttributeService() {
+        detectedTargetIds = new HashSet<String>();
+    }
 
     public void setScriptRunner(ScriptRunner runner) {
         log.info("setting scriptrunner...");
         this.runner = runner;
     }
 
-    public Map<String, String> getGeneratedAttributes(User user, String targetId) {
+    public Set<String> getEntitledTargets(User user) {
+        generateAttributes(user,null);
+        //todo For now, everyone is entitled to every target
+        return detectedTargetIds;
+    }
+
+    public Map<String, String> getGeneratedAttributes(User user,String targetId) {
 
         return generateAttributes(user,targetId);
     }
 
     public List<GeneratedAttributesBean> getGeneratedAttributesBean(User user) {
-        Map<String, String> stringStringMap = generateAttributes(user,null);
+        return getGeneratedAttributesBean(user,null);
+    }
+
+    public List<GeneratedAttributesBean> getGeneratedAttributesBean(User user,String target) {
+        Map<String, String> stringStringMap = generateAttributes(user,target);
         List<GeneratedAttributesBean> generatedAttributesBeans = new ArrayList<GeneratedAttributesBean>();
         for (String key : stringStringMap.keySet()) {
             GeneratedAttributesBean bean = new GeneratedAttributesBean();
@@ -72,14 +87,16 @@ public class AttributeService {
         }
         return generatedAttributesBeans;
     }
-    public Map<String,String> getGeneratedAttributes(User user) {
+
+    public Map<String, String> getGeneratedAttributes(User user) {
         return generateAttributes(user,null);
     }
 
     private Map<String, String> generateAttributes(User user,String targetId) {
         long startTime = System.nanoTime();
-        log.info("start generating user attributes for target: "+targetId);
-        HashMap<String,String> attributeValues = new HashMap<String, String>(); //name,value
+        log.info("start generating user attributes for target: " + targetId);
+        HashMap<String, String> attributeValues = new HashMap<String, String>(); //name,value
+        detectedTargetIds = new HashSet<String>();
 
         log.info("looking for method");
 
@@ -99,6 +116,7 @@ public class AttributeService {
                                   " target: " +
                                   annotation.target() + " attribute name: " + annotation.attributeName()
                         );
+                        detectedTargetIds.add(annotation.target());
                         try {
                             String attributeValue = (String) method.invoke(groovyObj,user);
                             log.debug("attribute value eval  : " + method.getDeclaringClass() + "." + method.getName() +
@@ -111,15 +129,16 @@ public class AttributeService {
                                                            .equals("") ? method.getName() : annotation.attributeName();
                             if (targetId == null) {
                                 attributeValues.put(attributeName,attributeValue);
-                            } else if (targetId.equals(annotation.target())){
+                            } else if (targetId.equals(annotation.target())) {
                                 attributeValues.put(attributeName,attributeValue);
-                            } else{
-                                log.debug("skipping attribute for target: "+annotation.target());
+                            } else {
+                                log.debug("skipping attribute for target: " + annotation.target());
                             }
                             log.debug(
                                     "attribute name:value  for target " + annotation.target() + ": [" + attributeName +
                                     ":" +
-                                    attributeValue + "]");
+                                    attributeValue + "]"
+                            );
                         } catch (IllegalAccessException e) {
                             log.warn("Cannot invoke attribute method in groovy: " + method.getDeclaringClass() + "." +
                                      method.getName(),e);
