@@ -22,11 +22,8 @@ import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.GeneratedAttributesBean;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.repository.AutoUserRepo;
-import com.vaadin.data.Container;
-import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.data.util.IndexedContainer;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
@@ -119,13 +116,18 @@ public class VConsole extends UI {
         layout.addComponent(splitPanel);
     }
 
-    private void populateTargetWindow(User selectedUser,String entitledTarget) {
-        boolean addNewWindow = false;
+    private void populateTargetWindow(User selectedUser,final String entitledTarget) {
         Window window = targetWindows.get(entitledTarget);
         if (window == null){
             window = new Window(entitledTarget);
             targetWindows.put(entitledTarget,window);
-            addNewWindow = true;
+            window.addCloseListener(new Window.CloseListener() {
+                @Override
+                public void windowClose(Window.CloseEvent e) {
+                    targetWindows.remove(entitledTarget);
+                }
+            });
+            UI.getCurrent().addWindow(window);
         }
 
         VerticalLayout windowContent = new VerticalLayout();
@@ -145,9 +147,6 @@ public class VConsole extends UI {
 
         windowContent.addComponent(attributeTargetTable);
         window.setContent(windowContent);
-        if (addNewWindow){
-            UI.getCurrent().addWindow(window);
-        }
     }
 
     private void populateItems(User firstUser,BeanContainer<String, GeneratedAttributesBean> generatedAttributesBeanContainer) {
@@ -173,31 +172,7 @@ public class VConsole extends UI {
         userTable.setMultiSelect(false);
         userTable.setImmediate(true);
         userTable.setContainerDataSource(userBeanContainer);
-//        userTable.setVisibleColumns(new Object[]{"firstname","lastname"});
+        userTable.setVisibleColumns("firstname","lastname");
         return userTable;
-    }
-
-    private void createStatic(VerticalLayout layout) {
-        Table staticTable = new Table();
-        staticTable.setSizeFull();
-        staticTable.setSelectable(true);
-        staticTable.setMultiSelect(false);
-        staticTable.setImmediate(true);
-
-        Container container = new IndexedContainer();
-        container.addContainerProperty("first",String.class,"unknown");
-        container.addContainerProperty("last",String.class,"na");
-        Item r1 = container.addItem("row1");
-        r1.getItemProperty("first")
-                .setValue("Frank");
-        r1.getItemProperty("last")
-                .setValue("Clayburg");
-        Item r2 = container.addItem("row2");
-        r2.getItemProperty("first")
-                .setValue("Claribel");
-        r2.getItemProperty("last")
-                .setValue("Bell");
-        staticTable.setContainerDataSource(container);
-        layout.addComponent(staticTable);
     }
 }
