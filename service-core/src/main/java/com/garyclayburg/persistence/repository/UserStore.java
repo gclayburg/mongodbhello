@@ -25,7 +25,6 @@ import com.garyclayburg.persistence.domain.UserAudit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,11 +43,12 @@ public class UserStore {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(UserStore.class);
 
-    @Qualifier("autoUserRepo")
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")  // IntelliJ confused by spring-boot wiring
     private AutoUserRepo autoUserRepo;
-    @Qualifier("userAuditRepo")
+
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")  // IntelliJ confused by spring-boot wiring
     private UserAuditRepo userAuditRepo;
 
     @Autowired

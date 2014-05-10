@@ -18,8 +18,8 @@
 
 package com.garyclayburg.persistence.repository;
 
-import com.garyclayburg.BootUp;
-import com.garyclayburg.data.ServiceConfig;
+import com.garyclayburg.MongoInMemoryTestBase;
+import com.garyclayburg.data.UserService;
 import com.garyclayburg.persistence.domain.User;
 import com.lordofthejars.nosqlunit.annotation.UsingDataSet;
 import com.lordofthejars.nosqlunit.core.LoadStrategyEnum;
@@ -30,15 +30,11 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder.newMongoDbRule;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -48,20 +44,24 @@ import static org.junit.Assert.assertTrue;
  * @author Gary Clayburg
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {ServiceConfig.class,FongoMongoTestConfig.class})
-@SpringApplicationConfiguration(classes = {BootUp.class})
-public class UserRepositoryTest {
+public class UserRepositoryTest extends MongoInMemoryTestBase{
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(UserRepositoryTest.class);
 
     @Rule
     public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb("demo-test");
 
-    @SuppressWarnings("UnusedDeclaration")
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
+    @Autowired
+    protected UserService userService;
+
+    @SuppressWarnings({"UnusedDeclaration","SpringJavaAutowiredMembersInspection"})
     @Autowired
     private ApplicationContext applicationContext; // nosql-unit requirement
 
     @Autowired
+    @SuppressWarnings({"SpringJavaAutowiringInspection","SpringJavaAutowiredMembersInspection"})
+    // IntelliJ confused by spring-boot wiring
     private AutoUserRepo autoUserRepo;
 
     @Test

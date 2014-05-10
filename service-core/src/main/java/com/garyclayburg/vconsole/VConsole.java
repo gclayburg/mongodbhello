@@ -51,12 +51,12 @@ public class VConsole extends UI {
     private static final Logger log = LoggerFactory.getLogger(VConsole.class);
 
     @Autowired
-    @SuppressWarnings("SpringJavaAutowiringInspection")  // spring data auto-generation confuses IntelliJ
-    AutoUserRepo autoUserRepo;
+    @SuppressWarnings("SpringJavaAutowiringInspection")  // IntelliJ confused by spring-boot wiring
+    private AutoUserRepo autoUserRepo;
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    AttributeService attributeService;
+    private AttributeService attributeService;
 
     protected void init(VaadinRequest vaadinRequest) {
         final VerticalLayout layout = new VerticalLayout();
@@ -79,10 +79,10 @@ public class VConsole extends UI {
         attributeTable.setMultiSelect(false);
         attributeTable.setImmediate(true);
 
-        final BeanContainer<String,GeneratedAttributesBean> attributesBeanContainer = new BeanContainer<String, GeneratedAttributesBean>(GeneratedAttributesBean.class);
+        final BeanContainer<String, GeneratedAttributesBean> attributesBeanContainer =
+                new BeanContainer<String, GeneratedAttributesBean>(GeneratedAttributesBean.class);
         attributesBeanContainer.setBeanIdProperty("attributeName");
         populateItems(firstUser,attributesBeanContainer);
-
 
         attributeTable.setContainerDataSource(attributesBeanContainer);
 
@@ -93,7 +93,6 @@ public class VConsole extends UI {
                 attributeLabel.setValue("we have " + selectedUser.getFirstname() + " " + selectedUser.getLastname());
                 populateItems(selectedUser,attributesBeanContainer);
 
-
             }
         });
 
@@ -102,7 +101,6 @@ public class VConsole extends UI {
         splitPanel.setSplitPosition(150,Unit.PIXELS);
         splitPanel.setFirstComponent(userTable);
         splitPanel.setSecondComponent(attributeTable);
-
 
         layout.addComponent(splitPanel);
     }
@@ -136,12 +134,16 @@ public class VConsole extends UI {
         Container container = new IndexedContainer();
         container.addContainerProperty("first",String.class,"unknown");
         container.addContainerProperty("last",String.class,"na");
-        Item r1  = container.addItem("row1");
-        r1.getItemProperty("first").setValue("Frank");
-        r1.getItemProperty("last").setValue("Clayburg");
-        Item r2  = container.addItem("row2");
-        r2.getItemProperty("first").setValue("Claribel");
-        r2.getItemProperty("last").setValue("Bell");
+        Item r1 = container.addItem("row1");
+        r1.getItemProperty("first")
+                .setValue("Frank");
+        r1.getItemProperty("last")
+                .setValue("Clayburg");
+        Item r2 = container.addItem("row2");
+        r2.getItemProperty("first")
+                .setValue("Claribel");
+        r2.getItemProperty("last")
+                .setValue("Bell");
         staticTable.setContainerDataSource(container);
         layout.addComponent(staticTable);
     }

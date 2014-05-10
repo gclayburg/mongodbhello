@@ -44,6 +44,8 @@ import static com.lordofthejars.nosqlunit.mongodb.MongoDbRule.MongoDbRuleBuilder
  */
 //@ContextConfiguration(classes = {BootUp.class,FongoMongoTestConfig.class})
 @WebAppConfiguration
+//@ContextConfiguration(classes ={FongoMongoTestConfig.class})
+//@SpringApplicationConfiguration(classes = {BootUp.class})
 @SpringApplicationConfiguration(classes = {BootUp.class,FongoMongoTestConfig.class})
 public class MongoInMemoryTestBase {
     @SuppressWarnings("UnusedDeclaration")
@@ -64,8 +66,9 @@ public class MongoInMemoryTestBase {
     @SuppressWarnings({"UnusedDeclaration","SpringJavaAutowiredMembersInspection"})
     protected ApplicationContext applicationContext; // nosql-unit requirement
 
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     @Autowired
+    @SuppressWarnings({"SpringJavaAutowiringInspection","SpringJavaAutowiredMembersInspection"})
+    // IntelliJ confused by spring-boot wiring
     protected AutoUserRepo autoUserRepo;
 
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")

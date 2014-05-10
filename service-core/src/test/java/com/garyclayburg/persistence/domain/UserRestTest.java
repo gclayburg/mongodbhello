@@ -58,13 +58,15 @@ public class UserRestTest extends MongoInMemoryTestBase {
     private MockMvc mockMvc;
 
     @Autowired
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
-    AutoUserRepo autoUserRepo;
+    @SuppressWarnings({"SpringJavaAutowiringInspection","SpringJavaAutowiredMembersInspection"})
+    // IntelliJ confused by spring-boot wiring
+    private AutoUserRepo autoUserRepo;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .build();
     }
 
     @Test
