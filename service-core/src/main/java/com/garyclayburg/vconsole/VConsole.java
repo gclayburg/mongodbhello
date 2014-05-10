@@ -18,12 +18,16 @@
 
 package com.garyclayburg.vconsole;
 
+import com.garyclayburg.attributes.AttributeService;
+import com.garyclayburg.attributes.GeneratedAttributesBean;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.repository.AutoUserRepo;
 import com.vaadin.data.Container;
 import com.vaadin.data.Item;
 import com.vaadin.data.util.BeanContainer;
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.IndexedContainer;
+import com.vaadin.event.ItemClickEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
 import org.slf4j.Logger;
@@ -47,49 +51,88 @@ public class VConsole extends UI {
     private static final Logger log = LoggerFactory.getLogger(VConsole.class);
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")  // spring data auto-generation confuses IntelliJ
     AutoUserRepo autoUserRepo;
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
+    AttributeService attributeService;
 
     protected void init(VaadinRequest vaadinRequest) {
         final VerticalLayout layout = new VerticalLayout();
-        layout.setMargin(true);
+        layout.setMargin(false);
         setContent(layout);
-        Button button = new Button("Clicker");
-        button.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                layout.addComponent(new Label("thank you. may I have another.  yet one more"));
-            }
-        });
-        layout.addComponent(button);
+
         List<User> allUsers = autoUserRepo.findAll();
-        for (User allUser : allUsers) {
-            layout.addComponent(new Label(allUser.getFirstname()));
-        }
-
-        Table staticTable = new Table();
-        staticTable.setSizeFull();
-        staticTable.setSelectable(true);
-        staticTable.setMultiSelect(false);
-        staticTable.setImmediate(true);
-
-        createStatic(layout,staticTable);
 
         BeanContainer<String, User> userBeanContainer = new BeanContainer<String, User>(User.class);
         userBeanContainer.setBeanIdProperty("firstname");
-
+        User firstUser = allUsers.get(0);
         for (User user : allUsers) {
             userBeanContainer.addBean(user);
         }
+        Table userTable = createUserTable(userBeanContainer);
+        final Label attributeLabel = new Label("attribute list here");
+        final Table attributeTable = new Table();
+        attributeTable.setSizeFull();
+        attributeTable.setSelectable(true);
+        attributeTable.setMultiSelect(false);
+        attributeTable.setImmediate(true);
+
+        final BeanContainer<String,GeneratedAttributesBean> attributesBeanContainer = new BeanContainer<String, GeneratedAttributesBean>(GeneratedAttributesBean.class);
+        attributesBeanContainer.setBeanIdProperty("attributeName");
+        populateItems(firstUser,attributesBeanContainer);
+
+
+        attributeTable.setContainerDataSource(attributesBeanContainer);
+
+        userTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
+            @Override
+            public void itemClick(ItemClickEvent event) {
+                User selectedUser = (User) ((BeanItem) event.getItem()).getBean();
+                attributeLabel.setValue("we have " + selectedUser.getFirstname() + " " + selectedUser.getLastname());
+                populateItems(selectedUser,attributesBeanContainer);
+
+
+            }
+        });
+
+        HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
+        splitPanel.setSizeFull();
+        splitPanel.setSplitPosition(150,Unit.PIXELS);
+        splitPanel.setFirstComponent(userTable);
+        splitPanel.setSecondComponent(attributeTable);
+
+
+        layout.addComponent(splitPanel);
+    }
+
+    private void populateItems(User firstUser,BeanContainer<String, GeneratedAttributesBean> generatedAttributesBeanContainer) {
+        List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(firstUser);
+        generatedAttributesBeanContainer.removeAllItems();
+        for (GeneratedAttributesBean generatedAttribute : generatedAttributes) {
+            generatedAttributesBeanContainer.addBean(generatedAttribute);
+        }
+    }
+
+    private Table createUserTable(BeanContainer<String, User> userBeanContainer) {
         Table userTable = new Table();
         userTable.setSizeFull();
         userTable.setSelectable(true);
         userTable.setMultiSelect(false);
         userTable.setImmediate(true);
         userTable.setContainerDataSource(userBeanContainer);
-        layout.addComponent(userTable);
+//        userTable.setVisibleColumns(new Object[]{"firstname","lastname"});
+        return userTable;
     }
 
-    private void createStatic(VerticalLayout layout,Table staticTable) {
+    private void createStatic(VerticalLayout layout) {
+        Table staticTable = new Table();
+        staticTable.setSizeFull();
+        staticTable.setSelectable(true);
+        staticTable.setMultiSelect(false);
+        staticTable.setImmediate(true);
+
         Container container = new IndexedContainer();
         container.addContainerProperty("first",String.class,"unknown");
         container.addContainerProperty("last",String.class,"na");

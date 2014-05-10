@@ -57,11 +57,21 @@ public class AttributeService {
     }
 
     public Map<String, String> getGeneratedAttributes(User user, String targetId) {
-        Map<String, String> generatedAttributes = generateAttributes(user,targetId);
 
-        return generatedAttributes;
+        return generateAttributes(user,targetId);
     }
 
+    public List<GeneratedAttributesBean> getGeneratedAttributesBean(User user) {
+        Map<String, String> stringStringMap = generateAttributes(user,null);
+        List<GeneratedAttributesBean> generatedAttributesBeans = new ArrayList<GeneratedAttributesBean>();
+        for (String key : stringStringMap.keySet()) {
+            GeneratedAttributesBean bean = new GeneratedAttributesBean();
+            bean.setAttributeName(key);
+            bean.setAttributeValue(stringStringMap.get(key));
+            generatedAttributesBeans.add(bean);
+        }
+        return generatedAttributesBeans;
+    }
     public Map<String,String> getGeneratedAttributes(User user) {
         return generateAttributes(user,null);
     }

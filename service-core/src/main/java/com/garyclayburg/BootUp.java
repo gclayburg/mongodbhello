@@ -50,6 +50,8 @@ public class BootUp implements CommandLineRunner {
 
     public static void main(String[] args) {
         ApplicationContext ctx = SpringApplication.run(BootUp.class);
+        log.info("active profiles: " + Arrays.toString(ctx.getEnvironment()
+                                                               .getActiveProfiles()));
         log.info("Beans loaded by spring / spring boot");
         String[] beanNames = ctx.getBeanDefinitionNames();
         Arrays.sort(beanNames);

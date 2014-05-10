@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by IntelliJ IDEA.
@@ -80,6 +81,26 @@ public class AttributeServiceTest {
 
         Assert.assertEquals("Barney Rubble",generatedAttributes.get("cn"));
 
+    }
+    @Test
+    public void testOneGeneratedBean() throws Exception {
+        AttributeService attributeService = new AttributeService();
+        User barney = new User();
+        barney.setFirstname("Barney");
+        barney.setLastname("Rubble");
+        barney.setId("12345");
+
+        attributeService.setScriptRunner(scriptRunner);
+
+        List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(barney);
+        boolean found = false;
+        for (GeneratedAttributesBean generatedAttribute : generatedAttributes) {
+            if (generatedAttribute.getAttributeName().equals("cn")) {
+                assertEquals("Barney Rubble",generatedAttribute.getAttributeValue());
+                found=true;
+            }
+        }
+        assertTrue(found);
     }
 
     @Test
