@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -40,7 +42,7 @@ import java.util.Arrays;
 @Import({BootUp.class})
 //component scanning apparently can only be configured in one place - BootUp.class in this case
 //@ComponentScan(basePackages = {"com.garyclayburg.vconsole"})
-public class BootVaadin {
+public class BootVaadin extends SpringBootServletInitializer {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(BootVaadin.class);
     public static void main(String[] args){
@@ -58,4 +60,14 @@ public class BootVaadin {
         log.info("BootVaadin Server is ready for e-business");
 
     }
+
+    //Servlet 3 style web.xml - needed to start app via "mvn jetty:run  -Dspring.profiles.active=mongolocal"
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        log.info("running SpringServletInitializer...");
+        SpringApplicationBuilder sources = application.sources(applicationClass);
+        return sources;
+    }
+
+    private static Class<BootVaadin> applicationClass = BootVaadin.class;
 }

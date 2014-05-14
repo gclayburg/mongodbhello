@@ -33,4 +33,6 @@
     
 
     
+
+    <inherits name="com.github.wolfie.refresher.RefresherWidgetset" />
 </module>
