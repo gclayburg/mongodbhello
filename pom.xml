@@ -12,6 +12,7 @@
         <!--<module>groovy-integration</module>-->
 
         <!--<module>vconsole</module>-->
+        <module>userconsole</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -39,24 +40,24 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-<!--
-            <plugin>
-                <groupId>com.mysema.maven</groupId>
-                <artifactId>maven-apt-plugin</artifactId>
-                <version>1.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>target/generated-sources/java</outputDirectory>
-                            <processor>com.mysema.query.mongodb.morphia.MorphiaAnnotationProcessor</processor>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
--->
+            <!--
+                        <plugin>
+                            <groupId>com.mysema.maven</groupId>
+                            <artifactId>maven-apt-plugin</artifactId>
+                            <version>1.0</version>
+                            <executions>
+                                <execution>
+                                    <goals>
+                                        <goal>process</goal>
+                                    </goals>
+                                    <configuration>
+                                        <outputDirectory>target/generated-sources/java</outputDirectory>
+                                        <processor>com.mysema.query.mongodb.morphia.MorphiaAnnotationProcessor</processor>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+            -->
             <plugin>
                 <groupId>com.mysema.maven</groupId>
                 <artifactId>apt-maven-plugin</artifactId>
@@ -69,7 +70,8 @@
 
                         <configuration>
                             <outputDirectory>target/generated-sources/java</outputDirectory>
-                            <processor>org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor</processor>
+                            <processor>org.springframework.data.mongodb.repository.support.MongoAnnotationProcessor
+                            </processor>
                         </configuration>
                     </execution>
                 </executions>
@@ -140,6 +142,7 @@
         </dependency>
 
         <!-- vaadin4spring -->
+        <!--
         <dependency>
             <groupId>org.vaadin.spring</groupId>
             <artifactId>spring-boot-vaadin</artifactId>
@@ -155,6 +158,7 @@
             <artifactId>vaadin-client-compiled</artifactId>
             <version>7.1.13</version>
         </dependency>
+        -->
     </dependencies>
     <dependencyManagement>
         <dependencies>

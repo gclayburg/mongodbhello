@@ -42,7 +42,7 @@ import java.util.Arrays;
 @Configuration
 @EnableAutoConfiguration
 @Import({ServiceConfig.class,RepositoryRestMvcConfiguration.class})
-@ComponentScan(basePackages = {"com.garyclayburg.vconsole","com.garyclayburg.persistence.config"})
+@ComponentScan(basePackages = {"com.garyclayburg.persistence.config","com.garyclayburg.vconsole"})
 //spring4vaadin module requires UI class to be componentscaned
 public class BootUp implements CommandLineRunner {
     @SuppressWarnings("UnusedDeclaration")
