@@ -21,6 +21,7 @@ package com.garyclayburg.data;
 import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.ScriptRunner;
 import com.garyclayburg.importer.CsvImporter;
+import com.garyclayburg.persistence.UserChangeController;
 import com.garyclayburg.persistence.repository.UserStore;
 import com.mongodb.Mongo;
 import org.slf4j.Logger;
@@ -85,5 +86,10 @@ public class ServiceConfig {
         log.info("setting up AttributeService "+ Arrays.toString(scriptRunner.getRoots()));
         attributeService.setScriptRunner(scriptRunner);
         return attributeService;
+    }
+
+    @Bean
+    public UserChangeController userChangeController() {
+        return new UserChangeController();
     }
 }

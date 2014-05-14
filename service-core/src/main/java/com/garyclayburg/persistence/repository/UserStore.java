@@ -20,6 +20,7 @@ package com.garyclayburg.persistence.repository;
 
 import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.GeneratedUser;
+import com.garyclayburg.persistence.UserChangeController;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.domain.UserAudit;
 import org.slf4j.Logger;
@@ -54,6 +55,9 @@ public class UserStore {
     @Autowired
     private AttributeService attributeService;
 
+    @Autowired
+    private UserChangeController userChangeController;
+
     @RequestMapping(value = "/findByFirstname",method = RequestMethod.GET)
     public
     @ResponseBody
@@ -76,6 +80,7 @@ public class UserStore {
         User savedUser = autoUserRepo.save(user);
         UserAudit userAudit = new UserAudit(savedUser);
         userAuditRepo.save(userAudit);
+        userChangeController.fireUserChangedEvent(savedUser);
         return savedUser;
     }
 

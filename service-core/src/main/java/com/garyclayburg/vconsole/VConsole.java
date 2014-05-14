@@ -20,10 +20,14 @@ package com.garyclayburg.vconsole;
 
 import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.GeneratedAttributesBean;
+import com.garyclayburg.persistence.UserChangeController;
+import com.garyclayburg.persistence.UserChangeListener;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.repository.AutoUserRepo;
+import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
+import com.vaadin.event.Action;
 import com.vaadin.event.ItemClickEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.*;
@@ -32,10 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.spring.VaadinUI;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -46,7 +47,7 @@ import java.util.Set;
  */
 //@VaadinUI(path = "/console")
 @VaadinUI(path = "/start")  // maps to e.g.: localhost:8080/console via application.properties
-public class VConsole extends UI {
+public class VConsole extends UI implements UserChangeListener{
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(VConsole.class);
 
@@ -59,11 +60,23 @@ public class VConsole extends UI {
     private AttributeService attributeService;
     private Map<String, Window> targetWindows;
 
+    @Autowired
+    private UserChangeController userChangeController;
+    private Table userTable;
+
     public VConsole() {
         targetWindows = new HashMap<String, Window>();
     }
 
     protected void init(VaadinRequest vaadinRequest) {
+//        final Refresher refresher = new Refresher();
+//        refresher.addListener(new Refresher.RefreshListener() {
+//            @Override
+//            public void refresh(Refresher refresher) {
+//                log.info("refreshing UI...");
+//            }
+//        });
+//        addExtension(refresher);
         targetWindows = new HashMap<String, Window>();
         final VerticalLayout layout = new VerticalLayout();
         layout.setMargin(false);
@@ -72,13 +85,16 @@ public class VConsole extends UI {
         List<User> allUsers = autoUserRepo.findAll();
 
         BeanContainer<String, User> userBeanContainer = new BeanContainer<String, User>(User.class);
-        userBeanContainer.setBeanIdProperty("firstname");
-        User firstUser = allUsers.get(0);
+        userBeanContainer.setBeanIdProperty("id");
+        User firstUser = null;
+        if ( allUsers.size() >0) {
+            firstUser = allUsers.get(0);
+        }
         for (User user : allUsers) {
             userBeanContainer.addBean(user);
+            userChangeController.addChangeListener(user,this);
         }
-        Table userTable = createUserTable(userBeanContainer);
-        final Label attributeLabel = new Label("attribute list here");
+        userTable = createUserTable(userBeanContainer);
         final Table attributeTable = new Table();
         attributeTable.setSizeFull();
         attributeTable.setSelectable(true);
@@ -96,7 +112,6 @@ public class VConsole extends UI {
             @Override
             public void itemClick(ItemClickEvent event) {
                 User selectedUser = (User) ((BeanItem) event.getItem()).getBean();
-                attributeLabel.setValue("we have " + selectedUser.getFirstname() + " " + selectedUser.getLastname());
                 populateItems(selectedUser,attributesBeanContainer);
 
                 Set<String> entitledTargets = attributeService.getEntitledTargets(selectedUser);
@@ -114,6 +129,21 @@ public class VConsole extends UI {
         splitPanel.setSecondComponent(attributeTable);
 
         layout.addComponent(splitPanel);
+    }
+
+    @Override
+    public void userChanged(User user) {
+        log.info("user is changing: " + user.getFirstname());
+        BeanContainer beanContainer = (BeanContainer) userTable.getContainerDataSource();
+        BeanItem item = beanContainer.getItem(user.getId());
+        if (item != null) {
+            log.info("updating user");
+            item.getItemProperty("firstname")
+                    .setValue(user.getFirstname());
+//            userTable.setImmediate(true);
+//            userTable.refreshRowCache();
+//            userTable.markAsDirty();
+        }
     }
 
     private void populateTargetWindow(User selectedUser,final String entitledTarget) {
@@ -166,13 +196,45 @@ public class VConsole extends UI {
     }
 
     private Table createUserTable(BeanContainer<String, User> userBeanContainer) {
-        Table userTable = new Table();
+        final Collection[] selectedRows = new Collection[1];
+        final Table userTable = new Table();
         userTable.setSizeFull();
         userTable.setSelectable(true);
-        userTable.setMultiSelect(false);
+        userTable.setMultiSelect(true);
         userTable.setImmediate(true);
         userTable.setContainerDataSource(userBeanContainer);
-        userTable.setVisibleColumns("firstname","lastname");
+        userTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
+            @Override
+            public void itemClick(ItemClickEvent event) {
+                Collection<?> itemPropertyIds = event.getItem()
+                        .getItemPropertyIds();
+                log.info("properties clicked: " + itemPropertyIds);
+                log.info("multiple select? " + selectedRows[0]);
+            }
+        });
+        userTable.addValueChangeListener(new Property.ValueChangeListener() {
+            @Override
+            public void valueChange(Property.ValueChangeEvent event) {
+                selectedRows[0] = (Collection) userTable.getValue();
+                log.info("selected: " + selectedRows[0]);
+            }
+        });
+        final Action myADaction =new Action("myAD window");
+        userTable.addActionHandler(new Action.Handler() {
+            @Override
+            public Action[] getActions(Object target,Object sender) {
+                return new Action[] {myADaction};
+            }
+
+            @Override
+            public void handleAction(Action action,Object sender,Object target) {
+                Window multiWindow = new Window("multi-user myAD attributes");
+                UI.getCurrent().addWindow(multiWindow);
+                Label stuff = new Label("2 users here "+ selectedRows[0] + " " );
+                multiWindow.setContent(stuff);
+            }
+        });
+//        userTable.setVisibleColumns("firstname","lastname");
         return userTable;
     }
 }

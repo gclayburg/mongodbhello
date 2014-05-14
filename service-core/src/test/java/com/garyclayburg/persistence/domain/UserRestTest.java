@@ -107,7 +107,7 @@ public class UserRestTest extends MongoInMemoryTestBase {
         log.info("modified    : " + lastModifiedDate);
 
         //resave same user
-        Thread.sleep(1500);
+//        Thread.sleep(1500);
         autoUserRepo.save(hank);
         User hank2 = autoUserRepo.findByFirstname("Hank");
         DateTime lastModifiedNow = hank2.getLastModifiedDate();
