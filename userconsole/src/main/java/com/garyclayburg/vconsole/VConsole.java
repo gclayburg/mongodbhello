@@ -68,6 +68,7 @@ public class VConsole extends UI implements UserChangeListener{
     @Autowired
     private UserChangeController userChangeController;
     private Table userTable;
+    private BeanContainer<String, GeneratedAttributesBean> attributesBeanContainer;
 
     public VConsole() {
         targetWindows = new HashMap<String, Window>();
@@ -106,8 +107,7 @@ public class VConsole extends UI implements UserChangeListener{
         attributeTable.setMultiSelect(false);
         attributeTable.setImmediate(true);
 
-        final BeanContainer<String, GeneratedAttributesBean> attributesBeanContainer =
-                new BeanContainer<String, GeneratedAttributesBean>(GeneratedAttributesBean.class);
+        attributesBeanContainer = new BeanContainer<String, GeneratedAttributesBean>(GeneratedAttributesBean.class);
         attributesBeanContainer.setBeanIdProperty("attributeName");
         populateItems(firstUser,attributesBeanContainer);
 
@@ -117,13 +117,7 @@ public class VConsole extends UI implements UserChangeListener{
             @Override
             public void itemClick(ItemClickEvent event) {
                 User selectedUser = (User) ((BeanItem) event.getItem()).getBean();
-                populateItems(selectedUser,attributesBeanContainer);
-
-                Set<String> entitledTargets = attributeService.getEntitledTargets(selectedUser);
-                for (String entitledTarget : entitledTargets) {
-                    populateTargetWindow(selectedUser,entitledTarget);
-
-                }
+                refreshUserValues(selectedUser);
             }
         });
 
@@ -136,6 +130,16 @@ public class VConsole extends UI implements UserChangeListener{
         layout.addComponent(splitPanel);
     }
 
+    private void refreshUserValues(User selectedUser) {
+        populateItems(selectedUser,attributesBeanContainer);
+
+        Set<String> entitledTargets = attributeService.getEntitledTargets(selectedUser);
+        for (String entitledTarget : entitledTargets) {
+            populateTargetWindow(selectedUser,entitledTarget);
+
+        }
+    }
+
     @Override
     public void userChanged(User user) {
         log.info("user is changing: " + user.getFirstname());
@@ -145,9 +149,14 @@ public class VConsole extends UI implements UserChangeListener{
             log.info("updating user");
             item.getItemProperty("firstname")
                     .setValue(user.getFirstname());
+            item.getItemProperty("lastname")
+                    .setValue(user.getLastname());
 //            userTable.setImmediate(true);
 //            userTable.refreshRowCache();
 //            userTable.markAsDirty();
+        }
+        if (userTable.isSelected(user.getId())){
+            refreshUserValues(user);
         }
     }
 
