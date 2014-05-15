@@ -25,10 +25,10 @@ import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.MongodConfig;
-import de.flapdoodle.embed.mongo.config.RuntimeConfig;
+import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
+import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.extract.UserTempNaming;
+import de.flapdoodle.embed.process.runtime.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -99,13 +99,19 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
         DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),"embedmongo-db-*");
         DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),"extract-*-mongod*");
 
-        RuntimeConfig config = new RuntimeConfig();
-        config.setExecutableNaming(new UserTempNaming());
+//        RuntimeConfig config = new RuntimeConfig();
+//        config.setExecutableNaming(new UserTempNaming());
 
-        MongodStarter starter = MongodStarter.getInstance(config);
+//        MongodStarter starter = MongodStarter.getInstance(config);
 
-        MongodExecutable mongoExecutable = starter.prepare(new MongodConfig(Version.V2_2_0,MONGO_TEST_PORT,false));
-        mongoExecutable.start();
+//        MongodExecutable mongoExecutable = starter.prepare(new MongodConfig(Version.V2_2_0,MONGO_TEST_PORT,false));
+//        mongoExecutable.start();
+
+        MongodStarter runtime = MongodStarter.getDefaultInstance();
+        MongodExecutable mongodExe = runtime.prepare(new MongodConfigBuilder().version(Version.Main.PRODUCTION)
+                                                             .net(new Net(MONGO_TEST_PORT,Network.localhostIsIPv6()))
+                                                             .build());
+        mongodExe.start();
 
         mongo = new MongoClient(LOCALHOST,MONGO_TEST_PORT);
         mongo.getDB(DB_NAME);

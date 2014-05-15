@@ -26,10 +26,10 @@ import com.mongodb.MongoClient;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.MongodConfig;
-import de.flapdoodle.embed.mongo.config.RuntimeConfig;
+import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
+import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
-import de.flapdoodle.embed.process.extract.UserTempNaming;
+import de.flapdoodle.embed.process.runtime.Network;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -85,12 +85,20 @@ public class CsvParseFlapDoodleTest {
     @BeforeClass
     public static void initializeDB() throws IOException {
 
+        /*
         RuntimeConfig config = new RuntimeConfig();
         config.setExecutableNaming(new UserTempNaming());
 
         MongodStarter starter = MongodStarter.getInstance(config);
 
         MongodExecutable mongoExecutable = starter.prepare(new MongodConfig(Version.V2_2_0,MONGO_TEST_PORT,false));
+*/
+
+        MongodStarter runtime = MongodStarter.getDefaultInstance();
+        MongodExecutable mongoExecutable = runtime.prepare(new MongodConfigBuilder().version(Version.Main.PRODUCTION)
+                                                                   .net(new Net(MONGO_TEST_PORT,Network.localhostIsIPv6()))
+                                                                   .build());
+
         mongoProcess = mongoExecutable.start();
 
         mongo = new MongoClient(LOCALHOST,MONGO_TEST_PORT);
@@ -146,7 +154,9 @@ public class CsvParseFlapDoodleTest {
     }
 
     private int importOneCSV(String csvFileName) throws URISyntaxException {
-        URL testUsersCsv = this.getClass().getClassLoader().getResource(csvFileName);
+        URL testUsersCsv = this.getClass()
+                .getClassLoader()
+                .getResource(csvFileName);
         assert testUsersCsv != null;
         File csvInputFile = new File(testUsersCsv.toURI());
         return csvImporter.importFile(csvInputFile);
