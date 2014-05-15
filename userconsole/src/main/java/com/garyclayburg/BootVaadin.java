@@ -65,6 +65,15 @@ public class BootVaadin extends SpringBootServletInitializer {
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         log.info("running SpringServletInitializer...");
+        String specifiedProfile = System.getProperty("spring.profiles.active");
+        if (specifiedProfile != null) {
+            log.info("using specified spring profile: " + specifiedProfile);
+        } else{
+//            String defaultProfile = "mongolocal";
+            String defaultProfile = "mongoembedded";
+            System.setProperty("spring.profiles.active",defaultProfile);
+            log.info("using default spring profile: " + defaultProfile);
+        }
         SpringApplicationBuilder sources = application.sources(applicationClass);
         return sources;
     }
