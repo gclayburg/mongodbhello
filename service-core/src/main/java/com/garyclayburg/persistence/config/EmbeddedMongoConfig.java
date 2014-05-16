@@ -23,11 +23,16 @@ import com.garyclayburg.persistence.MongoAuditorUserProvider;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
+import de.flapdoodle.embed.mongo.Command;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import de.flapdoodle.embed.mongo.MongodStarter;
-import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
-import de.flapdoodle.embed.mongo.config.Net;
+import de.flapdoodle.embed.mongo.config.*;
 import de.flapdoodle.embed.mongo.distribution.Version;
+import de.flapdoodle.embed.process.config.IRuntimeConfig;
+import de.flapdoodle.embed.process.extract.ITempNaming;
+import de.flapdoodle.embed.process.extract.UUIDTempNaming;
+import de.flapdoodle.embed.process.io.directories.FixedPath;
+import de.flapdoodle.embed.process.io.directories.IDirectory;
 import de.flapdoodle.embed.process.runtime.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +112,22 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
 //        MongodExecutable mongoExecutable = starter.prepare(new MongodConfig(Version.V2_2_0,MONGO_TEST_PORT,false));
 //        mongoExecutable.start();
 
-        MongodStarter runtime = MongodStarter.getDefaultInstance();
+        //use java tmp dir instead of the default user.home - cloudbees cannot write to user.home
+        IDirectory artifactStorePath = new FixedPath(System.getProperty("java.io.tmpdir") + "/.embeddedmongo");
+        ITempNaming executableNaming = new UUIDTempNaming();
+        Command command = Command.MongoD;
+
+        IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder()
+                .defaults(command)
+                .artifactStore(new ArtifactStoreBuilder()
+                                       .defaults(command)
+                                       .download(new DownloadConfigBuilder()
+                                                         .defaultsForCommand(command)
+                                                         .artifactStorePath(artifactStorePath))
+                                       .executableNaming(executableNaming))
+                .build();
+
+        MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
         MongodExecutable mongodExe = runtime.prepare(new MongodConfigBuilder().version(Version.Main.PRODUCTION)
                                                              .net(new Net(MONGO_TEST_PORT,Network.localhostIsIPv6()))
                                                              .build());
