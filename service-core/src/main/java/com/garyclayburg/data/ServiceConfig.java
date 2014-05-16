@@ -75,7 +75,7 @@ public class ServiceConfig {
     public ScriptRunner scriptRunner() throws IOException {
         ScriptRunner scriptRunner = new ScriptRunner();
 
-        scriptRunner.setRoot(new String[]{"/tmp/groovies"});
+        scriptRunner.setRoot(new String[]{"/fs-groovy"});
         return scriptRunner;
     }
 
