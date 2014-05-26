@@ -65,8 +65,7 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     private UserStore auditedUserRepo;
 
-    @Qualifier("userAuditRepo")
-    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
+    @SuppressWarnings({"SpringJavaAutowiringInspection","SpringJavaAutowiredMembersInspection"})
     @Autowired
     private UserAuditRepo userAuditRepo;
     private User hank;
@@ -146,6 +145,7 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
         auditedUserRepo.save(hank);
         assertEquals(1,autoUserRepo.count());
         assertEquals(2,userAuditRepo.count());
+        log.info("hank id: " + hank.getId());
         List<UserAudit> userAuditList = userAuditRepo.findById(hank.getId());
 
         assertThat(userAuditList,empty());
