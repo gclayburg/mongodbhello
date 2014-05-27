@@ -22,7 +22,7 @@
         <!-- encoders are  by default assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
         <encoder>
-            <pattern>%date{ISO8601} [%7.7thread] %-5level %-36logger{36} - %msg%n</pattern>
+            <pattern>%date{ISO8601} [%17.17thread] %-5level %-36logger{36} - %msg%n</pattern>
             <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-36logger{36} - %msg%n</pattern>-->
             <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-36logger - %msg%n</pattern>-->
             <!--<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} %file:%line - %msg%n%caller{8, CALLER_EVAL}</Pattern>-->

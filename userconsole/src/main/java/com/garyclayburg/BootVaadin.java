@@ -74,6 +74,14 @@ public class BootVaadin extends SpringBootServletInitializer {
             System.setProperty("spring.profiles.active",defaultProfile);
             log.info("using default spring profile: " + defaultProfile);
         }
+//        MutablePropertySources propertySources = application.context()
+//                .getEnvironment()
+//                .getPropertySources();
+//        for (PropertySource<?> propertySource : propertySources) {
+//            log.debug("property source: " + propertySource.getName() +":"+ propertySource.getSource() );
+//        }
+//        application.context().getEnvironment().containsProperty()
+//        application.environment(new StandardEnvironment().setActiveProfiles();)
         SpringApplicationBuilder sources = application.sources(applicationClass);
         return sources;
     }

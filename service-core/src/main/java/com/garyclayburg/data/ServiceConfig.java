@@ -18,8 +18,6 @@
 
 package com.garyclayburg.data;
 
-import com.garyclayburg.attributes.AttributeService;
-import com.garyclayburg.attributes.ScriptRunner;
 import com.garyclayburg.importer.CsvImporter;
 import com.garyclayburg.persistence.UserChangeController;
 import com.garyclayburg.persistence.repository.UserStore;
@@ -29,9 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.io.IOException;
-import java.util.Arrays;
+import org.springframework.context.annotation.Import;
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,6 +38,7 @@ import java.util.Arrays;
  */
 @Configuration
 //@EnableMongoAuditing
+@Import(ServiceAttributeConfig.class)
 public class ServiceConfig {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(ServiceConfig.class);
@@ -62,30 +59,13 @@ public class ServiceConfig {
     }
 
     @Bean
-    public UserStore auditedUserRepo(){
+    public UserStore auditedUserRepo() {
         return new UserStore();
     }
 
     @Bean
     public ProvisionService provisionService() {
         return new ProvisionService();
-    }
-
-    @Bean
-    public ScriptRunner scriptRunner() throws IOException {
-        ScriptRunner scriptRunner = new ScriptRunner();
-
-        scriptRunner.setRoot(new String[]{"/fs-groovy"});
-        return scriptRunner;
-    }
-
-    @Bean
-    public AttributeService attributeService() throws IOException {
-        AttributeService attributeService = new AttributeService();
-        ScriptRunner scriptRunner = scriptRunner();
-        log.info("setting up AttributeService "+ Arrays.toString(scriptRunner.getRoots()));
-        attributeService.setScriptRunner(scriptRunner);
-        return attributeService;
     }
 
     @Bean

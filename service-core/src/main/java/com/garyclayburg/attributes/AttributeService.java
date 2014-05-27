@@ -59,6 +59,18 @@ public class AttributeService {
     public void setScriptRunner(ScriptRunner runner) {
         log.info("setting scriptrunner...");
         this.runner = runner;
+        if ( runner.getRoots() != null) {
+            Runnable runnable = new Runnable() {
+                public void run() {
+                    log.info("     pre-loading initial groovy scripts...");
+                    findAnnotatedGroovyClasses(AttributesClass.class);
+                    log.info("DONE pre-loading initial groovy scripts...");
+                }
+            };
+            Thread t = new Thread(runnable);
+            t.setName("pre-load");
+            t.start();
+        }
     }
 
     public Set<String> getEntitledTargets(User user) {
@@ -172,7 +184,9 @@ public class AttributeService {
         File groovyRootFile = new File(groovyRootPath);
 
         Collection<File> listFiles = FileUtils.listFiles(groovyRootFile,new String[]{"groovy"},true);
+        log.info("Finished Looking for groovy classes in path: "+groovyRootPath);
         for (File listFile : listFiles) {
+            log.debug("processing groovy class: " + listFile.getPath());
             String scriptName = listFile.getPath()
                     .replaceFirst(groovyRootPath,"");
             try {

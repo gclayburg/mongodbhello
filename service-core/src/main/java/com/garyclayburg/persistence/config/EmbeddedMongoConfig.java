@@ -36,8 +36,10 @@ import de.flapdoodle.embed.process.io.directories.IDirectory;
 import de.flapdoodle.embed.process.runtime.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
@@ -46,6 +48,8 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Properties;
 
 /**
  * Created by IntelliJ IDEA.
@@ -58,6 +62,8 @@ import java.util.ArrayList;
 @EnableMongoRepositories
 @EnableMongoAuditing
 @Profile("mongoembedded")
+@DependsOn({"attributeService"}) //This "code smell" is used to force the pre-loading of groovy scripts before starting embedded mongo in order to get a usable vaadin userconsole running quicker when groovy scripts are hosted on S3 - which is slow to initially load scripts
+//@DependsOn({"attributeService","scriptRunner"}) //This "code smell" is used to force the pre-loading of groovy scripts before starting embedded mongo in order to get a usable vaadin userconsole running quicker when groovy scripts are hosted on S3 - which is slow to initially load scripts
 //@ComponentScan(basePackageClasses = {MongoConfig.class})
 //@ComponentScan(basePackages = "com.garyclayburg.persistence")
 public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
@@ -68,6 +74,9 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
     private static final int MONGO_TEST_PORT = 27029;
 
     private static Mongo mongo;
+
+    @Value(value = "${mongoDownloadServer:none}")
+    private String mongoDownloadServer;
 
     @Override
     protected String getDatabaseName() {
@@ -98,6 +107,9 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
     @Bean
     @Override
     public Mongo mongo() throws Exception {
+
+        dumpSystemProperties();
+
         log.info("configuring embedded mongo");
         //Files that could be left over after a previous execution was (rudely) killed with kill -9
 
@@ -116,17 +128,24 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
         IDirectory artifactStorePath = new FixedPath(System.getProperty("java.io.tmpdir") + "/.embeddedmongo");
         ITempNaming executableNaming = new UUIDTempNaming();
         Command command = Command.MongoD;
+        IRuntimeConfig runtimeConfig;
 
-        IRuntimeConfig runtimeConfig = new RuntimeConfigBuilder()
-                .defaults(command)
-                .artifactStore(new ArtifactStoreBuilder()
-                                       .defaults(command)
-                                       .download(new DownloadConfigBuilder()
-                                                         .defaultsForCommand(command)
-                                                         .artifactStorePath(artifactStorePath))
-                                       .executableNaming(executableNaming))
-                .build();
-
+        if (!mongoDownloadServer.equals("none")) {
+            runtimeConfig = new RuntimeConfigBuilder().defaults(command)
+                    .artifactStore(new ArtifactStoreBuilder().defaults(command)
+                                           .download(new DownloadConfigBuilder().defaultsForCommand(command)
+                                                             .downloadPath(mongoDownloadServer)
+                                                             .artifactStorePath(artifactStorePath))
+                                           .executableNaming(executableNaming))
+                    .build();
+        } else{
+            runtimeConfig = new RuntimeConfigBuilder().defaults(command)
+                    .artifactStore(new ArtifactStoreBuilder().defaults(command)
+                                           .download(new DownloadConfigBuilder().defaultsForCommand(command)
+                                                             .artifactStorePath(artifactStorePath))
+                                           .executableNaming(executableNaming))
+                    .build();
+        }
         MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
         MongodExecutable mongodExe = runtime.prepare(new MongodConfigBuilder().version(Version.Main.PRODUCTION)
                                                              .net(new Net(MONGO_TEST_PORT,Network.localhostIsIPv6()))
@@ -139,6 +158,17 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
         return new MongoClient(new ArrayList<ServerAddress>() {{
             add(new ServerAddress(LOCALHOST,MONGO_TEST_PORT));
         }});
+    }
+
+    private void dumpSystemProperties() {
+        log.info("system properties dump");
+        Properties systemProperties = System.getProperties();
+        Enumeration enuProp = systemProperties.propertyNames();
+        while (enuProp.hasMoreElements()) {
+            String propertyName = (String) enuProp.nextElement();
+            String propertyValue = systemProperties.getProperty(propertyName);
+            log.info(propertyName + ": " + propertyValue);
+        }
     }
 
     @Override
