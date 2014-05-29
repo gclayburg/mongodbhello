@@ -74,6 +74,8 @@ public class AttributeServiceSpringTest extends MongoInMemoryTestBase {
                 .getPath();
         scriptRunner.setRoot(new String[]{scriptRoot});
 
+        attributeService.setScriptRunner(scriptRunner);
+
     }
 
     @Test

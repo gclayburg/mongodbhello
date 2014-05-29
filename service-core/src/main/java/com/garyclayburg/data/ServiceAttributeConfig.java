@@ -20,6 +20,7 @@ package com.garyclayburg.data;
 
 import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.ScriptRunner;
+import com.garyclayburg.filesystem.DirectoryWalker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -79,9 +80,13 @@ public class ServiceAttributeConfig {
         if (filePath != null) {
             File f = new File(filePath);
             if (f.exists()) {
-                scriptRunner = new ScriptRunner();
-                scriptRunner.setRoot(new String[]{filePath});
-                log.info("Using this directory for groovy scripts: {}",filePath);
+                String directoryTree = DirectoryWalker.printDirectoryTree(f);
+                log.debug("Directory tree: \n" + directoryTree);
+                if (f.isDirectory()) {
+                    scriptRunner = new ScriptRunner();
+                    scriptRunner.setRoot(new String[]{filePath});
+                    log.info("Using this directory for groovy scripts: {}",filePath);
+                }
             }
         }
         return scriptRunner;

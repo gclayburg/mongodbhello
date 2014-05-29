@@ -63,9 +63,7 @@ public class ScriptRunner {
         return gse.getGroovyClassLoader();
     }
 
-    public synchronized Class loadClass(String scriptName) throws ResourceException, ScriptException {
-        //This is synchronized to allow groovy classes to be loaded asynchronously on startup
-        //This is important for loading groovy classes hosted on amazon s3
+    public Class loadClass(String scriptName) throws ResourceException, ScriptException {
         if (scriptName !=null){
             String scrubbedName = scriptName.replaceAll("^/*","");
             log.debug("start loading groovy class: " + scrubbedName);
