@@ -25,3 +25,6 @@ target/
 
 #Ant generated
 build/
+
+#gwt/vaadin temporary files
+gwt-unitCache/

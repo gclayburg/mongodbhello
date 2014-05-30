@@ -24,7 +24,9 @@ import com.garyclayburg.persistence.UserChangeController;
 import com.garyclayburg.persistence.UserChangeListener;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.repository.AutoUserRepo;
+import com.github.wolfie.refresher.Refresher;
 import com.vaadin.annotations.Title;
+import com.vaadin.annotations.Widgetset;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
@@ -48,7 +50,7 @@ import java.util.*;
  */
 //@VaadinUI(path = "/console")
 @VaadinUI(path = "/start")  // maps to e.g.: localhost:8080/console via application.properties
-//@Widgetset("com.garyclayburg.AppWidgetSet")
+@Widgetset("com.garyclayburg.AppWidgetSet")
 @Title("user console!")
 public class VConsole extends UI implements UserChangeListener{
     @SuppressWarnings("UnusedDeclaration")
@@ -73,7 +75,6 @@ public class VConsole extends UI implements UserChangeListener{
     }
 
     protected void init(VaadinRequest vaadinRequest) {
-        /*
         final Refresher refresher = new Refresher();
         refresher.addListener(new Refresher.RefreshListener() {
             @Override
@@ -82,7 +83,7 @@ public class VConsole extends UI implements UserChangeListener{
             }
         });
         addExtension(refresher);
-        */
+
         targetWindows = new HashMap<String, Window>();
         final VerticalLayout layout = new VerticalLayout();
         layout.setMargin(false);
