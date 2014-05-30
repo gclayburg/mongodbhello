@@ -31,6 +31,7 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.*;
 
 import static org.reflections.ReflectionUtils.getAllMethods;
@@ -51,12 +52,13 @@ public class AttributeService {
     @Autowired
     private ScriptRunner runner;
     private Set<String> detectedTargetIds;
-    private final List<Class> annotatedGroovyClasses;
-    private boolean scanned = false;
+
+    private final Map<String,Class> groovyClassMap;
+    private boolean initiallyScanned = false;
 
     public AttributeService() {
         detectedTargetIds = new HashSet<>();
-        annotatedGroovyClasses = new ArrayList<>();
+        groovyClassMap = new HashMap<>();
     }
 
     public void setScriptRunner(ScriptRunner runner) {
@@ -65,12 +67,12 @@ public class AttributeService {
         if ( runner.getRoots() != null) {
                 Runnable runnable = new Runnable() {
                     public void run() {
-                        synchronized(annotatedGroovyClasses) {
-                            scanned=true;
+                        synchronized(groovyClassMap) {
+                            initiallyScanned =true;
                             log.info("     pre-loading initial groovy scripts...");
-                            List<Class> loadedClasses = findAnnotatedGroovyClasses(AttributesClass.class);
-                            annotatedGroovyClasses.clear();
-                            annotatedGroovyClasses.addAll(loadedClasses);
+                            Map<String, Class> annotatedClasses = findAnnotatedGroovyClasses(AttributesClass.class);
+                            groovyClassMap.clear();
+                            groovyClassMap.putAll(annotatedClasses);
                             log.info("DONE pre-loading initial groovy scripts...");
                         }
                     }
@@ -78,6 +80,37 @@ public class AttributeService {
             Thread t = new Thread(runnable);
             t.setName("pre-load" + String.valueOf(Math.random()).substring(2,6));
             t.start();
+        }
+    }
+
+    public void removeGroovyClass(Path path){
+        if (path.toString().endsWith(".groovy")) {
+            String absolutePath = path.toAbsolutePath().toString();
+            synchronized(groovyClassMap) {
+                log.debug("removing groovy: " +absolutePath);
+                groovyClassMap.remove(absolutePath);
+            }
+        }
+    }
+
+    public void reloadGroovyClass(Path path){
+        String groovyRootPath = runner.getRoots()[0];
+        if (path.toString().endsWith(".groovy")) {
+            String absolutePath = path.toAbsolutePath().toString();
+            log.info("reloading groovy: " + absolutePath);
+
+            String scriptName = absolutePath.replaceFirst(groovyRootPath,"");
+            try {
+                Class groovyClass = runner.loadClass(scriptName);
+                synchronized(groovyClassMap){
+                    groovyClassMap.put(absolutePath,groovyClass);
+                }
+                log.debug("reloaded groovy: " + absolutePath);
+            } catch (ResourceException e) {
+                log.error("Cannot access groovy script to load: " + scriptName + " Skipping.",e);
+            } catch (ScriptException e) {
+                log.error("Cannot parse groovy script: " + scriptName + " Skipping.",e);
+            }
         }
     }
 
@@ -121,7 +154,7 @@ public class AttributeService {
         log.info("looking for method");
 
 //        attributeClasses = findAnnotatedGroovyClasses(AttributesClass.class);
-        while (!scanned){
+        while (!initiallyScanned){
             //wait until thread to pre-load scripts has started (and locked annotatedGroovyClasses)
             //mostly needed for preventing race condition for fast-running unit tests
             try {
@@ -130,10 +163,10 @@ public class AttributeService {
                 log.warn("kaboom",e);
             }
         }
-        synchronized(annotatedGroovyClasses) {
+        synchronized(groovyClassMap) {
             log.debug("checking out annotated classes");
-            if (annotatedGroovyClasses.size() > 0) {
-                for (Class groovyAttributeClass : annotatedGroovyClasses) {
+            if (groovyClassMap.size() > 0) {
+                for (Class groovyAttributeClass : groovyClassMap.values()) {
                     try {
                         Object groovyObj = groovyAttributeClass.newInstance();
                         Set<Method> attributeMethods =
@@ -199,8 +232,8 @@ public class AttributeService {
         return attributeValues;
     }
 
-    List<Class> loadAllGroovyClasses() {
-        ArrayList<Class> loadedClasses = new ArrayList<>();
+    Map<String, Class> loadAllGroovyClasses() {
+        Map<String,Class> loadedClasses = new HashMap<>();
         String groovyRootPath = runner.getRoots()[0];
         //todo deal with exception if groovy root has not been set:
         /*
@@ -243,7 +276,7 @@ java.lang.NullPointerException: null
             String scriptName = listFile.getPath()
                     .replaceFirst(groovyRootPath,"");
             try {
-                loadedClasses.add(runner.loadClass(scriptName));
+                loadedClasses.put(listFile.getPath(),runner.loadClass(scriptName));
             } catch (ResourceException e) {
                 log.error("Cannot access groovy script to load: " + scriptName + " Skipping.",e);
             } catch (ScriptException e) {
@@ -254,12 +287,14 @@ java.lang.NullPointerException: null
         return loadedClasses;
     }
 
-    List<Class> findAnnotatedGroovyClasses(Class<? extends Annotation> desiredAnnotation) {
-        List<Class> foundClasses = new ArrayList<>();
-        List<Class> allGroovyClasses = loadAllGroovyClasses();
-        for (Class loadedGroovyClass : allGroovyClasses) {
+    Map<String, Class> findAnnotatedGroovyClasses(Class<? extends Annotation> desiredAnnotation) {
+        Map<String,Class> foundClasses = new HashMap<>();
+
+        Map<String,Class> allGroovyClasses = loadAllGroovyClasses();
+        for (String absGroovyFileName : allGroovyClasses.keySet()) {
+            Class loadedGroovyClass = allGroovyClasses.get(absGroovyFileName);
             if (loadedGroovyClass.isAnnotationPresent(desiredAnnotation)) {
-                foundClasses.add(loadedGroovyClass);
+                foundClasses.put(absGroovyFileName,loadedGroovyClass);
                 log.info("detected " + desiredAnnotation + " annotation in groovy class: " + loadedGroovyClass);
             }
         }

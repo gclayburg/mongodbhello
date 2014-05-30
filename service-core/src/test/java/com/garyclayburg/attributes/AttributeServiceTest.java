@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -139,7 +141,21 @@ public class AttributeServiceTest {
     public void testLoadGroovyClasses() throws Exception {
         AttributeService attributeService = new AttributeService();
         attributeService.setScriptRunner(scriptRunner);
-        List<Class> classList = attributeService.loadAllGroovyClasses();
+        Map<String, Class> classList = attributeService.loadAllGroovyClasses();
+        assertEquals(3,classList.size());
+    }
+
+    @Test
+    public void testReLoadGroovyClasses() throws Exception {
+        AttributeService attributeService = new AttributeService();
+        attributeService.setScriptRunner(scriptRunner);
+        Map<String, Class> classList = attributeService.loadAllGroovyClasses();
+        assertEquals(3,classList.size());
+        String root = scriptRunner.getRoots()[0];
+        log.info("groovy root: " + root);
+        Path gpath = Paths.get(root + "/emptyscript.groovy");
+        log.info("groovy path: " + gpath);
+        attributeService.reloadGroovyClass(gpath);
         assertEquals(3,classList.size());
     }
 
@@ -147,14 +163,14 @@ public class AttributeServiceTest {
     public void testFindAnnotatedGroovyClasses() throws Exception {
         AttributeService attributeService = new AttributeService();
         attributeService.setScriptRunner(scriptRunner);
-        List<Class> classList = attributeService.findAnnotatedGroovyClasses(AttributesClass.class);
+        Map<String, Class> classList = attributeService.findAnnotatedGroovyClasses(AttributesClass.class);
         assertEquals(1,classList.size());
     }
 
     @Test
     public void testRunAScript() throws Exception {
 
-        Map<String, Object> bindingMap = new HashMap<String, Object>();
+        Map<String, Object> bindingMap = new HashMap<>();
         Binding binding = new Binding(bindingMap);
 
         Object obj = scriptRunner.execute("somescript.groovy",binding);

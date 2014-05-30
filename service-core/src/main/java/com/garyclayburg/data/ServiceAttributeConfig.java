@@ -21,14 +21,18 @@ package com.garyclayburg.data;
 import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.ScriptRunner;
 import com.garyclayburg.filesystem.DirectoryWalker;
+import com.garyclayburg.filesystem.WatchDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -101,6 +105,18 @@ public class ServiceAttributeConfig {
         }
         attributeService.setScriptRunner(scriptRunner);
         return attributeService;
+    }
+
+    @Bean
+    @Profile({"mongoembedded","mongolocal"}) //i.e. don't start up thread when running tests
+    public WatchDir watchDir() throws IOException {
+        ScriptRunner scriptRunner = scriptRunner();
+        Path watchPath = Paths.get(scriptRunner.getRoots()[0]);
+        WatchDir watcher = new WatchDir(watchPath,true);
+        Thread t = new Thread(watcher,"groovyWatcher");
+        t.setDaemon(true);
+        t.start();
+        return watcher;
     }
 
 }
