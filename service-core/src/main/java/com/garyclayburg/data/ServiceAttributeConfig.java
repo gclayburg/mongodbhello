@@ -83,7 +83,8 @@ public class ServiceAttributeConfig {
         log.info("checking for groovy scripts at directory: " + filePath);
         if (filePath != null) {
             File f = new File(filePath);
-            if (f.exists()) {
+            log.info("checking file");
+            if (f.exists()) { //note: directory on s3fs mount will not appear to exist if option -o allow_other is not used when mounting filesystem so that tomcat user has read permission
                 String directoryTree = DirectoryWalker.printDirectoryTree(f);
                 log.debug("Directory tree: \n" + directoryTree);
                 if (f.isDirectory()) {
@@ -111,11 +112,17 @@ public class ServiceAttributeConfig {
     @Profile({"mongoembedded","mongolocal"}) //i.e. don't start up thread when running tests
     public WatchDir watchDir() throws IOException {
         ScriptRunner scriptRunner = scriptRunner();
-        Path watchPath = Paths.get(scriptRunner.getRoots()[0]);
+        String[] roots = scriptRunner.getRoots();
+        if (roots == null) {
+            log.error("Groovy root not configured");
+            return null;
+        }
+        Path watchPath = Paths.get(roots[0]);
         WatchDir watcher = new WatchDir(watchPath,true);
         Thread t = new Thread(watcher,"groovyWatcher");
         t.setDaemon(true);
         t.start();
+
         return watcher;
     }
 

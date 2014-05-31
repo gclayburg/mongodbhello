@@ -71,9 +71,10 @@ import static java.nio.file.StandardWatchEventKinds.*;
 @Component
 public class WatchDir implements Runnable {
 
-    private final WatchService watcher;
-    private final Map<WatchKey,Path> keys;
-    private final boolean recursive;
+    private WatchService watcher;
+    private Map<WatchKey,Path> keys;
+    private boolean recursive;
+    private Path watchDir;
     private boolean trace = false;
 
     @SuppressWarnings("UnusedDeclaration")
@@ -127,9 +128,13 @@ public class WatchDir implements Runnable {
      * Creates a WatchService and registers the given directory
      */
     public WatchDir(Path dir, boolean recursive) throws IOException {
+        this.recursive = recursive;
+        this.watchDir = dir;
+    }
+
+    private void init(Path dir,boolean recursive) throws IOException {
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<>();
-        this.recursive = recursive;
 
         if (recursive) {
             log.debug("Scanning {} ...\n",dir);
@@ -145,68 +150,73 @@ public class WatchDir implements Runnable {
 
     @Override
     public void run() {
-        for (;;) {
+        try {
+            init(watchDir,recursive);
+            for (;;) {
 
-            log.debug("Listening for File Events...");
-            // wait for key to be signalled
-            WatchKey key;
-            try {
-                key = watcher.take();
-            } catch (InterruptedException x) {
-                return;
-            }
+                log.debug("Listening for File Events...");
+                // wait for key to be signalled
+                WatchKey key;
+                try {
+                    key = watcher.take();
+                } catch (InterruptedException x) {
+                    return;
+                }
 
-            Path dir = keys.get(key);
-            if (dir == null) {
-                log.warn("WatchKey not recognized!! " + key);
-                continue;
-            }
-            for (WatchEvent<?> event : key.pollEvents()) {
-                WatchEvent.Kind kind = event.kind();
-
-                // TBD - provide example of how OVERFLOW event is handled
-                if (kind == OVERFLOW) {
+                Path dir = keys.get(key);
+                if (dir == null) {
+                    log.warn("WatchKey not recognized!! " + key);
                     continue;
                 }
+                for (WatchEvent<?> event : key.pollEvents()) {
+                    WatchEvent.Kind kind = event.kind();
 
-                // Context for directory entry event is the file name of entry
-                WatchEvent<Path> ev = cast(event);
-                Path name = ev.context();
-                Path child = dir.resolve(name);
+                    // TBD - provide example of how OVERFLOW event is handled
+                    if (kind == OVERFLOW) {
+                        continue;
+                    }
 
-                // print out event
-                log.debug("{}: {}",event.kind()
-                        .name(),child);
-                if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
-                    attributeService.reloadGroovyClass(child);
-                } else if (kind == ENTRY_DELETE){
-                    attributeService.removeGroovyClass(child);
+                    // Context for directory entry event is the file name of entry
+                    WatchEvent<Path> ev = cast(event);
+                    Path name = ev.context();
+                    Path child = dir.resolve(name);
+
+                    // print out event
+                    log.debug("{}: {}",event.kind()
+                            .name(),child);
+                    if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
+                        attributeService.reloadGroovyClass(child);
+                    } else if (kind == ENTRY_DELETE){
+                        attributeService.removeGroovyClass(child);
+                    }
+
+
+                    // if directory is created, and watching recursively, then
+                    // register it and its sub-directories
+                    if (recursive && (kind == ENTRY_CREATE)) {
+                        try {
+                            if (Files.isDirectory(child,NOFOLLOW_LINKS)) {
+                                registerAll(child);
+                            }
+                        } catch (IOException x) {
+                            log.warn("Cannot register possible new directory for groovy changes: {}",child);
+                        }
+                    }
                 }
 
+                // reset key and remove from set if directory no longer accessible
+                boolean valid = key.reset();
+                if (!valid) {
+                    keys.remove(key);
 
-                // if directory is created, and watching recursively, then
-                // register it and its sub-directories
-                if (recursive && (kind == ENTRY_CREATE)) {
-                    try {
-                        if (Files.isDirectory(child,NOFOLLOW_LINKS)) {
-                            registerAll(child);
-                        }
-                    } catch (IOException x) {
-                        log.warn("Cannot register possible new directory for groovy changes: {}",child);
+                    // all directories are inaccessible
+                    if (keys.isEmpty()) {
+                        break;
                     }
                 }
             }
-
-            // reset key and remove from set if directory no longer accessible
-            boolean valid = key.reset();
-            if (!valid) {
-                keys.remove(key);
-
-                // all directories are inaccessible
-                if (keys.isEmpty()) {
-                    break;
-                }
-            }
+        } catch (IOException e) {
+            log.warn("Could not start File Watch service",e);
         }
     }
 
