@@ -82,6 +82,19 @@ public class AttributeService {
             Thread t = new Thread(runnable);
             t.setName("pre-load" + String.valueOf(Math.random()).substring(2,6));
             t.start();
+        } else{ // use read-only embedded scripts
+            log.warn("Custom groovy policy scripts not found.  Defaulting to read-only embedded groovy policy scripts");
+            initiallyScanned = true;
+            ClassLoader parent = getClass().getClassLoader();
+            String scriptName = "embeddedgroovy/com/embedded/DefaultAttributes.groovy";
+            InputStream groovyIS = parent.getResourceAsStream(scriptName);
+
+            GroovyClassLoader loader = new GroovyClassLoader(parent);
+            Class parsedDefaultClass = loader.parseClass(groovyIS,scriptName);
+            groovyClassMap.clear();
+            groovyClassMap.put(scriptName,parsedDefaultClass);
+
+
         }
     }
 
@@ -288,15 +301,6 @@ java.lang.NullPointerException: null
                 }
             }
             log.info("Total groovy classes found in groovyRoot: " + listFiles.size());
-        } else{
-            ClassLoader parent = getClass().getClassLoader();
-            String scriptName = "embeddedgroovy/com/embedded/DefaultAttributes.groovy";
-            InputStream groovyIS = parent.getResourceAsStream(scriptName);
-
-            GroovyClassLoader loader = new GroovyClassLoader(parent);
-            Class parsedDefaultClass = loader.parseClass(groovyIS,scriptName);
-            loadedClasses.put(scriptName,parsedDefaultClass);
-
         }
         return loadedClasses;
     }
