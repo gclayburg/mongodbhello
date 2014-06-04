@@ -65,16 +65,7 @@ public class ServiceAttributeConfig {
         if (runner!=null){
             return runner;
         }
-        runner = checkSetRoot("/fs-groovy");
-        if (runner!=null){
-            return runner;
-        }
-        runner = checkSetRoot(System.getProperty("user.home") + "/my_groovy/groovies");
-        if (runner!=null){
-            return runner;
-        }
-
-        log.error("Cannot load groovy scripts from any known location");
+        log.warn("Cannot load groovy scripts from any known location");
         return new ScriptRunner();
     }
 

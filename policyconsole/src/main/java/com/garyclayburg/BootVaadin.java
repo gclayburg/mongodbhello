@@ -46,6 +46,8 @@ public class BootVaadin extends SpringBootServletInitializer {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(BootVaadin.class);
     public static void main(String[] args){
+        log.info("running main...");
+        ensureActiveProfile();
         ApplicationContext ctx = SpringApplication.run(BootUp.class);
         log.info("active profiles: " + Arrays.toString(ctx.getEnvironment()
                                                                .getActiveProfiles()));
@@ -65,15 +67,7 @@ public class BootVaadin extends SpringBootServletInitializer {
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         log.info("running SpringServletInitializer...");
-        String specifiedProfile = System.getProperty("spring.profiles.active");
-        if (specifiedProfile != null) {
-            log.info("using specified spring profile: " + specifiedProfile);
-        } else{
-//            String defaultProfile = "mongolocal";
-            String defaultProfile = "mongoembedded";
-            System.setProperty("spring.profiles.active",defaultProfile);
-            log.info("using default spring profile: " + defaultProfile);
-        }
+        ensureActiveProfile();
 //        MutablePropertySources propertySources = application.context()
 //                .getEnvironment()
 //                .getPropertySources();
@@ -84,6 +78,18 @@ public class BootVaadin extends SpringBootServletInitializer {
 //        application.environment(new StandardEnvironment().setActiveProfiles();)
         SpringApplicationBuilder sources = application.sources(applicationClass);
         return sources;
+    }
+
+    private static void ensureActiveProfile() {
+        String specifiedProfile = System.getProperty("spring.profiles.active");
+        if (specifiedProfile != null) {
+            log.info("using specified spring profile: " + specifiedProfile);
+        } else{
+//            String defaultProfile = "mongolocal";
+            String defaultProfile = "mongoembedded";
+            System.setProperty("spring.profiles.active",defaultProfile);
+            log.info("using default spring profile: " + defaultProfile);
+        }
     }
 
     private static Class<BootVaadin> applicationClass = BootVaadin.class;

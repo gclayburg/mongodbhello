@@ -29,10 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
 
@@ -44,10 +42,10 @@ import static org.junit.Assert.assertEquals;
  * @author Gary Clayburg
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class AttributeServiceSpringTest extends MongoInMemoryTestBase {
+public class AttributeServiceSpringDefaultTest extends MongoInMemoryTestBase {
 
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(AttributeServiceSpringTest.class);
+    private static final Logger log = LoggerFactory.getLogger(AttributeServiceSpringDefaultTest.class);
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
@@ -61,21 +59,10 @@ public class AttributeServiceSpringTest extends MongoInMemoryTestBase {
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     private UserStore auditedUserRepo;
 
+
     @Before
     public void setUp() throws IOException, URISyntaxException {
         log.debug("setUp() test method: " + this);
-        URL groovyURL = this.getClass()
-                .getClassLoader()
-                .getResource("groovies/emptyscript.groovy");
-
-        assert groovyURL != null;
-
-        String scriptRoot = new File(groovyURL.toURI()).getParentFile()
-                .getPath();
-        scriptRunner.setRoot(new String[]{scriptRoot});
-
-        attributeService.setScriptRunner(scriptRunner);
-
     }
 
     @Test
@@ -84,7 +71,7 @@ public class AttributeServiceSpringTest extends MongoInMemoryTestBase {
         User luke = new User();
         luke.setFirstname("Luke");
         luke.setLastname("Bryan");
-        luke.setId("11223345");
+        luke.setId("11223344");
         auditedUserRepo.save(luke);
 
         GeneratedUser lukeFound = auditedUserRepo.findGeneratedUserByFirstname("Luke");

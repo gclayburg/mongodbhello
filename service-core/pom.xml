@@ -19,13 +19,15 @@
 
     <build>
         <plugins>
-            <plugin>
-                <!-- this can produce spring-style executable jar
+            <!-- this can produce spring-style executable jar
 http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#using-boot-maven-plugin
-                -->
+            -->
+            <!--
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            -->
         </plugins>
     </build>
 

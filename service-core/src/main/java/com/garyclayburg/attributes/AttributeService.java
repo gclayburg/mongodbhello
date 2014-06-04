@@ -19,6 +19,7 @@
 package com.garyclayburg.attributes;
 
 import com.garyclayburg.persistence.domain.User;
+import groovy.lang.GroovyClassLoader;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 import org.apache.commons.io.FileUtils;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -234,9 +236,11 @@ public class AttributeService {
 
     Map<String, Class> loadAllGroovyClasses() {
         Map<String,Class> loadedClasses = new HashMap<>();
-        String groovyRootPath = runner.getRoots()[0];
-        //todo deal with exception if groovy root has not been set:
-        /*
+        String[] roots = runner.getRoots();
+        if (roots != null) {
+            String groovyRootPath = roots[0];
+            //todo deal with exception if groovy root has not been set:
+            /*
         2014-05-28 14:07:51,638 [p-bio-8386-exec-5] ERROR o.a.c.c.C.[.[.[.[springAwareVaadinServlet] - Servlet.service() for servlet [springAwareVaadinServlet] in context with path [] threw exception [com.vaadin.server.ServiceException: java.lang.NullPointerException] with root cause
 java.lang.NullPointerException: null
 	at com.garyclayburg.attributes.AttributeService.loadAllGroovyClasses(AttributeService.java:182) ~[service-core-1.0-SNAPSHOT.jar:na]
@@ -250,12 +254,12 @@ java.lang.NullPointerException: null
 	at com.vaadin.server.communication.UIInitHandler.getBrowserDetailsUI(UIInitHandler.java:223) ~[vaadin-server-7.1.13.jar:7.1.13]
 
          */
-        log.info("Looking for groovy classes in path: " + groovyRootPath);
-        File groovyRootFile = new File(groovyRootPath);
+            log.info("Looking for groovy classes in path: " + groovyRootPath);
+            File groovyRootFile = new File(groovyRootPath);
 
-        Collection<File> listFiles = FileUtils.listFiles(groovyRootFile,new String[]{"groovy"},true);
-        //todo dealwith this exception if s3 is screwey:
-        /*
+            Collection<File> listFiles = FileUtils.listFiles(groovyRootFile,new String[]{"groovy"},true);
+            //todo dealwith this exception if s3 is screwey:
+            /*
         java.lang.IllegalArgumentException: Parameter 'directory' is not a directory
 	at org.apache.commons.io.FileUtils.validateListFilesParameters(FileUtils.java:545) ~[commons-io-2.4.jar:2.4]
 	at org.apache.commons.io.FileUtils.listFiles(FileUtils.java:521) ~[commons-io-2.4.jar:2.4]
@@ -270,20 +274,30 @@ java.lang.NullPointerException: null
 	at com.vaadin.ui.UI.doInit(UI.java:625) ~[vaadin-server-7.1.13.jar:7.1.13]
 
          */
-        log.info("Finished Looking for groovy classes in path: "+groovyRootPath);
-        for (File listFile : listFiles) {
-            log.debug("processing groovy class: " + listFile.getPath());
-            String scriptName = listFile.getPath()
-                    .replaceFirst(groovyRootPath,"");
-            try {
-                loadedClasses.put(listFile.getPath(),runner.loadClass(scriptName));
-            } catch (ResourceException e) {
-                log.error("Cannot access groovy script to load: " + scriptName + " Skipping.",e);
-            } catch (ScriptException e) {
-                log.error("Cannot parse groovy script: " + scriptName + " Skipping.",e);
+            log.info("Finished Looking for groovy classes in path: " + groovyRootPath);
+            for (File listFile : listFiles) {
+                log.debug("processing groovy class: " + listFile.getPath());
+                String scriptName = listFile.getPath()
+                        .replaceFirst(groovyRootPath,"");
+                try {
+                    loadedClasses.put(listFile.getPath(),runner.loadClass(scriptName));
+                } catch (ResourceException e) {
+                    log.error("Cannot access groovy script to load: " + scriptName + " Skipping.",e);
+                } catch (ScriptException e) {
+                    log.error("Cannot parse groovy script: " + scriptName + " Skipping.",e);
+                }
             }
+            log.info("Total groovy classes found in groovyRoot: " + listFiles.size());
+        } else{
+            ClassLoader parent = getClass().getClassLoader();
+            String scriptName = "embeddedgroovy/com/embedded/DefaultAttributes.groovy";
+            InputStream groovyIS = parent.getResourceAsStream(scriptName);
+
+            GroovyClassLoader loader = new GroovyClassLoader(parent);
+            Class parsedDefaultClass = loader.parseClass(groovyIS,scriptName);
+            loadedClasses.put(scriptName,parsedDefaultClass);
+
         }
-        log.info("Total groovy classes found in groovyRoot: " + listFiles.size());
         return loadedClasses;
     }
 
