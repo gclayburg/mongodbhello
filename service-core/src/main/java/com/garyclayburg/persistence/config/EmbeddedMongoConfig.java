@@ -46,10 +46,11 @@ import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Properties;
+import java.util.TreeMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -124,13 +125,20 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
 //        MongodExecutable mongoExecutable = starter.prepare(new MongodConfig(Version.V2_2_0,MONGO_TEST_PORT,false));
 //        mongoExecutable.start();
 
-        //use java tmp dir instead of the default user.home - cloudbees cannot write to user.home
-        IDirectory artifactStorePath = new FixedPath(System.getProperty("java.io.tmpdir") + "/.embeddedmongo");
+        File storeFile = new File(System.getProperty("user.home"));
+        IDirectory artifactStorePath;
+        if (storeFile.exists() && storeFile.isDirectory() && storeFile.canWrite()) {
+            artifactStorePath = new FixedPath(System.getProperty("user.home") + "/.embeddedmongo");
+        } else {
+            //use java tmp dir instead of the default user.home - cloudbees cannot write to user.home
+            artifactStorePath = new FixedPath(System.getProperty("java.io.tmpdir") + "/.embeddedmongo");
+        }
         ITempNaming executableNaming = new UUIDTempNaming();
         Command command = Command.MongoD;
         IRuntimeConfig runtimeConfig;
 
         if (!mongoDownloadServer.equals("none")) {
+            log.debug("using custom download server: " + mongoDownloadServer);
             runtimeConfig = new RuntimeConfigBuilder().defaults(command)
                     .artifactStore(new ArtifactStoreBuilder().defaults(command)
                                            .download(new DownloadConfigBuilder().defaultsForCommand(command)
@@ -138,7 +146,8 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
                                                              .artifactStorePath(artifactStorePath))
                                            .executableNaming(executableNaming))
                     .build();
-        } else{
+        } else {
+            log.debug("using standard download server: " + mongoDownloadServer);
             runtimeConfig = new RuntimeConfigBuilder().defaults(command)
                     .artifactStore(new ArtifactStoreBuilder().defaults(command)
                                            .download(new DownloadConfigBuilder().defaultsForCommand(command)
@@ -160,14 +169,13 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
         }});
     }
 
-    private void dumpSystemProperties() {
+    public void dumpSystemProperties() {
         log.info("system properties dump");
         Properties systemProperties = System.getProperties();
-        Enumeration enuProp = systemProperties.propertyNames();
-        while (enuProp.hasMoreElements()) {
-            String propertyName = (String) enuProp.nextElement();
-            String propertyValue = systemProperties.getProperty(propertyName);
-            log.info(propertyName + ": " + propertyValue);
+        TreeMap tm = new TreeMap(systemProperties);
+        for (Object o : tm.keySet()) {
+            String key = (String) o;
+            log.info(key +": "+ tm.get(o));
         }
     }
 

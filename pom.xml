@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-  
+
     <groupId>com.garyclayburg</groupId>
     <artifactId>mongodbhello</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -26,9 +26,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <querydsl.version>3.2.2</querydsl.version>
+        <my.build.directory>target</my.build.directory>
+        <!--<my.build.directory>/dev/shm/maven/${project.groupId}-${project.artifactId}/target</my.build.directory>-->
     </properties>
 
     <build>
+        <directory>${my.build.directory}</directory>
         <plugins>
 
             <plugin>

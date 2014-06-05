@@ -16,6 +16,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <vaadin.version>7.1.13</vaadin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+
+        <!-- properties files to use for cargo based testing -->
+        <!-- override with -Dapplication.properties=/tmp/application.properties -->
+        <application.properties>${project.build.testSourceDirectory}/application.properties</application.properties>
     </properties>
     <repositories>
         <repository>
@@ -44,10 +48,6 @@
         </pluginRepository>
     </pluginRepositories>
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
@@ -338,7 +338,7 @@
                                         <context>policyconsole</context> <!-- deploy war in root console so that app appears at http://localhost:8085/console/start instead of http://localhost:8085/userconsole/console/start -->
                                     </properties>
                                     <type>war</type>
-                                    <pingURL>http://localhost:8085/policyconsole</pingURL>
+                                    <pingURL>http://localhost:8085/policyconsole/console/start</pingURL>
                                     <pingTimeout>100000</pingTimeout>
                                 </deployable>
                             </deployables>
@@ -347,6 +347,13 @@
                                     <cargo.servlet.port>8085</cargo.servlet.port>
                                     <cargo.tomcat.ajp.port>8086</cargo.tomcat.ajp.port>
                                 </properties>
+                                <configfiles>
+                                    <configfile>
+                                        <!--<file>${project.build.testSourceDirectory}/application.properties</file>-->
+                                        <file>${application.properties}</file>
+                                        <todir>config</todir>
+                                    </configfile>
+                                </configfiles>
                             </configuration>
                         </configuration>
                     </plugin>
