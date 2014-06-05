@@ -22,7 +22,9 @@ import com.garyclayburg.MongoInMemoryTestBase;
 import com.garyclayburg.persistence.repository.AutoUserRepo;
 import org.joda.time.DateTime;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
@@ -62,8 +64,13 @@ public class UserRestTest extends MongoInMemoryTestBase {
     // IntelliJ confused by spring-boot wiring
     private AutoUserRepo autoUserRepo;
 
+    @Rule
+    public TestName testName = new TestName();
+
+
     @Before
     public void setUp() throws Exception {
+        log.debug("Running test setUp: " + testName.getMethodName());
         MockitoAnnotations.initMocks(this);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .build();

@@ -18,7 +18,10 @@
 
 package com.garyclayburg.springdata;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +45,15 @@ public class FooServiceTest {
 
     //autowire simple bean
     @Autowired FooService fooService;
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void setUp() {
+        log.debug("Running test setUp: " + testName.getMethodName());
+
+    }
 
     @Test
     public void testSomething() {

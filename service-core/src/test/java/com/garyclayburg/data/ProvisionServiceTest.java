@@ -23,7 +23,9 @@ import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.ScriptRunner;
 import com.garyclayburg.persistence.domain.User;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,13 +50,21 @@ public class ProvisionServiceTest extends MongoInMemoryTestBase {
     private static final Logger log = LoggerFactory.getLogger(ProvisionServiceTest.class);
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     ProvisionService provisionService;
 
     @Autowired
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     private AttributeService attributeService;
+
+    @Rule
+    public TestName testName = new TestName();
+
 
     @Before
     public void setUp() throws Exception {
+        log.debug("Running test setUp: " + testName.getMethodName());
+
         URL groovyURL = this.getClass()
                 .getClassLoader()
                 .getResource("groovies/emptyscript.groovy");

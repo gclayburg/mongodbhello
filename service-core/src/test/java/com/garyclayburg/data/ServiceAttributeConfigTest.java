@@ -19,7 +19,10 @@
 package com.garyclayburg.data;
 
 import groovy.lang.GroovyClassLoader;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +32,13 @@ import static org.junit.Assert.assertNotNull;
 
 public class ServiceAttributeConfigTest {
     private static final Logger log = LoggerFactory.getLogger(ServiceAttributeConfigTest.class);
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void setUp() throws Exception {
+        log.debug("Running test setUp: " + testName.getMethodName());
+    }
 
     @Test
     public void testLoadStream() throws Exception {

@@ -22,7 +22,9 @@ import com.garyclayburg.MongoInMemoryTestBase;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.repository.UserStore;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,10 +61,12 @@ public class AttributeServiceSpringDefaultTest extends MongoInMemoryTestBase {
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     private UserStore auditedUserRepo;
 
+    @Rule
+    public TestName testName = new TestName();
 
     @Before
     public void setUp() throws IOException, URISyntaxException {
-        log.debug("setUp() test method: " + this);
+        log.debug("Running test setUp: " + testName.getMethodName());
     }
 
     @Test

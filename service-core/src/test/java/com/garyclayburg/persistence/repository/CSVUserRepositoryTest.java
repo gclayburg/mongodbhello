@@ -22,7 +22,9 @@ import com.garyclayburg.MongoInMemoryTestBase;
 import com.garyclayburg.data.DBUser;
 import com.garyclayburg.persistence.domain.User;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +48,13 @@ import static org.junit.Assert.assertTrue;
 public class CSVUserRepositoryTest extends MongoInMemoryTestBase {
     private static final Logger log = LoggerFactory.getLogger(CSVUserRepositoryTest.class);
 
+    @Rule
+    public TestName testName = new TestName();
+
+
     @Before
     public void setUp() throws URISyntaxException {
-        log.debug("setUp() test method: " + this);
+        log.debug("Running test setUp: " + testName.getMethodName());
         userService.dropAllusers();
         importOneCSV("testusers.csv");
     }

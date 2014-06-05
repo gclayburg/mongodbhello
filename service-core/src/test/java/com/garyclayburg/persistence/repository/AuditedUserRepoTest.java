@@ -25,7 +25,9 @@ import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.domain.UserAudit;
 import com.google.common.collect.Lists;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
@@ -71,8 +73,13 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     private User hank;
     private User hankAgain;
 
+    @Rule
+    public TestName testName = new TestName();
+
+
     @Before
     public void setUp() throws Exception {
+        log.debug("Running test setUp: " + testName.getMethodName());
         MockitoAnnotations.initMocks(this);
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
         autoUserRepo.deleteAll();

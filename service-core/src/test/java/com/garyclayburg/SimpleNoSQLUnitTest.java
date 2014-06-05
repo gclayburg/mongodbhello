@@ -25,8 +25,10 @@ import com.garyclayburg.persistence.repository.FongoMongoTestConfig;
 import com.lordofthejars.nosqlunit.annotation.UsingDataSet;
 import com.lordofthejars.nosqlunit.core.LoadStrategyEnum;
 import com.lordofthejars.nosqlunit.mongodb.MongoDbRule;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +69,14 @@ public class SimpleNoSQLUnitTest {
 
     @Rule
     public MongoDbRule mongoDbRule = newMongoDbRule().defaultSpringMongoDb(DEMO_TEST);
+
+    @Rule
+    public TestName testName = new TestName();
+
+    @Before
+    public void setUp() {
+        log.debug("Running test setUp: " + testName.getMethodName());
+    }
 
     @Test
     @UsingDataSet(locations = {"/two-users.json"},loadStrategy = LoadStrategyEnum.CLEAN_INSERT)

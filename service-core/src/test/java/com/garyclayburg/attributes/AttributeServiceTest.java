@@ -22,7 +22,9 @@ import com.garyclayburg.persistence.domain.User;
 import groovy.lang.Binding;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +51,12 @@ public class AttributeServiceTest {
     private AttributeService attributeService;
     private User barney;
 
+    @Rule
+    public TestName testName = new TestName();
+
     @Before
     public void setUp() throws Exception {
+        log.debug("Running test setUp: " + testName.getMethodName());
         URL groovyURL = this.getClass()
                 .getClassLoader()
                 .getResource("groovies/emptyscript.groovy");
