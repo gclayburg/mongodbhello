@@ -49,6 +49,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
@@ -176,6 +177,11 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
         for (Object o : tm.keySet()) {
             String key = (String) o;
             log.info(key +": "+ tm.get(o));
+        }
+        Map<String, String> getenv = new TreeMap<>(System.getenv());
+        log.info("system environment dump");
+        for (String key : getenv.keySet()) {
+            log.info("env " + key + ": " + getenv.get(key));
         }
     }
 

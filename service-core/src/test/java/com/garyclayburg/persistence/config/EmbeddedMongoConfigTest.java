@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertTrue;
 
@@ -45,6 +46,13 @@ public class EmbeddedMongoConfigTest {
     public void testDumpProps() throws Exception {
         EmbeddedMongoConfig emc = new EmbeddedMongoConfig();
         emc.dumpSystemProperties();
+    }
+
+    @Test
+    public void testdumpargs() throws Exception {
+        String[] args = new String[]{"-hi","-bye"};
+        log.info("args are here: " + Arrays.toString(args));
+
     }
 
     @Test

@@ -46,9 +46,9 @@ public class BootVaadin extends SpringBootServletInitializer {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(BootVaadin.class);
     public static void main(String[] args){
-        log.info("running main...");
+        log.info("running main with args: "+Arrays.toString(args));
         ensureActiveProfile();
-        ApplicationContext ctx = SpringApplication.run(BootUp.class);
+        ApplicationContext ctx = SpringApplication.run(BootUp.class,args);
         log.info("active profiles: " + Arrays.toString(ctx.getEnvironment()
                                                                .getActiveProfiles()));
 
