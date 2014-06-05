@@ -179,7 +179,7 @@ public class AttributeService {
             }
         }
         synchronized(groovyClassMap) {
-            log.debug("checking out annotated classes");
+            log.debug("checking for annotated classes");
             if (groovyClassMap.size() > 0) {
                 for (Class groovyAttributeClass : groovyClassMap.values()) {
                     try {

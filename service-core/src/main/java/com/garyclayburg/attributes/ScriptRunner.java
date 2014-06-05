@@ -25,7 +25,9 @@ import groovy.util.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -45,9 +47,15 @@ public class ScriptRunner {
     }
 
     public void setRoot(String[] strings) throws IOException {
-        log.info("set script root to: " + Arrays.toString(strings));
-        gse = new GroovyScriptEngine(strings);
-        roots = strings;
+        ArrayList<String> al = new ArrayList<>();
+        for (String string : strings) {
+            String oneRoot = new File(string).getAbsolutePath();
+            al.add(oneRoot);
+        }
+        String[] newRoots = al.toArray(new String[al.size()]);
+        log.info("set script root to: " + Arrays.toString(newRoots));
+        gse = new GroovyScriptEngine(newRoots);
+        this.roots = newRoots;
     }
 
     public String[] getRoots() {

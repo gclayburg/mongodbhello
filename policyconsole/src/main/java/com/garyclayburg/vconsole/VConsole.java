@@ -79,7 +79,7 @@ public class VConsole extends UI implements UserChangeListener{
         refresher.addListener(new Refresher.RefreshListener() {
             @Override
             public void refresh(Refresher refresher) {
-                log.info("refreshing UI...");
+//                log.debug("refreshing UI...");
             }
         });
         addExtension(refresher);
