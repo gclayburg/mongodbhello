@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.garyclayburg.persistence.config;
+package com.garyclayburg;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,14 +25,9 @@ import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.Arrays;
-
-import static org.junit.Assert.assertTrue;
-
-public class EmbeddedMongoConfigTest {
+public class BootVaadinTest {
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(EmbeddedMongoConfigTest.class);
+    private static final Logger log = LoggerFactory.getLogger(BootVaadinTest.class);
 
     @Rule
     public TestName testName = new TestName();
@@ -42,19 +37,9 @@ public class EmbeddedMongoConfigTest {
         log.debug("Running test setUp: " + testName.getMethodName());
     }
 
-
     @Test
-    public void testdumpargs() throws Exception {
-        String[] args = new String[]{"-hi","-bye"};
-        log.info("args are here: " + Arrays.toString(args));
-
+    public void testDumpProps() throws Exception {
+        BootVaadin.dumpSystemProperties();
     }
 
-    @Test
-    public void testFileWrite() throws Exception {
-        File storeFile = new File(System.getProperty("java.io.tmpdir"));
-        assertTrue(storeFile.exists());
-        assertTrue(storeFile.isDirectory());
-        assertTrue(storeFile.canWrite());
-    }
 }

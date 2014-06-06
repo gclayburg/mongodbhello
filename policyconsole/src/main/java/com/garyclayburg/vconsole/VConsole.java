@@ -51,7 +51,7 @@ import java.util.*;
 //@VaadinUI(path = "/console")
 @VaadinUI(path = "/start")  // maps to e.g.: localhost:8080/console via application.properties
 @Widgetset("com.garyclayburg.AppWidgetSet")
-@Title("user console!")
+@Title("policy console")
 public class VConsole extends UI implements UserChangeListener{
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(VConsole.class);
@@ -71,7 +71,7 @@ public class VConsole extends UI implements UserChangeListener{
     private BeanContainer<String, GeneratedAttributesBean> attributesBeanContainer;
 
     public VConsole() {
-        targetWindows = new HashMap<String, Window>();
+        targetWindows = new HashMap<>();
     }
 
     protected void init(VaadinRequest vaadinRequest) {
@@ -84,14 +84,14 @@ public class VConsole extends UI implements UserChangeListener{
         });
         addExtension(refresher);
 
-        targetWindows = new HashMap<String, Window>();
+        targetWindows = new HashMap<>();
         final VerticalLayout layout = new VerticalLayout();
         layout.setMargin(false);
         setContent(layout);
 
         List<User> allUsers = autoUserRepo.findAll();
 
-        BeanContainer<String, User> userBeanContainer = new BeanContainer<String, User>(User.class);
+        BeanContainer<String, User> userBeanContainer = new BeanContainer<>(User.class);
         userBeanContainer.setBeanIdProperty("id");
         User firstUser = null;
         if ( allUsers.size() >0) {
@@ -108,7 +108,7 @@ public class VConsole extends UI implements UserChangeListener{
         attributeTable.setMultiSelect(false);
         attributeTable.setImmediate(true);
 
-        attributesBeanContainer = new BeanContainer<String, GeneratedAttributesBean>(GeneratedAttributesBean.class);
+        attributesBeanContainer = new BeanContainer<>(GeneratedAttributesBean.class);
         attributesBeanContainer.setBeanIdProperty("attributeName");
         populateItems(firstUser,attributesBeanContainer);
 
@@ -184,7 +184,7 @@ public class VConsole extends UI implements UserChangeListener{
         attributeTargetTable.setMultiSelect(false);
         attributeTargetTable.setImmediate(true);
         final BeanContainer<String, GeneratedAttributesBean> attributesBeanContainer =
-                new BeanContainer<String, GeneratedAttributesBean>(GeneratedAttributesBean.class);
+                new BeanContainer<>(GeneratedAttributesBean.class);
         attributesBeanContainer.setBeanIdProperty("attributeName");
         populateItems(selectedUser,attributesBeanContainer,entitledTarget);
 

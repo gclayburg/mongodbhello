@@ -49,9 +49,6 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -109,8 +106,6 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
     @Bean
     @Override
     public Mongo mongo() throws Exception {
-
-        dumpSystemProperties();
 
         log.info("configuring embedded mongo");
         //Files that could be left over after a previous execution was (rudely) killed with kill -9
@@ -170,24 +165,9 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
         }});
     }
 
-    public void dumpSystemProperties() {
-        log.info("system properties dump");
-        Properties systemProperties = System.getProperties();
-        TreeMap tm = new TreeMap(systemProperties);
-        for (Object o : tm.keySet()) {
-            String key = (String) o;
-            log.info(key +": "+ tm.get(o));
-        }
-        Map<String, String> getenv = new TreeMap<>(System.getenv());
-        log.info("system environment dump");
-        for (String key : getenv.keySet()) {
-            log.info("env " + key + ": " + getenv.get(key));
-        }
-    }
 
     @Override
     protected String getMappingBasePackage() {
-//        return "com.johnathanmarksmith.mongodb.example.domain";
         return "com.garyclayburg.persistence.domain";
     }
 

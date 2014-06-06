@@ -23,6 +23,7 @@ import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -47,6 +48,12 @@ import java.net.UnknownHostException;
 public class LocalMongoClientConfig extends AbstractMongoConfiguration{
     private static final Logger log = LoggerFactory.getLogger(LocalMongoClientConfig.class);
 
+    @Value(value = "${mongoHost:localhost}")
+    private String mongoHost;
+
+    @Value(value = "${mongoPort:27017}")
+    private int mongoPort;
+
     @Override
     protected String getDatabaseName() {
         return "demo";
@@ -55,10 +62,10 @@ public class LocalMongoClientConfig extends AbstractMongoConfiguration{
     @Override
     @Bean
     public Mongo mongo() throws Exception {
-        log.info("configuring local mongo bean");
+        log.info("configuring local mongo bean: "+ mongoHost +":"+mongoPort);
         MongoClient mongoClient = null;
         try {
-            mongoClient = new MongoClient("localhost",27017);
+            mongoClient = new MongoClient(mongoHost,mongoPort);
         } catch (UnknownHostException e) {
             log.warn("kaboom",e);
         }

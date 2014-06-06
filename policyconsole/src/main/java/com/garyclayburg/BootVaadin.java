@@ -29,6 +29,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
 
 /**
  * Created by IntelliJ IDEA.
@@ -68,16 +71,7 @@ public class BootVaadin extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         log.info("running SpringServletInitializer...");
         ensureActiveProfile();
-//        MutablePropertySources propertySources = application.context()
-//                .getEnvironment()
-//                .getPropertySources();
-//        for (PropertySource<?> propertySource : propertySources) {
-//            log.debug("property source: " + propertySource.getName() +":"+ propertySource.getSource() );
-//        }
-//        application.context().getEnvironment().containsProperty()
-//        application.environment(new StandardEnvironment().setActiveProfiles();)
-        SpringApplicationBuilder sources = application.sources(applicationClass);
-        return sources;
+        return application.sources(applicationClass);
     }
 
     private static void ensureActiveProfile() {
@@ -85,10 +79,25 @@ public class BootVaadin extends SpringBootServletInitializer {
         if (specifiedProfile != null) {
             log.info("using specified spring profile: " + specifiedProfile);
         } else{
-//            String defaultProfile = "mongolocal";
             String defaultProfile = "mongoembedded";
-            System.setProperty("spring.profiles.active",defaultProfile);
+            System.setProperty("spring.profiles.default",defaultProfile);
             log.info("using default spring profile: " + defaultProfile);
+        }
+        dumpSystemProperties();
+    }
+
+    public static void dumpSystemProperties() {
+        log.debug("system properties dump");
+        Properties systemProperties = System.getProperties();
+        TreeMap tm = new TreeMap(systemProperties);
+        for (Object o : tm.keySet()) {
+            String key = (String) o;
+            log.debug(key +": "+ tm.get(o));
+        }
+        Map<String, String> getenv = new TreeMap<>(System.getenv());
+        log.debug("system environment dump");
+        for (String key : getenv.keySet()) {
+            log.debug("env " + key + ": " + getenv.get(key));
         }
     }
 
