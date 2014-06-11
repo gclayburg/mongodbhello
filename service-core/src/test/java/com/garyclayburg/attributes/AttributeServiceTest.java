@@ -73,6 +73,7 @@ public class AttributeServiceTest {
         barney.setLastname("Rubble");
         barney.setId("12345");
         attributeService.setScriptRunner(scriptRunner);
+        attributeService.setPolicyChangeController(new PolicyChangeController());
 
     }
 
@@ -147,6 +148,8 @@ public class AttributeServiceTest {
     public void testLoadGroovyClasses() throws Exception {
         AttributeService attributeService = new AttributeService();
         attributeService.setScriptRunner(scriptRunner);
+        attributeService.setPolicyChangeController(new PolicyChangeController());
+
         Map<String, Class> classList = attributeService.loadAllGroovyClasses();
         assertEquals(3,classList.size());
     }
@@ -155,6 +158,7 @@ public class AttributeServiceTest {
     public void testReLoadGroovyClasses() throws Exception {
         AttributeService attributeService = new AttributeService();
         attributeService.setScriptRunner(scriptRunner);
+        attributeService.setPolicyChangeController(new PolicyChangeController());
         Map<String, Class> classList = attributeService.loadAllGroovyClasses();
         assertEquals(3,classList.size());
         String root = scriptRunner.getRoots()[0];
@@ -169,6 +173,7 @@ public class AttributeServiceTest {
     public void testFindAnnotatedGroovyClasses() throws Exception {
         AttributeService attributeService = new AttributeService();
         attributeService.setScriptRunner(scriptRunner);
+        attributeService.setPolicyChangeController(new PolicyChangeController());
         Map<String, Class> classList = attributeService.findAnnotatedGroovyClasses(AttributesClass.class);
         assertEquals(1,classList.size());
     }

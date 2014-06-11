@@ -215,6 +215,7 @@ public class WatchDir implements Runnable {
                     }
                 }
             }
+            log.info("Stopped listening for file events");
         } catch (IOException e) {
             log.warn("Could not start File Watch service",e);
         }

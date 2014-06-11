@@ -19,6 +19,7 @@
 package com.garyclayburg.data;
 
 import com.garyclayburg.attributes.AttributeService;
+import com.garyclayburg.attributes.PolicyChangeController;
 import com.garyclayburg.attributes.ScriptRunner;
 import com.garyclayburg.filesystem.DirectoryWalker;
 import com.garyclayburg.filesystem.WatchDir;
@@ -117,4 +118,8 @@ public class ServiceAttributeConfig {
         return watcher;
     }
 
+    @Bean
+    public PolicyChangeController policyChangeController(){
+        return new PolicyChangeController();
+    }
 }

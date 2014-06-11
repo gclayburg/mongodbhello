@@ -20,12 +20,14 @@ package com.garyclayburg.attributes;
 
 import com.garyclayburg.persistence.domain.User;
 import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyRuntimeException;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -56,11 +58,21 @@ public class AttributeService {
     private Set<String> detectedTargetIds;
 
     private final Map<String,Class> groovyClassMap;
+    private final Map<String, Throwable> scriptErrors;
     private boolean initiallyScanned = false;
+
+    @Qualifier("policyChangeController")
+    @Autowired
+    private PolicyChangeController policyChangeController;
 
     public AttributeService() {
         detectedTargetIds = new HashSet<>();
         groovyClassMap = new HashMap<>();
+        scriptErrors = new HashMap<>();
+    }
+
+    public void setPolicyChangeController(PolicyChangeController policyChangeController) {
+        this.policyChangeController = policyChangeController;
     }
 
     public void setScriptRunner(ScriptRunner runner) {
@@ -108,23 +120,40 @@ public class AttributeService {
         }
     }
 
+    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
     public void reloadGroovyClass(Path path){
         String groovyRootPath = runner.getRoots()[0];
         if (path.toString().endsWith(".groovy")) {
-            String absolutePath = path.toAbsolutePath().toString();
-            log.info("reloading groovy: " + absolutePath);
+            String groovyPathKey = path.toAbsolutePath().toString();
+            log.info("reloading groovy: " + groovyPathKey);
 
-            String scriptName = absolutePath.replaceFirst(groovyRootPath,"");
+            String scriptName = groovyPathKey.replaceFirst(groovyRootPath,"");
             try {
                 Class groovyClass = runner.loadClass(scriptName);
                 synchronized(groovyClassMap){
-                    groovyClassMap.put(absolutePath,groovyClass);
+                    groovyClassMap.put(groovyPathKey,groovyClass);
+                    scriptErrors.remove(groovyPathKey);
                 }
-                log.debug("reloaded groovy: " + absolutePath);
+                policyChangeController.firePolicyChangedEvent();
+                log.debug("reloaded groovy: " + groovyPathKey);
             } catch (ResourceException e) {
                 log.error("Cannot access groovy script to load: " + scriptName + " Skipping.",e);
+                synchronized(groovyClassMap) {
+                    scriptErrors.put(groovyPathKey,e);
+                }
+                policyChangeController.firePolicyException(e);
             } catch (ScriptException e) {
                 log.error("Cannot parse groovy script: " + scriptName + " Skipping.",e);
+                synchronized(groovyClassMap) {
+                    scriptErrors.put(groovyPathKey,e);
+                }
+                policyChangeController.firePolicyException(e);
+            } catch (GroovyRuntimeException gre){
+                log.error("Cannot compile script: "+scriptName,gre);
+                synchronized(groovyClassMap) {
+                    scriptErrors.put(groovyPathKey,gre);
+                }
+                policyChangeController.firePolicyException(gre);
             }
         }
     }
@@ -289,15 +318,22 @@ java.lang.NullPointerException: null
          */
             log.info("Finished Looking for groovy classes in path: " + groovyRootPath);
             for (File listFile : listFiles) {
-                log.debug("processing groovy class: " + listFile.getPath());
-                String scriptName = listFile.getPath()
+                String groovyPathKey = listFile.getPath();
+                log.debug("processing groovy class: " + groovyPathKey);
+                String scriptName = groovyPathKey
                         .replaceFirst(groovyRootPath,"");
                 try {
-                    loadedClasses.put(listFile.getPath(),runner.loadClass(scriptName));
+                    loadedClasses.put(groovyPathKey,runner.loadClass(scriptName));
+                    scriptErrors.remove(groovyPathKey);
                 } catch (ResourceException e) {
                     log.error("Cannot access groovy script to load: " + scriptName + " Skipping.",e);
+                    scriptErrors.put(groovyPathKey,e);
                 } catch (ScriptException e) {
                     log.error("Cannot parse groovy script: " + scriptName + " Skipping.",e);
+                    scriptErrors.put(groovyPathKey,e);
+                } catch (GroovyRuntimeException gre){
+                    log.error("Cannot compile script: "+scriptName,gre);
+                    scriptErrors.put(groovyPathKey,gre);
                 }
             }
             log.info("Total groovy classes found in groovyRoot: " + listFiles.size());
@@ -317,5 +353,11 @@ java.lang.NullPointerException: null
             }
         }
         return foundClasses;
+    }
+
+    public Map<String, Throwable> getScriptErrors() {
+        synchronized(groovyClassMap){
+            return scriptErrors;
+        }
     }
 }

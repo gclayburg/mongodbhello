@@ -20,11 +20,14 @@ package com.garyclayburg.vconsole;
 
 import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.GeneratedAttributesBean;
+import com.garyclayburg.attributes.PolicyChangeController;
+import com.garyclayburg.attributes.PolicyChangeListener;
 import com.garyclayburg.persistence.UserChangeController;
 import com.garyclayburg.persistence.UserChangeListener;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.repository.AutoUserRepo;
 import com.github.wolfie.refresher.Refresher;
+import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Widgetset;
 import com.vaadin.data.Property;
@@ -32,11 +35,17 @@ import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.event.Action;
 import com.vaadin.event.ItemClickEvent;
+import com.vaadin.event.LayoutEvents;
+import com.vaadin.event.ShortcutAction;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
+import com.vaadin.ui.themes.Runo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.vaadin.spring.VaadinUI;
 
 import java.util.*;
@@ -52,7 +61,8 @@ import java.util.*;
 @VaadinUI(path = "/start")  // maps to e.g.: localhost:8080/console via application.properties
 @Widgetset("com.garyclayburg.AppWidgetSet")
 @Title("policy console")
-public class VConsole extends UI implements UserChangeListener{
+@Theme("dashboard")
+public class VConsole extends UI implements UserChangeListener {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(VConsole.class);
 
@@ -67,11 +77,24 @@ public class VConsole extends UI implements UserChangeListener{
 
     @Autowired
     private UserChangeController userChangeController;
+
     private Table userTable;
     private BeanContainer<String, GeneratedAttributesBean> attributesBeanContainer;
+    @Qualifier("policyChangeController")
+    @Autowired
+    private PolicyChangeController policyChangeController;
+    private final Window exceptionWindow;
+    private final Window notifications;
+    private Button notify;
+    private HorizontalLayout topLayout;
+    private Map<String, Throwable> scriptErrors;
+    private final Object scriptErrorsLock;
 
     public VConsole() {
         targetWindows = new HashMap<>();
+        exceptionWindow = new Window("policy exception");
+        notifications = new Window("Notifications");
+        scriptErrorsLock = new Object();
     }
 
     protected void init(VaadinRequest vaadinRequest) {
@@ -84,9 +107,10 @@ public class VConsole extends UI implements UserChangeListener{
         });
         addExtension(refresher);
 
+        addStyleName("dashboard-view");
         targetWindows = new HashMap<>();
         final VerticalLayout layout = new VerticalLayout();
-        layout.setMargin(false);
+        layout.setMargin(true);
         setContent(layout);
 
         List<User> allUsers = autoUserRepo.findAll();
@@ -94,13 +118,39 @@ public class VConsole extends UI implements UserChangeListener{
         BeanContainer<String, User> userBeanContainer = new BeanContainer<>(User.class);
         userBeanContainer.setBeanIdProperty("id");
         User firstUser = null;
-        if ( allUsers.size() >0) {
+        if (allUsers.size() > 0) {
             firstUser = allUsers.get(0);
         }
         for (User user : allUsers) {
             userBeanContainer.addBean(user);
-            userChangeController.addChangeListener(user,this);
+            userChangeController.addChangeListener(user,this); //todo: implement remove change controller...
         }
+        createExceptionWindow("no errors yet...");
+
+        policyChangeController.addChangeListener(new PolicyChangeListener() {
+            @Override
+            public void policyChanged() {
+                log.info("policy is changing");
+                BeanContainer beanContainer = (BeanContainer) userTable.getContainerDataSource();
+                List itemIds = beanContainer.getItemIds();
+                for (Object itemId : itemIds) {
+                    String id = (String) itemId;
+                    BeanItem item = beanContainer.getItem(itemId);
+                    log.debug("refreshing user id: " + id);
+                    User user = (User) item.getBean();
+                    log.debug("refreshing user: " + user.getFirstname());
+                    if (userTable.isSelected(itemId)) {
+                        refreshUserValues(user);
+                    }
+                }
+                populatePolicyExceptionList();
+            }
+
+            @Override
+            public void policyException(Throwable e) {
+                populatePolicyExceptionList();
+            }
+        });
         userTable = createUserTable(userBeanContainer);
         final Table attributeTable = new Table();
         attributeTable.setSizeFull();
@@ -119,6 +169,7 @@ public class VConsole extends UI implements UserChangeListener{
             public void itemClick(ItemClickEvent event) {
                 User selectedUser = (User) ((BeanItem) event.getItem()).getBean();
                 refreshUserValues(selectedUser);
+                populatePolicyExceptionList();
             }
         });
 
@@ -128,7 +179,161 @@ public class VConsole extends UI implements UserChangeListener{
         splitPanel.setFirstComponent(userTable);
         splitPanel.setSecondComponent(attributeTable);
 
+//        MenuBar menuBar = createMenu();
+
+//        layout.addComponent(menuBar);
+
+        HorizontalLayout top = createTop();
+        populatePolicyExceptionList();
+        layout.addComponent(top);
         layout.addComponent(splitPanel);
+    }
+
+    private void populatePolicyExceptionList() {
+        synchronized(scriptErrorsLock) {
+            scriptErrors = attributeService.getScriptErrors();
+            if (scriptErrors.size() > 0) {
+                notify.setDescription("policy error(s) detected: " + scriptErrors.size());
+                notify.setCaption(String.valueOf(scriptErrors.size()));
+
+//                    populateExceptionMessage(throwable.getMessage(),true);
+            } else {
+                notify.setCaption("0");
+                notify.setDescription("No errors in policy");
+//                    populateExceptionMessage("No errors in policy",true);
+            }
+        }
+    }
+
+    private void buildNotifications(Button.ClickEvent event) {
+        VerticalLayout l = new VerticalLayout();
+        l.setMargin(true);
+        l.setSpacing(true);
+        notifications.setContent(l);
+        notifications.setWidth("300px");
+        notifications.addStyleName("notifications");
+        notifications.setClosable(false);
+        notifications.setResizable(true);
+        notifications.setDraggable(true);
+        notifications.setPositionX(event.getClientX() - event.getRelativeX() );
+        notifications.setPositionY(event.getClientY() - event.getRelativeY());
+        notifications.setCloseShortcut(ShortcutAction.KeyCode.ESCAPE, null);
+
+        synchronized(scriptErrorsLock) {
+            log.debug("checking for new policy errors {}",scriptErrors.size());
+            for (String absolutePath : scriptErrors.keySet()) {
+                Label messageLabel = new Label(scriptErrors.get(absolutePath)
+                                                       .getMessage(),ContentMode.PREFORMATTED);
+                messageLabel.setStyleName(Runo.LABEL_SMALL);
+                l.addComponent(messageLabel);
+            }
+        }
+    }
+
+    private HorizontalLayout createTop() {
+        topLayout = new HorizontalLayout();
+        topLayout.setWidth("100%");
+        topLayout.setSpacing(true);
+        topLayout.addStyleName("toolbar");
+        final Label title = new Label("Policy console");
+        title.setSizeUndefined();
+        title.addStyleName("h1");
+        topLayout.addComponent(title);
+        topLayout.setComponentAlignment(title,Alignment.MIDDLE_LEFT);
+        topLayout.setExpandRatio(title,1);
+
+        createNotifyButton();
+        topLayout.addComponent(notify);
+        topLayout.setComponentAlignment(notify,Alignment.MIDDLE_LEFT);
+        return topLayout;
+    }
+
+    private void createNotifyButton() {
+
+        notify = new Button();
+        notify.setDescription("No errors in policy");
+        // notify.addStyleName("borderless");
+        notify.addStyleName("notifications");
+        notify.addStyleName("unread");
+        notify.addStyleName("icon-only");
+        notify.addStyleName("icon-bell");
+        notify.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                log.info("clicked on notifications");
+                if (notifications.getUI() != null){
+                    notifications.close();
+                    log.debug("closed notifications");
+                } else {
+                    buildNotifications(event);
+                    getUI().addWindow(notifications);
+                    notifications.focus();
+                    ((VerticalLayout) getUI().getContent()).addLayoutClickListener(new LayoutEvents.LayoutClickListener() {
+                        @Override
+                        public void layoutClick(LayoutEvents.LayoutClickEvent event) {
+                            notifications.close();
+                            ((VerticalLayout) getUI().getContent()).removeLayoutClickListener(this);
+                        }
+                    });
+                }
+
+            }
+        });
+
+    }
+
+//    private MenuBar createMenu() {
+//        MenuBar menuBar = new MenuBar();
+//        MenuBar.MenuItem = menuBar.a
+//        return menuBar;
+//    }
+
+    private void createExceptionWindow(String message) {
+        populateExceptionMessage(message,false);
+        exceptionWindow.setClosable(false);
+//        exceptionWindow.setWidth("80em");
+        UI.getCurrent()
+                .addWindow(exceptionWindow);
+    }
+
+    private void populateExceptionMessage(String message,boolean visible) {
+        VerticalLayout windowContent = new VerticalLayout();
+        windowContent.setMargin(true);
+
+        Label messageLabel = new Label(message,ContentMode.PREFORMATTED);
+        messageLabel.setStyleName(Runo.LABEL_SMALL);
+//        messageLabel.setWidth("120em");
+        windowContent.addComponent(messageLabel);
+        Button closeButton = new Button("Close");
+        closeButton.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                exceptionWindow.setVisible(false);
+            }
+        });
+
+        windowContent.addComponent(closeButton);
+        UI ui = exceptionWindow.getUI();
+        if (ui != null) {
+            VaadinSession session = ui.getSession();
+            if (session != null) {
+                session.getLockInstance()
+                        .lock();
+                try {
+                    exceptionWindow.setContent(windowContent);
+                    exceptionWindow.setVisible(visible);
+                } finally {
+                    session.getLockInstance()
+                            .unlock();
+                }
+            } else {
+                exceptionWindow.setContent(windowContent);
+                exceptionWindow.setVisible(visible);
+            }
+        } else {
+            exceptionWindow.setContent(windowContent);
+            exceptionWindow.setVisible(visible);
+        }
     }
 
     private void refreshUserValues(User selectedUser) {
@@ -156,25 +361,37 @@ public class VConsole extends UI implements UserChangeListener{
 //            userTable.refreshRowCache();
 //            userTable.markAsDirty();
         }
-        if (userTable.isSelected(user.getId())){
+        if (userTable.isSelected(user.getId())) {
             refreshUserValues(user);
+            populatePolicyExceptionList();
         }
     }
 
     private void populateTargetWindow(User selectedUser,final String entitledTarget) {
         Window window = targetWindows.get(entitledTarget);
-        if (window == null){
-            window = new Window(entitledTarget);
-            targetWindows.put(entitledTarget,window);
-            window.addCloseListener(new Window.CloseListener() {
-                @Override
-                public void windowClose(Window.CloseEvent e) {
-                    targetWindows.remove(entitledTarget);
-                }
-            });
-            UI.getCurrent().addWindow(window);
+        if (window == null) {  //only generate new window if user clicked on it - no new windows from policy update
+            UI ui = UI.getCurrent();
+            if (ui != null) {
+                window = new Window(entitledTarget);
+                window.setWidth("300px");
+                targetWindows.put(entitledTarget,window);
+                window.addCloseListener(new Window.CloseListener() {
+                    @Override
+                    public void windowClose(Window.CloseEvent e) {
+                        targetWindows.remove(entitledTarget);
+                    }
+                });
+                ui.addWindow(window);
+            } else{
+                return;
+            }
         }
 
+        VerticalLayout windowContent = populateTargetWindowData(selectedUser,entitledTarget);
+        window.setContent(windowContent);
+    }
+
+    private VerticalLayout populateTargetWindowData(User selectedUser,String entitledTarget) {
         VerticalLayout windowContent = new VerticalLayout();
         windowContent.setMargin(false);
 
@@ -191,7 +408,7 @@ public class VConsole extends UI implements UserChangeListener{
         attributeTargetTable.setContainerDataSource(attributesBeanContainer);
 
         windowContent.addComponent(attributeTargetTable);
-        window.setContent(windowContent);
+        return windowContent;
     }
 
     private void populateItems(User firstUser,BeanContainer<String, GeneratedAttributesBean> generatedAttributesBeanContainer) {
@@ -203,7 +420,8 @@ public class VConsole extends UI implements UserChangeListener{
     }
 
     private void populateItems(User firstUser,BeanContainer<String, GeneratedAttributesBean> generatedAttributesBeanContainer,String targetName) {
-        List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(firstUser,targetName);
+        List<GeneratedAttributesBean> generatedAttributes =
+                attributeService.getGeneratedAttributesBean(firstUser,targetName);
         generatedAttributesBeanContainer.removeAllItems();
         for (GeneratedAttributesBean generatedAttribute : generatedAttributes) {
             generatedAttributesBeanContainer.addBean(generatedAttribute);
@@ -234,22 +452,23 @@ public class VConsole extends UI implements UserChangeListener{
                 log.info("selected: " + selectedRows[0]);
             }
         });
-        final Action myADaction =new Action("myAD window");
+        final Action myADaction = new Action("myAD window");
         userTable.addActionHandler(new Action.Handler() {
             @Override
             public Action[] getActions(Object target,Object sender) {
-                return new Action[] {myADaction};
+                return new Action[]{myADaction};
             }
 
             @Override
             public void handleAction(Action action,Object sender,Object target) {
                 Window multiWindow = new Window("multi-user myAD attributes");
-                UI.getCurrent().addWindow(multiWindow);
-                Label stuff = new Label("2 users here "+ selectedRows[0] + " " );
+                UI.getCurrent()
+                        .addWindow(multiWindow);
+                Label stuff = new Label("2 users here " + selectedRows[0] + " ");
                 multiWindow.setContent(stuff);
             }
         });
-//        userTable.setVisibleColumns("firstname","lastname");
+        userTable.setVisibleColumns("firstname","lastname");
         return userTable;
     }
 }
