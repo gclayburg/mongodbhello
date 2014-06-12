@@ -48,6 +48,7 @@ import java.util.TreeMap;
 public class BootVaadin extends SpringBootServletInitializer {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(BootVaadin.class);
+
     public static void main(String[] args){
         log.info("running main with args: "+Arrays.toString(args));
         ensureActiveProfile();

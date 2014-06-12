@@ -30,6 +30,7 @@ import com.github.wolfie.refresher.Refresher;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.Widgetset;
+import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
@@ -48,6 +49,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.vaadin.spring.VaadinUI;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 
 /**
@@ -73,7 +76,6 @@ public class VConsole extends UI implements UserChangeListener {
     @Autowired
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     private AttributeService attributeService;
-    private Map<String, Window> targetWindows;
 
     @Autowired
     private UserChangeController userChangeController;
@@ -90,8 +92,10 @@ public class VConsole extends UI implements UserChangeListener {
     private Map<String, Throwable> scriptErrors;
     private final Object scriptErrorsLock;
 
+    @Autowired
+    private TargetWindows targetWindows;
+
     public VConsole() {
-        targetWindows = new HashMap<>();
         exceptionWindow = new Window("policy exception");
         notifications = new Window("Notifications");
         scriptErrorsLock = new Object();
@@ -108,7 +112,6 @@ public class VConsole extends UI implements UserChangeListener {
         addExtension(refresher);
 
         addStyleName("dashboard-view");
-        targetWindows = new HashMap<>();
         final VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
         setContent(layout);
@@ -127,12 +130,14 @@ public class VConsole extends UI implements UserChangeListener {
         }
         createExceptionWindow("no errors yet...");
 
+        final User finalFirstUser = firstUser;
         policyChangeController.addChangeListener(new PolicyChangeListener() {
             @Override
             public void policyChanged() {
                 log.info("policy is changing");
                 BeanContainer beanContainer = (BeanContainer) userTable.getContainerDataSource();
                 List itemIds = beanContainer.getItemIds();
+                boolean refreshedSelected = false;
                 for (Object itemId : itemIds) {
                     String id = (String) itemId;
                     BeanItem item = beanContainer.getItem(itemId);
@@ -141,7 +146,11 @@ public class VConsole extends UI implements UserChangeListener {
                     log.debug("refreshing user: " + user.getFirstname());
                     if (userTable.isSelected(itemId)) {
                         refreshUserValues(user);
+                        refreshedSelected = true;
                     }
+                }
+                if (!refreshedSelected && finalFirstUser != null){
+                    refreshUserValues(finalFirstUser);
                 }
                 populatePolicyExceptionList();
             }
@@ -222,8 +231,15 @@ public class VConsole extends UI implements UserChangeListener {
         synchronized(scriptErrorsLock) {
             log.debug("checking for new policy errors {}",scriptErrors.size());
             for (String absolutePath : scriptErrors.keySet()) {
-                Label messageLabel = new Label(scriptErrors.get(absolutePath)
-                                                       .getMessage(),ContentMode.PREFORMATTED);
+                Throwable scriptException = scriptErrors.get(absolutePath);
+                Label messageLabel;
+                if (scriptException.getMessage() != null){
+                    messageLabel = new Label(scriptException.getMessage(),ContentMode.PREFORMATTED);
+                } else{
+                    StringWriter errors = new StringWriter();
+                    scriptException.printStackTrace(new PrintWriter(errors));
+                    messageLabel = new Label(errors.toString(),ContentMode.PREFORMATTED);
+                }
                 messageLabel.setStyleName(Runo.LABEL_SMALL);
                 l.addComponent(messageLabel);
             }
@@ -282,12 +298,6 @@ public class VConsole extends UI implements UserChangeListener {
 
     }
 
-//    private MenuBar createMenu() {
-//        MenuBar menuBar = new MenuBar();
-//        MenuBar.MenuItem = menuBar.a
-//        return menuBar;
-//    }
-
     private void createExceptionWindow(String message) {
         populateExceptionMessage(message,false);
         exceptionWindow.setClosable(false);
@@ -339,11 +349,7 @@ public class VConsole extends UI implements UserChangeListener {
     private void refreshUserValues(User selectedUser) {
         populateItems(selectedUser,attributesBeanContainer);
 
-        Set<String> entitledTargets = attributeService.getEntitledTargets(selectedUser);
-        for (String entitledTarget : entitledTargets) {
-            populateTargetWindow(selectedUser,entitledTarget);
-
-        }
+        targetWindows.refreshOpenTargets(selectedUser);
     }
 
     @Override
@@ -367,49 +373,7 @@ public class VConsole extends UI implements UserChangeListener {
         }
     }
 
-    private void populateTargetWindow(User selectedUser,final String entitledTarget) {
-        Window window = targetWindows.get(entitledTarget);
-        if (window == null) {  //only generate new window if user clicked on it - no new windows from policy update
-            UI ui = UI.getCurrent();
-            if (ui != null) {
-                window = new Window(entitledTarget);
-                window.setWidth("300px");
-                targetWindows.put(entitledTarget,window);
-                window.addCloseListener(new Window.CloseListener() {
-                    @Override
-                    public void windowClose(Window.CloseEvent e) {
-                        targetWindows.remove(entitledTarget);
-                    }
-                });
-                ui.addWindow(window);
-            } else{
-                return;
-            }
-        }
 
-        VerticalLayout windowContent = populateTargetWindowData(selectedUser,entitledTarget);
-        window.setContent(windowContent);
-    }
-
-    private VerticalLayout populateTargetWindowData(User selectedUser,String entitledTarget) {
-        VerticalLayout windowContent = new VerticalLayout();
-        windowContent.setMargin(false);
-
-        final Table attributeTargetTable = new Table();
-        attributeTargetTable.setSizeFull();
-        attributeTargetTable.setSelectable(true);
-        attributeTargetTable.setMultiSelect(false);
-        attributeTargetTable.setImmediate(true);
-        final BeanContainer<String, GeneratedAttributesBean> attributesBeanContainer =
-                new BeanContainer<>(GeneratedAttributesBean.class);
-        attributesBeanContainer.setBeanIdProperty("attributeName");
-        populateItems(selectedUser,attributesBeanContainer,entitledTarget);
-
-        attributeTargetTable.setContainerDataSource(attributesBeanContainer);
-
-        windowContent.addComponent(attributeTargetTable);
-        return windowContent;
-    }
 
     private void populateItems(User firstUser,BeanContainer<String, GeneratedAttributesBean> generatedAttributesBeanContainer) {
         List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(firstUser);
@@ -419,21 +383,13 @@ public class VConsole extends UI implements UserChangeListener {
         }
     }
 
-    private void populateItems(User firstUser,BeanContainer<String, GeneratedAttributesBean> generatedAttributesBeanContainer,String targetName) {
-        List<GeneratedAttributesBean> generatedAttributes =
-                attributeService.getGeneratedAttributesBean(firstUser,targetName);
-        generatedAttributesBeanContainer.removeAllItems();
-        for (GeneratedAttributesBean generatedAttribute : generatedAttributes) {
-            generatedAttributesBeanContainer.addBean(generatedAttribute);
-        }
-    }
 
     private Table createUserTable(BeanContainer<String, User> userBeanContainer) {
         final Collection[] selectedRows = new Collection[1];
         final Table userTable = new Table();
         userTable.setSizeFull();
         userTable.setSelectable(true);
-        userTable.setMultiSelect(true);
+        userTable.setMultiSelect(false);
         userTable.setImmediate(true);
         userTable.setContainerDataSource(userBeanContainer);
         userTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
@@ -448,24 +404,48 @@ public class VConsole extends UI implements UserChangeListener {
         userTable.addValueChangeListener(new Property.ValueChangeListener() {
             @Override
             public void valueChange(Property.ValueChangeEvent event) {
-                selectedRows[0] = (Collection) userTable.getValue();
-                log.info("selected: " + selectedRows[0]);
+//                selectedRows[0] = (Collection) userTable.getValue();
+                log.info("selected: " + userTable.getValue());
             }
         });
-        final Action myADaction = new Action("myAD window");
+
+        Set<String> allEntitledTargets = attributeService.getEntitledTargets(null);
+        Set<Action> entitledTargetActions = new HashSet<>();
+
+        for (String targetName : allEntitledTargets) {
+            final Action action = new Action(targetName);
+            entitledTargetActions.add(action);
+        }
+        final Action[] actions = entitledTargetActions.toArray(new Action[entitledTargetActions.size()]);
+
+
         userTable.addActionHandler(new Action.Handler() {
             @Override
             public Action[] getActions(Object target,Object sender) {
-                return new Action[]{myADaction};
+                return actions;
             }
 
             @Override
             public void handleAction(Action action,Object sender,Object target) {
-                Window multiWindow = new Window("multi-user myAD attributes");
-                UI.getCurrent()
-                        .addWindow(multiWindow);
-                Label stuff = new Label("2 users here " + selectedRows[0] + " ");
-                multiWindow.setContent(stuff);
+                if (action != null) {
+                    Table selectedUserTable = (Table) sender;
+                    selectedUserTable.getValue();
+                    Item item = selectedUserTable.getItem(selectedUserTable.getValue());
+
+                    if (item instanceof BeanItem){
+                        log.debug("create target window");
+                        User user = (User) ((BeanItem) item).getBean();
+                        targetWindows.showTargetWindow(user,action.getCaption());
+                    } else{
+                        log.debug("Cannot create window");
+                    }
+                } else {
+                    Window multiWindow = new Window("multi-user myAD attributes");
+                    UI.getCurrent()
+                            .addWindow(multiWindow);
+                    Label stuff = new Label("2 users here " + selectedRows[0] + " ");
+                    multiWindow.setContent(stuff);
+                }
             }
         });
         userTable.setVisibleColumns("firstname","lastname");

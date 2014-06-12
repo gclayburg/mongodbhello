@@ -218,22 +218,21 @@ public class AttributeService {
 
                         List<Method> methodList = new ArrayList<>(attributeMethods);
                         for (Method method : methodList) {
+                            String absMethodName = method.getDeclaringClass() + "." + method.getName();
                             TargetAttribute annotation = method.getAnnotation(TargetAttribute.class);
-                            log.debug("attribute method found: " + method.getDeclaringClass() + "." + method.getName() +
-                                      " target: " +
+                            log.debug("attribute method found: " + absMethodName + " target: " +
                                       annotation.target() + " attribute name: " + annotation.attributeName()
                             );
                             detectedTargetIds.add(annotation.target());
                             try {
                                 String attributeValue =
                                         (String) method.invoke(groovyObj,user); //todo figure out what to do when user is null instead of just throwing ugly exception, i.e. using vconsole without any users in db (yet)
-                                log.debug("attribute value eval  : " + method.getDeclaringClass() + "." +
-                                          method.getName() +
-                                          " target: " +
+                                synchronized(groovyClassMap) {
+                                    scriptErrors.remove(absMethodName);
+                                }
+                                log.debug("attribute value eval  : " + absMethodName + " target: " +
                                           annotation.target() + " attribute name: " + annotation.attributeName() +
-                                          " generated value: " +
-                                          attributeValue
-                                );
+                                          " generated value: " + attributeValue);
                                 String attributeName = annotation.attributeName()
                                                                .equals("") ? method.getName() : annotation.attributeName();
                                 if (targetId == null) {
@@ -249,12 +248,15 @@ public class AttributeService {
                                           attributeValue + "]"
                                 );
                             } catch (IllegalAccessException e) {
-                                log.warn("Cannot invoke attribute method in groovy: " + method.getDeclaringClass() +
-                                         "." +
-                                         method.getName(),e);
+                                log.warn("Cannot invoke attribute method in groovy: " + absMethodName,e);
+                                synchronized(groovyClassMap) {
+                                    scriptErrors.put(absMethodName,e);
+                                }
                             } catch (InvocationTargetException e) {
-                                log.warn("Cannot call groovy attribute method: " + method.getDeclaringClass() + "." +
-                                         method.getName(),e);
+                                log.warn("Cannot call groovy attribute method: " + absMethodName,e);
+                                synchronized(groovyClassMap) {
+                                    scriptErrors.put(absMethodName,e);
+                                }
                             }
 
                         }
