@@ -196,6 +196,8 @@ public class VConsole extends UI implements UserChangeListener {
         layout.addComponent(top);
         layout.addComponent(splitPanel);
         populateItems(firstUser,attributesBeanContainer);
+
+        userTable.select(userBeanContainer.getIdByIndex(0));
     }
 
     private void populatePolicyExceptionList() {
@@ -205,13 +207,9 @@ public class VConsole extends UI implements UserChangeListener {
                 notify.addStyleName("unread");
                 notify.setDescription("policy error(s) detected: " + scriptErrors.size());
                 notify.setCaption(String.valueOf(scriptErrors.size()));
-
-//                    populateExceptionMessage(throwable.getMessage(),true);
             } else {
-//                notify.setCaption("0");
                 notify.removeStyleName("unread");
                 notify.setDescription("No errors in policy");
-//                    populateExceptionMessage("No errors in policy",true);
             }
         }
     }
@@ -362,7 +360,7 @@ public class VConsole extends UI implements UserChangeListener {
     private void refreshUserValues(User selectedUser) {
         populateItems(selectedUser,attributesBeanContainer);
 
-        targetWindows.refreshOpenTargets(selectedUser); //todo lock ui before updating target windows
+        targetWindows.refreshOpenTargets(selectedUser);
     }
 
     @Override

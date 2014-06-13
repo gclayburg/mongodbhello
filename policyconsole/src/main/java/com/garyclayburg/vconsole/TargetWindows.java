@@ -22,6 +22,7 @@ import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.GeneratedAttributesBean;
 import com.garyclayburg.persistence.domain.User;
 import com.vaadin.data.util.BeanContainer;
+import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -93,8 +94,20 @@ public class TargetWindows {
     void populateTarget(User selectedUser,String entitledTarget){
         Window window = targetWindows.get(entitledTarget);
         if (window !=null) {
-            VerticalLayout windowContent = populateTargetWindowData(selectedUser,entitledTarget);
-            window.setContent(windowContent);
+            UI ui = window.getUI();
+            if (ui != null){
+                VaadinSession session = ui.getSession();
+                if (session !=null){
+                    session.getLockInstance().lock();
+                    try {
+                        VerticalLayout windowContent = populateTargetWindowData(selectedUser,entitledTarget);
+                        window.setContent(windowContent);
+
+                    } finally{
+                        session.getLockInstance().unlock();
+                    }
+                }
+            }
         }
     }
 
