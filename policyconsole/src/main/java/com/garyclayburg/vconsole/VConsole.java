@@ -24,6 +24,7 @@ import com.garyclayburg.attributes.PolicyChangeController;
 import com.garyclayburg.attributes.PolicyChangeListener;
 import com.garyclayburg.persistence.UserChangeController;
 import com.garyclayburg.persistence.UserChangeListener;
+import com.garyclayburg.persistence.domain.QUser;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.repository.AutoUserRepo;
 import com.github.wolfie.refresher.Refresher;
@@ -34,10 +35,7 @@ import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
-import com.vaadin.event.Action;
-import com.vaadin.event.ItemClickEvent;
-import com.vaadin.event.LayoutEvents;
-import com.vaadin.event.ShortcutAction;
+import com.vaadin.event.*;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.label.ContentMode;
@@ -118,18 +116,24 @@ public class VConsole extends UI implements UserChangeListener {
         layout.setMargin(true);
         setContent(layout);
 
-        List<User> allUsers = autoUserRepo.findAll();
 
-        BeanContainer<String, User> userBeanContainer = new BeanContainer<>(User.class);
-        userBeanContainer.setBeanIdProperty("id");
-        firstUser = null;
-        if (allUsers.size() > 0) {
-            firstUser = allUsers.get(0);
-        }
-        for (User user : allUsers) {
-            userBeanContainer.addBean(user);
-            userChangeController.addChangeListener(user,this); //todo: implement remove change controller...
-        }
+        List<User> searchedUsers;
+
+        TextField searchField = new TextField();
+        searchField.setInputPrompt("name or jql query");
+        searchField.setTextChangeEventMode(AbstractTextField.TextChangeEventMode.LAZY);
+        searchField.addTextChangeListener(new FieldEvents.TextChangeListener() {
+            @Override
+            public void textChange(FieldEvents.TextChangeEvent event) {
+                QUser qUser = new QUser("user");
+                Iterable<User> searchedUsers = autoUserRepo.findAll(qUser.firstname.eq(event.getText()));
+                updateUserList(searchedUsers);
+            }
+        });
+
+
+//        searchedUsers = autoUserRepo.findAll();
+
         createExceptionWindow("no errors yet...");
 
         final User finalFirstUser = firstUser;
@@ -162,7 +166,6 @@ public class VConsole extends UI implements UserChangeListener {
                 populatePolicyExceptionList();
             }
         });
-        userTable = createUserTable(userBeanContainer);
         attributeTable = new Table();
         attributeTable.setSizeFull();
         attributeTable.setSelectable(true);
@@ -173,6 +176,10 @@ public class VConsole extends UI implements UserChangeListener {
         attributesBeanContainer.setBeanIdProperty("attributeName");
 
         attributeTable.setContainerDataSource(attributesBeanContainer);
+
+        BeanContainer<String, User> userBeanContainer = new BeanContainer<>(User.class);
+        userBeanContainer.setBeanIdProperty("id");
+        userTable = createUserTable(userBeanContainer);
         userTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
             @Override
             public void itemClick(ItemClickEvent event) {
@@ -194,10 +201,33 @@ public class VConsole extends UI implements UserChangeListener {
         HorizontalLayout top = createTop();
         populatePolicyExceptionList();
         layout.addComponent(top);
+
+
+        layout.addComponent(searchField);
         layout.addComponent(splitPanel);
         populateItems(firstUser,attributesBeanContainer);
 
-        userTable.select(userBeanContainer.getIdByIndex(0));
+    }
+
+    private void updateUserList(Iterable<User> searchedUsers) {
+        BeanContainer<String, User> userBeanContainer = new BeanContainer<>(User.class);
+        userBeanContainer.setBeanIdProperty("id");
+        firstUser = null;
+        boolean markedFirst = false;
+        for (User user : searchedUsers) {
+            if (!markedFirst){
+                markedFirst=true;
+                firstUser = user;
+            }
+            userBeanContainer.addBean(user);
+            userChangeController.addChangeListener(user,this); //todo: implement remove change controller...
+        }
+        userTable.setContainerDataSource(userBeanContainer);
+        userTable.setVisibleColumns("firstname","lastname");
+        if (firstUser !=null) {
+            userTable.select(userBeanContainer.getIdByIndex(0));
+            populateItems(firstUser,attributesBeanContainer);
+        }
     }
 
     private void populatePolicyExceptionList() {
@@ -387,21 +417,24 @@ public class VConsole extends UI implements UserChangeListener {
 
 
     private void populateItems(User firstUser,BeanContainer<String, GeneratedAttributesBean> generatedAttributesBeanContainer) {
+        if (firstUser !=null) {
+            List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(firstUser);
 
-        List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(firstUser);
-
-        UI ui = attributeTable.getUI();
-        if (ui != null){
-            VaadinSession session = ui.getSession();
-            if (session !=null){
-                session.getLockInstance().lock();
-                try {
-                    generatedAttributesBeanContainer.removeAllItems();
-                    for (GeneratedAttributesBean generatedAttribute : generatedAttributes) {
-                        generatedAttributesBeanContainer.addBean(generatedAttribute);
+            UI ui = attributeTable.getUI();
+            if (ui != null) {
+                VaadinSession session = ui.getSession();
+                if (session != null) {
+                    session.getLockInstance()
+                            .lock();
+                    try {
+                        generatedAttributesBeanContainer.removeAllItems();
+                        for (GeneratedAttributesBean generatedAttribute : generatedAttributes) {
+                            generatedAttributesBeanContainer.addBean(generatedAttribute);
+                        }
+                    } finally {
+                        session.getLockInstance()
+                                .unlock();
                     }
-                } finally{
-                    session.getLockInstance().unlock();
                 }
             }
         }
@@ -434,19 +467,31 @@ public class VConsole extends UI implements UserChangeListener {
         });
 
 
-        Set<String> allEntitledTargets = attributeService.getEntitledTargets(firstUser);
-        Set<Action> entitledTargetActions = new HashSet<>();
-
-        for (String targetName : allEntitledTargets) {
-            final Action action = new Action(targetName);
-            entitledTargetActions.add(action);
-        }
-        final Action[] actions = entitledTargetActions.toArray(new Action[entitledTargetActions.size()]);
 
 
         userTable.addActionHandler(new Action.Handler() {
             @Override
             public Action[] getActions(Object target,Object sender) {
+                Table selectedUserTable = (Table) sender;
+                Item item = selectedUserTable.getItem(selectedUserTable.getValue());
+                Action[] actions = new Action[0];
+                if (item instanceof BeanItem) {
+                    log.debug("create right-click menu items");
+                    User user = (User) ((BeanItem) item).getBean();
+                    if (user !=null) {
+                        Set<String> allEntitledTargets = attributeService.getEntitledTargets(user);
+                        Set<Action> entitledTargetActions = new HashSet<>();
+
+                        for (String targetName : allEntitledTargets) {
+                            final Action action = new Action(targetName);
+                            entitledTargetActions.add(action);
+                        }
+                        actions = entitledTargetActions.toArray(new Action[entitledTargetActions.size()]);
+                    }
+                } else {
+                    log.debug("Cannot create right-click menu items");
+                }
+
                 return actions;
             }
 

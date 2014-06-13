@@ -193,88 +193,89 @@ public class AttributeService {
         long startTime = System.nanoTime();
         log.info("start generating user attributes for target: " + targetId);
         HashMap<String, String> attributeValues = new HashMap<>(); //name,value
-        detectedTargetIds = new HashSet<>();
 
-        log.info("looking for method");
+        if (user != null) {
+            detectedTargetIds = new HashSet<>();
+
+            log.info("looking for method");
 
 //        attributeClasses = findAnnotatedGroovyClasses(AttributesClass.class);
-        while (!initiallyScanned){
-            //wait until thread to pre-load scripts has started (and locked annotatedGroovyClasses)
-            //mostly needed for preventing race condition for fast-running unit tests
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                log.warn("kaboom",e);
-            }
-        }
-        synchronized(groovyClassMap) {
-            log.debug("checking for annotated classes");
-            if (groovyClassMap.size() > 0) {
-                for (Class groovyAttributeClass : groovyClassMap.values()) {
-                    try {
-                        Object groovyObj = groovyAttributeClass.newInstance();
-                        Set<Method> attributeMethods =
-                                getAllMethods(groovyAttributeClass,withAnnotation(TargetAttribute.class));
-
-                        List<Method> methodList = new ArrayList<>(attributeMethods);
-                        for (Method method : methodList) {
-                            String absMethodName = method.getDeclaringClass() + "." + method.getName();
-                            TargetAttribute annotation = method.getAnnotation(TargetAttribute.class);
-                            log.debug("attribute method found: " + absMethodName + " target: " +
-                                      annotation.target() + " attribute name: " + annotation.attributeName()
-                            );
-                            detectedTargetIds.add(annotation.target());
-                            try {
-                                String attributeValue =
-                                        (String) method.invoke(groovyObj,user); //todo figure out what to do when user is null instead of just throwing ugly exception, i.e. using vconsole without any users in db (yet)
-                                synchronized(groovyClassMap) {
-                                    scriptErrors.remove(absMethodName);
-                                }
-                                log.debug("attribute value eval  : " + absMethodName + " target: " +
-                                          annotation.target() + " attribute name: " + annotation.attributeName() +
-                                          " generated value: " + attributeValue);
-                                String attributeName = annotation.attributeName()
-                                                               .equals("") ? method.getName() : annotation.attributeName();
-                                if (targetId == null) {
-                                    attributeValues.put(attributeName,attributeValue);
-                                } else if (targetId.equals(annotation.target())) {
-                                    attributeValues.put(attributeName,attributeValue);
-                                } else {
-                                    log.debug("skipping attribute for target: " + annotation.target());
-                                }
-                                log.debug("attribute name:value  for target " + annotation.target() + ": [" +
-                                          attributeName +
-                                          ":" +
-                                          attributeValue + "]"
-                                );
-                            } catch (IllegalAccessException e) {
-                                log.warn("Cannot invoke attribute method in groovy: " + absMethodName,e);
-                                synchronized(groovyClassMap) {
-                                    scriptErrors.put(absMethodName,e);
-                                }
-                            } catch (InvocationTargetException e) {
-                                log.warn("Cannot call groovy attribute method: " + absMethodName,e);
-                                synchronized(groovyClassMap) {
-                                    scriptErrors.put(absMethodName,e);
-                                }
-                            }
-
-                        }
-                    } catch (InstantiationException e) {
-                        log.warn("Cannot check groovy script for generated attributes: " +
-                                 groovyAttributeClass.getName(),e);
-                    } catch (IllegalAccessException e) {
-                        log.warn("Cannot check groovy script for generated attributes: ",e);
-                    }
-
+            while (!initiallyScanned) {
+                //wait until thread to pre-load scripts has started (and locked annotatedGroovyClasses)
+                //mostly needed for preventing race condition for fast-running unit tests
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    log.warn("kaboom",e);
                 }
-            } else {
-                log.warn("No groovy scripts found with @AttributesClass annotation. Users will not have generated attributes");
             }
+            synchronized(groovyClassMap) {
+                log.debug("checking for annotated classes");
+                if (groovyClassMap.size() > 0) {
+                    for (Class groovyAttributeClass : groovyClassMap.values()) {
+                        try {
+                            Object groovyObj = groovyAttributeClass.newInstance();
+                            Set<Method> attributeMethods =
+                                    getAllMethods(groovyAttributeClass,withAnnotation(TargetAttribute.class));
+
+                            List<Method> methodList = new ArrayList<>(attributeMethods);
+                            for (Method method : methodList) {
+                                String absMethodName = method.getDeclaringClass() + "." + method.getName();
+                                TargetAttribute annotation = method.getAnnotation(TargetAttribute.class);
+                                log.debug("attribute method found: " + absMethodName + " target: " +
+                                          annotation.target() + " attribute name: " + annotation.attributeName());
+                                detectedTargetIds.add(annotation.target());
+                                try {
+                                    String attributeValue =
+                                            (String) method.invoke(groovyObj,user); //todo figure out what to do when user is null instead of just throwing ugly exception, i.e. using vconsole without any users in db (yet)
+                                    synchronized(groovyClassMap) {
+                                        scriptErrors.remove(absMethodName);
+                                    }
+                                    log.debug("attribute value eval  : " + absMethodName + " target: " +
+                                              annotation.target() + " attribute name: " + annotation.attributeName() +
+                                              " generated value: " + attributeValue);
+                                    String attributeName = annotation.attributeName()
+                                                                   .equals("") ? method.getName() : annotation.attributeName();
+                                    if (targetId == null) {
+                                        attributeValues.put(attributeName,attributeValue);
+                                    } else if (targetId.equals(annotation.target())) {
+                                        attributeValues.put(attributeName,attributeValue);
+                                    } else {
+                                        log.debug("skipping attribute for target: " + annotation.target());
+                                    }
+                                    log.debug("attribute name:value  for target " + annotation.target() + ": [" +
+                                              attributeName +
+                                              ":" +
+                                              attributeValue + "]");
+                                } catch (IllegalAccessException e) {
+                                    log.warn("Cannot invoke attribute method in groovy: " + absMethodName,e);
+                                    synchronized(groovyClassMap) {
+                                        scriptErrors.put(absMethodName,e);
+                                    }
+                                } catch (InvocationTargetException e) {
+                                    log.warn("Cannot call groovy attribute method: " + absMethodName,e);
+                                    synchronized(groovyClassMap) {
+                                        scriptErrors.put(absMethodName,e);
+                                    }
+                                }
+
+                            }
+                        } catch (InstantiationException e) {
+                            log.warn("Cannot check groovy script for generated attributes: " +
+                                     groovyAttributeClass.getName(),e);
+                        } catch (IllegalAccessException e) {
+                            log.warn("Cannot check groovy script for generated attributes: ",e);
+                        }
+
+                    }
+                } else {
+                    log.warn("No groovy scripts found with @AttributesClass annotation. Users will not have generated attributes");
+                }
+            }
+            long endTime = System.nanoTime();
+            log.info("Generate user attributes found: " + attributeValues.size());
+            log.info("Generate user attributes time:  " + ((endTime - startTime) / 1000000000.0) + " secs");
         }
-        long endTime = System.nanoTime();
-        log.info("Generate user attributes found: " + attributeValues.size());
-        log.info("Generate user attributes time:  " + ((endTime - startTime) / 1000000000.0) + " secs");
         return attributeValues;
     }
 
