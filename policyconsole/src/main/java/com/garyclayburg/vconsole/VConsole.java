@@ -94,10 +94,12 @@ public class VConsole extends UI implements UserChangeListener {
 
     @Autowired
     private TargetWindows targetWindows;
+    private Table attributeTable;
+    private User firstUser;
 
     public VConsole() {
         exceptionWindow = new Window("policy exception");
-        notifications = new Window("Notifications");
+        notifications = new Window("Policy errors");
         scriptErrorsLock = new Object();
     }
 
@@ -120,7 +122,7 @@ public class VConsole extends UI implements UserChangeListener {
 
         BeanContainer<String, User> userBeanContainer = new BeanContainer<>(User.class);
         userBeanContainer.setBeanIdProperty("id");
-        User firstUser = null;
+        firstUser = null;
         if (allUsers.size() > 0) {
             firstUser = allUsers.get(0);
         }
@@ -161,7 +163,7 @@ public class VConsole extends UI implements UserChangeListener {
             }
         });
         userTable = createUserTable(userBeanContainer);
-        final Table attributeTable = new Table();
+        attributeTable = new Table();
         attributeTable.setSizeFull();
         attributeTable.setSelectable(true);
         attributeTable.setMultiSelect(false);
@@ -169,10 +171,8 @@ public class VConsole extends UI implements UserChangeListener {
 
         attributesBeanContainer = new BeanContainer<>(GeneratedAttributesBean.class);
         attributesBeanContainer.setBeanIdProperty("attributeName");
-        populateItems(firstUser,attributesBeanContainer);
 
         attributeTable.setContainerDataSource(attributesBeanContainer);
-
         userTable.addItemClickListener(new ItemClickEvent.ItemClickListener() {
             @Override
             public void itemClick(ItemClickEvent event) {
@@ -181,7 +181,6 @@ public class VConsole extends UI implements UserChangeListener {
                 populatePolicyExceptionList();
             }
         });
-
         HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
         splitPanel.setSizeFull();
         splitPanel.setSplitPosition(150,Unit.PIXELS);
@@ -196,18 +195,21 @@ public class VConsole extends UI implements UserChangeListener {
         populatePolicyExceptionList();
         layout.addComponent(top);
         layout.addComponent(splitPanel);
+        populateItems(firstUser,attributesBeanContainer);
     }
 
     private void populatePolicyExceptionList() {
         synchronized(scriptErrorsLock) {
             scriptErrors = attributeService.getScriptErrors();
             if (scriptErrors.size() > 0) {
+                notify.addStyleName("unread");
                 notify.setDescription("policy error(s) detected: " + scriptErrors.size());
                 notify.setCaption(String.valueOf(scriptErrors.size()));
 
 //                    populateExceptionMessage(throwable.getMessage(),true);
             } else {
-                notify.setCaption("0");
+//                notify.setCaption("0");
+                notify.removeStyleName("unread");
                 notify.setDescription("No errors in policy");
 //                    populateExceptionMessage("No errors in policy",true);
             }
@@ -219,27 +221,37 @@ public class VConsole extends UI implements UserChangeListener {
         l.setMargin(true);
         l.setSpacing(true);
         notifications.setContent(l);
-        notifications.setWidth("300px");
+        notifications.setWidth("1000px");
         notifications.addStyleName("notifications");
         notifications.setClosable(false);
-        notifications.setResizable(true);
-        notifications.setDraggable(true);
+        notifications.setResizable(false);
+        notifications.setDraggable(false);
         notifications.setPositionX(event.getClientX() - event.getRelativeX() );
         notifications.setPositionY(event.getClientY() - event.getRelativeY());
         notifications.setCloseShortcut(ShortcutAction.KeyCode.ESCAPE, null);
 
         synchronized(scriptErrorsLock) {
             log.debug("checking for new policy errors {}",scriptErrors.size());
-            for (String absolutePath : scriptErrors.keySet()) {
-                Throwable scriptException = scriptErrors.get(absolutePath);
-                Label messageLabel;
-                if (scriptException.getMessage() != null){
-                    messageLabel = new Label(scriptException.getMessage(),ContentMode.PREFORMATTED);
-                } else{
-                    StringWriter errors = new StringWriter();
-                    scriptException.printStackTrace(new PrintWriter(errors));
-                    messageLabel = new Label(errors.toString(),ContentMode.PREFORMATTED);
+            Label messageLabel;
+            if (scriptErrors.size() >0) {
+                for (String absolutePath : scriptErrors.keySet()) {
+                    Throwable scriptException = scriptErrors.get(absolutePath);
+                    String message = scriptException.getMessage();
+                    if (message != null) {
+                        String formattedMessage = MessageHelper.scrubMessage(message);
+                        messageLabel = new Label("<hr>" + formattedMessage,ContentMode.HTML);
+                    } else {
+                        StringWriter errors = new StringWriter();
+                        scriptException.printStackTrace(new PrintWriter(errors));
+                        String stackTrace = errors.toString();
+                        stackTrace = MessageHelper.scrubMessage(stackTrace);
+                        messageLabel = new Label("<hr>" + stackTrace,ContentMode.HTML);
+                    }
+                    messageLabel.setStyleName(Runo.LABEL_SMALL);
+                    l.addComponent(messageLabel);
                 }
+            } else{
+                messageLabel = new Label("<hr>none<br>"  ,ContentMode.HTML);
                 messageLabel.setStyleName(Runo.LABEL_SMALL);
                 l.addComponent(messageLabel);
             }
@@ -349,7 +361,7 @@ public class VConsole extends UI implements UserChangeListener {
     private void refreshUserValues(User selectedUser) {
         populateItems(selectedUser,attributesBeanContainer);
 
-        targetWindows.refreshOpenTargets(selectedUser);
+        targetWindows.refreshOpenTargets(selectedUser); //todo lock ui before updating target windows
     }
 
     @Override
@@ -376,10 +388,23 @@ public class VConsole extends UI implements UserChangeListener {
 
 
     private void populateItems(User firstUser,BeanContainer<String, GeneratedAttributesBean> generatedAttributesBeanContainer) {
+
         List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(firstUser);
-        generatedAttributesBeanContainer.removeAllItems();
-        for (GeneratedAttributesBean generatedAttribute : generatedAttributes) {
-            generatedAttributesBeanContainer.addBean(generatedAttribute);
+
+        UI ui = attributeTable.getUI();
+        if (ui != null){
+            VaadinSession session = ui.getSession();
+            if (session !=null){
+                session.getLockInstance().lock();
+                try {
+                    generatedAttributesBeanContainer.removeAllItems();
+                    for (GeneratedAttributesBean generatedAttribute : generatedAttributes) {
+                        generatedAttributesBeanContainer.addBean(generatedAttribute);
+                    }
+                } finally{
+                    session.getLockInstance().unlock();
+                }
+            }
         }
     }
 
@@ -409,7 +434,8 @@ public class VConsole extends UI implements UserChangeListener {
             }
         });
 
-        Set<String> allEntitledTargets = attributeService.getEntitledTargets(null);
+
+        Set<String> allEntitledTargets = attributeService.getEntitledTargets(firstUser);
         Set<Action> entitledTargetActions = new HashSet<>();
 
         for (String targetName : allEntitledTargets) {

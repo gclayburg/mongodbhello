@@ -648,19 +648,22 @@
 	
 	.notifications.v-window {
 		margin-top: 45px !important;
-		margin-left: -193px !important;
+		margin-left: -893px !important;
 		font-size: 13px;
+      word-wrap: normal;
 	}
 	
 	.notifications.v-window .v-widget {
 		font-size: 13px;
+      word-wrap: normal;
+      font-family: "Courier New";
 	}
 	
 	.notifications.v-window::before {
 		content: "";
 		position: absolute;
 		top: -14px;
-		right: 80px;
+		right: 80px; /* arrow below bell*/
 		border: 7px solid #fff;
 		width: 0;
 		height: 0;
