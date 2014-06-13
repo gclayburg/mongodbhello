@@ -222,11 +222,12 @@ public class VConsole extends UI implements UserChangeListener {
         l.setSpacing(true);
         notifications.setContent(l);
         notifications.setWidth("1000px");
+        notifications.setHeight("500px");
         notifications.addStyleName("notifications");
         notifications.setClosable(false);
-        notifications.setResizable(false);
+        notifications.setResizable(true);
         notifications.setDraggable(false);
-        notifications.setPositionX(event.getClientX() - event.getRelativeX() );
+        notifications.setPositionX(event.getClientX() - event.getRelativeX() -40 ); /* magic number used to adjust right edge of window so that it draws within the browser window.  This number is related to css values in dashboard.scss and relative positioning of the bell icon in topLayout */
         notifications.setPositionY(event.getClientY() - event.getRelativeY());
         notifications.setCloseShortcut(ShortcutAction.KeyCode.ESCAPE, null);
 
