@@ -31,6 +31,7 @@ import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.distribution.Version;
 import de.flapdoodle.embed.process.runtime.Network;
 import org.junit.*;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,6 +83,10 @@ public class CsvParseFlapDoodleTest {
     private static MongodProcess mongoProcess;
     private static Mongo mongo;
 
+    @Rule
+    public TestName testName = new TestName();
+
+
     @BeforeClass
     public static void initializeDB() throws IOException {
 
@@ -113,14 +118,14 @@ public class CsvParseFlapDoodleTest {
 
     @Before
     public void setUp() throws URISyntaxException {
-        log.debug("setUp() test method: " + this);
+        log.debug("Running test setUp: " + testName.getMethodName());
         userService.dropAllusers();
         importOneCSV("testusers.csv");
     }
 
     @After
     public void tearDown() {
-        log.debug("teardown called for test " + this + "\n");
+        log.debug("TearDown test: " + testName.getMethodName());
     }
 
     @Test

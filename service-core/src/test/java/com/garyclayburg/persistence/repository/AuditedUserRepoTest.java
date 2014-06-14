@@ -133,8 +133,10 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
                 .getUser()
                 .getLastname());
 
+        hankAgain = new User();
         hankAgain.setId(hank.getId()); //query must contain id of saved user
-        List<UserAudit> hankAgainAuditEntry = userAuditRepo.findByUser(hankAgain);
+        log.debug("hank id: "+hank.getId());
+        List<UserAudit> hankAgainAuditEntry = userAuditRepo.findByUser(hank);
         assertEquals("Williams",hankAgainAuditEntry.get(0).getUser().getLastname());
     }
 

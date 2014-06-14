@@ -62,7 +62,7 @@ public class CsvParseInMemoryTest extends MongoInMemoryTestBase {
 
     @After
     public void tearDown() {
-        log.debug("teardown called for test " + this + "\n");
+        log.debug("TearDown test: " + testName.getMethodName());
     }
 
     @Test
