@@ -191,14 +191,11 @@ public class AttributeService {
 
     private Map<String, String> generateAttributes(User user,String targetId) {
         long startTime = System.nanoTime();
-        log.info("start generating user attributes for target: " + targetId);
         HashMap<String, String> attributeValues = new HashMap<>(); //name,value
 
         if (user != null) {
+            log.debug("start generating user attributes for userid: {} target: {}",user.getId(), targetId);
             detectedTargetIds = new HashSet<>();
-
-            log.info("looking for method");
-
 //        attributeClasses = findAnnotatedGroovyClasses(AttributesClass.class);
             while (!initiallyScanned) {
                 //wait until thread to pre-load scripts has started (and locked annotatedGroovyClasses)
@@ -222,8 +219,8 @@ public class AttributeService {
                             for (Method method : methodList) {
                                 String absMethodName = method.getDeclaringClass() + "." + method.getName();
                                 TargetAttribute annotation = method.getAnnotation(TargetAttribute.class);
-                                log.debug("attribute method found: " + absMethodName + " target: " +
-                                          annotation.target() + " attribute name: " + annotation.attributeName());
+                                log.debug("attribute method found: {} target: {} attribute name: {}",
+                                          absMethodName,annotation.target(),annotation.attributeName());
                                 detectedTargetIds.add(annotation.target());
                                 try {
                                     String attributeValue =
@@ -231,9 +228,8 @@ public class AttributeService {
                                     synchronized(groovyClassMap) {
                                         scriptErrors.remove(absMethodName);
                                     }
-                                    log.debug("attribute value eval  : " + absMethodName + " target: " +
-                                              annotation.target() + " attribute name: " + annotation.attributeName() +
-                                              " generated value: " + attributeValue);
+                                    log.debug("attribute value eval  : {} target: {} attribute name: {} generated value: {}",
+                                              absMethodName,annotation.target(),annotation.attributeName(),attributeValue);
                                     String attributeName = annotation.attributeName()
                                                                    .equals("") ? method.getName() : annotation.attributeName();
                                     if (targetId == null) {
@@ -241,19 +237,17 @@ public class AttributeService {
                                     } else if (targetId.equals(annotation.target())) {
                                         attributeValues.put(attributeName,attributeValue);
                                     } else {
-                                        log.debug("skipping attribute for target: " + annotation.target());
+                                        log.debug("skipping attribute for target: {}", annotation.target());
                                     }
-                                    log.debug("attribute name:value  for target " + annotation.target() + ": [" +
-                                              attributeName +
-                                              ":" +
-                                              attributeValue + "]");
+                                    log.debug("attribute name:value  for target {}: [{}:{}]"
+                                              ,annotation.target(),attributeName,attributeValue);
                                 } catch (IllegalAccessException e) {
-                                    log.warn("Cannot invoke attribute method in groovy: " + absMethodName,e);
+                                    log.warn("Cannot invoke attribute method in groovy: {}",absMethodName,e);
                                     synchronized(groovyClassMap) {
                                         scriptErrors.put(absMethodName,e);
                                     }
                                 } catch (InvocationTargetException e) {
-                                    log.warn("Cannot call groovy attribute method: " + absMethodName,e);
+                                    log.warn("Cannot call groovy attribute method: {}", absMethodName,e);
                                     synchronized(groovyClassMap) {
                                         scriptErrors.put(absMethodName,e);
                                     }
@@ -273,8 +267,7 @@ public class AttributeService {
                 }
             }
             long endTime = System.nanoTime();
-            log.info("Generate user attributes found: " + attributeValues.size());
-            log.info("Generate user attributes time:  " + ((endTime - startTime) / 1000000000.0) + " secs");
+            log.info("Generated {} user attributes for userid {} in {} secs:  ",attributeValues.size(),user.getId(), ((endTime - startTime) / 1000000000.0) );
         }
         return attributeValues;
     }

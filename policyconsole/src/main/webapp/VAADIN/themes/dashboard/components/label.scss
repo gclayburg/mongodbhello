@@ -16,14 +16,32 @@
 	
 	.v-label.h2 {
 		color: #404346;
-		font-size: 22px;
+		font-size: 12px;
 		line-height: 1;
 		font-weight: normal;
 		padding: .5em 0;
 		-webkit-font-smoothing: antialiased;
 	}
-	
-	.v-label.light {
+
+	.v-label.policyNormal {
+		color: #2d90f3;
+		font-size: 12px;
+		line-height: 1;
+		font-weight: normal;
+		padding: .5em 0;
+		-webkit-font-smoothing: antialiased;
+	}
+
+  .v-label.policyError {
+    color: #ce2314;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: normal;
+    padding: .5em 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .v-label.light {
 		color: #979699;
 	}
 	

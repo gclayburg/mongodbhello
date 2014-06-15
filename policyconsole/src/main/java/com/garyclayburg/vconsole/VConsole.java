@@ -49,6 +49,8 @@ import org.vaadin.spring.VaadinUI;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -94,6 +96,8 @@ public class VConsole extends UI implements UserChangeListener {
     private TargetWindows targetWindows;
     private Table attributeTable;
     private User firstUser;
+    private Label searchStatus;
+    private Label policyChangeStatus;
 
     public VConsole() {
         exceptionWindow = new Window("policy exception");
@@ -116,23 +120,37 @@ public class VConsole extends UI implements UserChangeListener {
         layout.setMargin(true);
         setContent(layout);
 
-
-        List<User> searchedUsers;
-
+        searchStatus = new Label("0 users matching: ");
         TextField searchField = new TextField();
-        searchField.setInputPrompt("name or jql query");
+        searchField.setInputPrompt("first or last name");
         searchField.setTextChangeEventMode(AbstractTextField.TextChangeEventMode.LAZY);
         searchField.addTextChangeListener(new FieldEvents.TextChangeListener() {
             @Override
             public void textChange(FieldEvents.TextChangeEvent event) {
+                String searchText = event.getText();
+                log.debug("search: {}",searchText);
                 QUser qUser = new QUser("user");
-                Iterable<User> searchedUsers = autoUserRepo.findAll(qUser.firstname.eq(event.getText()));
-                updateUserList(searchedUsers);
+                long startSearch = System.nanoTime();
+                if (searchText.length() > 2) {
+                    Iterable<User> searchedUsers = autoUserRepo.findAll(
+                            qUser.firstname.containsIgnoreCase(searchText).or(qUser.lastname.containsIgnoreCase(searchText)));
+                    long endSearch = System.nanoTime();
+                    log.info("Searched for \"{}\" in {} secs",searchText,((endSearch - startSearch) / 1000000000.0));
+                    searchStatus.setValue("? users matching: " + searchText);
+                    updateUserList(searchedUsers,searchText);
+                } else if (searchText.equals("*")){
+                    Iterable<User> searchedUsers = autoUserRepo.findAll();
+                    long endSearch = System.nanoTime();
+                    log.info("Searched for \"{}\" in {} secs",searchText,((endSearch - startSearch) / 1000000000.0));
+                    searchStatus.setValue("? users matching: " + searchText);
+                    updateUserList(searchedUsers,searchText);
+
+                } else {
+                    log.debug("not enough chars");
+                    searchStatus.setValue("* for all users...");
+                }
             }
         });
-
-
-//        searchedUsers = autoUserRepo.findAll();
 
         createExceptionWindow("no errors yet...");
 
@@ -158,12 +176,15 @@ public class VConsole extends UI implements UserChangeListener {
                 if (!refreshedSelected && finalFirstUser != null){
                     refreshUserValues(finalFirstUser);
                 }
-                populatePolicyExceptionList();
+                int numErrors = populatePolicyExceptionList(); // this will catch runtime errors not caught during groovy compile
+                if (numErrors == 0) {
+                    showPolicyUpdated();
+                }
             }
 
             @Override
             public void policyException(Throwable e) {
-                populatePolicyExceptionList();
+                populatePolicyExceptionList();  //cannot compile operator supplied groovy?
             }
         });
         attributeTable = new Table();
@@ -185,7 +206,7 @@ public class VConsole extends UI implements UserChangeListener {
             public void itemClick(ItemClickEvent event) {
                 User selectedUser = (User) ((BeanItem) event.getItem()).getBean();
                 refreshUserValues(selectedUser);
-                populatePolicyExceptionList();
+                populatePolicyExceptionList();  // maybe this user clicked on causes runtime exception in groovy?
             }
         });
         HorizontalSplitPanel splitPanel = new HorizontalSplitPanel();
@@ -199,22 +220,35 @@ public class VConsole extends UI implements UserChangeListener {
 //        layout.addComponent(menuBar);
 
         HorizontalLayout top = createTop();
-        populatePolicyExceptionList();
+        populatePolicyExceptionList(); //initial check for groovy errors
         layout.addComponent(top);
 
 
         layout.addComponent(searchField);
+        layout.addComponent(searchStatus);
         layout.addComponent(splitPanel);
         populateItems(firstUser,attributesBeanContainer);
 
     }
 
-    private void updateUserList(Iterable<User> searchedUsers) {
+    private void showPolicyUpdated() {
+        DateFormat df = new SimpleDateFormat("HH:mm:ss");
+        policyChangeStatus.setValue("policy updated " + df.format(new Date()));
+        policyChangeStatus.removeStyleName("policyError");
+        policyChangeStatus.addStyleName("policyNormal");
+        // Add animation
+        policyChangeStatus.addStyleName("v-animate-reveal");
+
+    }
+
+    private void updateUserList(Iterable<User> searchedUsers,String searchText) {
         BeanContainer<String, User> userBeanContainer = new BeanContainer<>(User.class);
         userBeanContainer.setBeanIdProperty("id");
         firstUser = null;
         boolean markedFirst = false;
+        long userCount = 0;
         for (User user : searchedUsers) {
+            userCount++;
             if (!markedFirst){
                 markedFirst=true;
                 firstUser = user;
@@ -226,22 +260,30 @@ public class VConsole extends UI implements UserChangeListener {
         userTable.setVisibleColumns("firstname","lastname");
         if (firstUser !=null) {
             userTable.select(userBeanContainer.getIdByIndex(0));
-            populateItems(firstUser,attributesBeanContainer);
         }
+        populateItems(firstUser,attributesBeanContainer);
+        searchStatus.setValue(userCount +" users matching: " + searchText);
     }
 
-    private void populatePolicyExceptionList() {
+    private int populatePolicyExceptionList() {
+        int errorsFound;
         synchronized(scriptErrorsLock) {
             scriptErrors = attributeService.getScriptErrors();
-            if (scriptErrors.size() > 0) {
+            errorsFound = scriptErrors.size();
+            if (errorsFound > 0) {
                 notify.addStyleName("unread");
                 notify.setDescription("policy error(s) detected: " + scriptErrors.size());
                 notify.setCaption(String.valueOf(scriptErrors.size()));
+
+                policyChangeStatus.setValue("policy error");
+                policyChangeStatus.removeStyleName("policyNormal");
+                policyChangeStatus.addStyleName("policyError");
             } else {
                 notify.removeStyleName("unread");
                 notify.setDescription("No errors in policy");
             }
         }
+        return errorsFound;
     }
 
     private void buildNotifications(Button.ClickEvent event) {
@@ -298,6 +340,12 @@ public class VConsole extends UI implements UserChangeListener {
         topLayout.addComponent(title);
         topLayout.setComponentAlignment(title,Alignment.MIDDLE_LEFT);
         topLayout.setExpandRatio(title,1);
+
+        policyChangeStatus = new Label("");
+        policyChangeStatus.setSizeUndefined();
+        policyChangeStatus.addStyleName("policyNormal");
+        topLayout.addComponent(policyChangeStatus);
+        topLayout.setComponentAlignment(policyChangeStatus,Alignment.MIDDLE_LEFT);
 
         createNotifyButton();
         topLayout.addComponent(notify);
@@ -417,7 +465,7 @@ public class VConsole extends UI implements UserChangeListener {
 
 
     private void populateItems(User firstUser,BeanContainer<String, GeneratedAttributesBean> generatedAttributesBeanContainer) {
-        if (firstUser !=null) {
+//        if (firstUser !=null) {
             List<GeneratedAttributesBean> generatedAttributes = attributeService.getGeneratedAttributesBean(firstUser);
 
             UI ui = attributeTable.getUI();
@@ -437,7 +485,7 @@ public class VConsole extends UI implements UserChangeListener {
                     }
                 }
             }
-        }
+//        }
     }
 
 

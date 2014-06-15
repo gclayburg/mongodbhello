@@ -20,19 +20,57 @@
 <configuration >
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- deny all events with a level below INFO, that is TRACE and DEBUG -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+
+
         <!-- encoders are  by default assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <!-- On Windows machines setting withJansi to true enables ANSI
+         color code interpretation by the Jansi library. This requires
+         org.fusesource.jansi:jansi:1.8 on the class path.  Note that
+         Unix-based operating systems such as Linux and Mac OS X
+         support ANSI color codes by default. -->
+        <withJansi>true</withJansi>
         <encoder>
-            <pattern>%date{ISO8601} [%17.17thread] %-5level %-36logger{36} - %msg%n</pattern>
+            <pattern>%date{ISO8601} [%17.17thread] %highlight(%-5level) %-36logger{36} - %msg%n</pattern>
             <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-36logger{36} - %msg%n</pattern>-->
             <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-36logger - %msg%n</pattern>-->
             <!--<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} %file:%line - %msg%n%caller{8, CALLER_EVAL}</Pattern>-->
 
         </encoder>
+
     </appender>
 
-    <logger name="com.garyclayburg" level="DEBUG"/>
+    <appender name="DEBUGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- On Windows machines setting withJansi to true enables ANSI
+         color code interpretation by the Jansi library. This requires
+         org.fusesource.jansi:jansi:1.8 on the class path.  Note that
+         Unix-based operating systems such as Linux and Mac OS X
+         support ANSI color codes by default. -->
+        <withJansi>true</withJansi>
+        <file>visualsync-debug.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>visualsync-debug.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <!-- keep 5 days' worth of history -->
+            <maxHistory>5</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%date{ISO8601} [%17.17thread] %highlight(%-5level) %-36logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <logger name="com.garyclayburg" level="DEBUG" >
+    </logger>
+
     <root level="info">
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="DEBUGFILE" />
     </root>
 </configuration>
