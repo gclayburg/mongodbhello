@@ -76,7 +76,7 @@ public class ScriptRunner {
             String scrubbedName = scriptName.replaceAll("^/*","");
             log.debug("start loading groovy class: " + scrubbedName);
             Class groovyClass = gse.loadScriptByName(scrubbedName);
-            log.debug("DONE  loading groovy class: " + scrubbedName);
+            log.info("DONE  loading groovy class: " + scrubbedName);
             return groovyClass;
         } else{
             log.error("Cannot load groovy class: null");

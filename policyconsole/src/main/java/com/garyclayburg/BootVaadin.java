@@ -88,17 +88,17 @@ public class BootVaadin extends SpringBootServletInitializer {
     }
 
     public static void dumpSystemProperties() {
-        log.debug("system properties dump");
+        log.info("system properties dump");
         Properties systemProperties = System.getProperties();
         TreeMap tm = new TreeMap(systemProperties);
         for (Object o : tm.keySet()) {
             String key = (String) o;
-            log.debug(key +": "+ tm.get(o));
+            log.info(key +": "+ tm.get(o));
         }
         Map<String, String> getenv = new TreeMap<>(System.getenv());
-        log.debug("system environment dump");
+        log.info("system environment dump");
         for (String key : getenv.keySet()) {
-            log.debug("env " + key + ": " + getenv.get(key));
+            log.info("env " + key + ": " + getenv.get(key));
         }
     }
 

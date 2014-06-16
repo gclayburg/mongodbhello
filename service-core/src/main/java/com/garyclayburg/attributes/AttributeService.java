@@ -82,6 +82,10 @@ public class AttributeService {
             initiallyScanned = false;
             Runnable runnable = new Runnable() {
                 public void run() {
+                    /*
+                    loading scripts in a background thread improves startup performance, especially when scripts
+                    are located on a slow file system such as S3
+                     */
                     synchronized(groovyClassMap) {
                         initiallyScanned =true;
                         log.info("     pre-loading initial groovy scripts...");
@@ -94,7 +98,7 @@ public class AttributeService {
             };
             Thread t = new Thread(runnable);
             t.setName("pre-load" + String.valueOf(Math.random()).substring(2,6));
-            log.debug("starting pre-load thread: " + t.getName());
+            log.info("starting pre-load thread: " + t.getName());
             t.start();
         } else{ // use read-only embedded scripts
             log.warn("Custom groovy policy scripts not found.  Defaulting to read-only embedded groovy policy scripts");
@@ -116,8 +120,8 @@ public class AttributeService {
         if (path.toString().endsWith(".groovy")) {
             String absolutePath = path.toAbsolutePath().toString();
             synchronized(groovyClassMap) {
-                log.debug("removing groovy: " +absolutePath);
                 groovyClassMap.remove(absolutePath);
+                log.info("removed groovy: " +absolutePath);
             }
         }
     }
@@ -127,7 +131,7 @@ public class AttributeService {
         String groovyRootPath = runner.getRoots()[0];
         if (path.toString().endsWith(".groovy")) {
             String groovyPathKey = path.toAbsolutePath().toString();
-            log.info("reloading groovy: " + groovyPathKey);
+            log.debug("reloading groovy: " + groovyPathKey);
 
             String scriptName = groovyPathKey.replaceFirst(groovyRootPath,"");
             try {
@@ -137,7 +141,7 @@ public class AttributeService {
                     scriptErrors.remove(groovyPathKey);
                 }
                 policyChangeController.firePolicyChangedEvent();
-                log.debug("reloaded groovy: " + groovyPathKey);
+                log.info("reloaded groovy: " + groovyPathKey);
             } catch (ResourceException e) {
                 log.error("Cannot access groovy script to load: " + scriptName + " Skipping.",e);
                 synchronized(groovyClassMap) {

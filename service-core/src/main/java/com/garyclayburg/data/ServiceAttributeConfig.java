@@ -75,14 +75,13 @@ public class ServiceAttributeConfig {
         log.info("checking for groovy scripts at directory: " + filePath);
         if (filePath != null) {
             File f = new File(filePath);
-            log.info("checking file");
+            log.debug("checking file");
             if (f.exists()) { //note: directory on s3fs mount will not appear to exist if option -o allow_other is not used when mounting filesystem so that tomcat user has read permission
                 String directoryTree = DirectoryWalker.printDirectoryTree(f);
-                log.debug("Directory tree: \n" + directoryTree);
+                log.info("groovy policy directory tree: " + filePath +" \n" + directoryTree);
                 if (f.isDirectory()) {
                     scriptRunner = new ScriptRunner();
                     scriptRunner.setRoot(new String[]{filePath});
-                    log.info("Using this directory for groovy scripts: {}",filePath);
                 }
             }
         }

@@ -137,7 +137,7 @@ public class WatchDir implements Runnable {
         this.keys = new HashMap<>();
 
         if (recursive) {
-            log.debug("Scanning {} ...\n",dir);
+            log.info("Scanning {} ...\n",dir);
             registerAll(dir);
             log.debug("Scanning Done.");
         } else {
