@@ -35,7 +35,7 @@
          support ANSI color codes by default. -->
         <withJansi>true</withJansi>
         <encoder>
-            <pattern>%date{ISO8601} [%17.17thread] %highlight(%-5level) %-36logger{36} - %msg%n</pattern>
+            <pattern>%date{ISO8601} [%17.17thread] %-5level %-36logger{36} - %msg%n</pattern>
             <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-36logger{36} - %msg%n</pattern>-->
             <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-36logger - %msg%n</pattern>-->
             <!--<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} %file:%line - %msg%n%caller{8, CALLER_EVAL}</Pattern>-->

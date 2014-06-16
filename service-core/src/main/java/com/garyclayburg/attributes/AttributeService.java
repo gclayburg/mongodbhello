@@ -79,20 +79,22 @@ public class AttributeService {
         log.info("setting scriptrunner...");
         this.runner = runner;
         if ( runner.getRoots() != null) {
-                Runnable runnable = new Runnable() {
-                    public void run() {
-                        synchronized(groovyClassMap) {
-                            initiallyScanned =true;
-                            log.info("     pre-loading initial groovy scripts...");
-                            Map<String, Class> annotatedClasses = findAnnotatedGroovyClasses(AttributesClass.class);
-                            groovyClassMap.clear();
-                            groovyClassMap.putAll(annotatedClasses);
-                            log.info("DONE pre-loading initial groovy scripts...");
-                        }
+            initiallyScanned = false;
+            Runnable runnable = new Runnable() {
+                public void run() {
+                    synchronized(groovyClassMap) {
+                        initiallyScanned =true;
+                        log.info("     pre-loading initial groovy scripts...");
+                        Map<String, Class> annotatedClasses = findAnnotatedGroovyClasses(AttributesClass.class);
+                        groovyClassMap.clear();
+                        groovyClassMap.putAll(annotatedClasses);
+                        log.info("DONE pre-loading initial groovy scripts...");
                     }
-                };
+                }
+            };
             Thread t = new Thread(runnable);
             t.setName("pre-load" + String.valueOf(Math.random()).substring(2,6));
+            log.debug("starting pre-load thread: " + t.getName());
             t.start();
         } else{ // use read-only embedded scripts
             log.warn("Custom groovy policy scripts not found.  Defaulting to read-only embedded groovy policy scripts");
