@@ -105,4 +105,35 @@ public class UserAudit {
     public void setLastModifedBy(String lastModifedBy) {
         this.lastModifedBy = lastModifedBy;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserAudit userAudit = (UserAudit) o;
+
+        if (createdAt != null ? !createdAt.equals(userAudit.createdAt) : userAudit.createdAt != null) return false;
+        if (createdBy != null ? !createdBy.equals(userAudit.createdBy) : userAudit.createdBy != null) return false;
+        if (id != null ? !id.equals(userAudit.id) : userAudit.id != null) return false;
+        if (lastModifedBy != null ? !lastModifedBy.equals(userAudit.lastModifedBy) : userAudit.lastModifedBy != null)
+            return false;
+        if (lastModifiedDate != null ? !lastModifiedDate.equals(userAudit.lastModifiedDate) :
+            userAudit.lastModifiedDate != null) return false;
+        if (user != null ? !user.equals(userAudit.user) : userAudit.user != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (user != null ? user.hashCode() : 0);
+        result = 31 * result + (createdAt != null ? createdAt.hashCode() : 0);
+        result = 31 * result + (lastModifiedDate != null ? lastModifiedDate.hashCode() : 0);
+        result = 31 * result + (createdBy != null ? createdBy.hashCode() : 0);
+        result = 31 * result + (lastModifedBy != null ? lastModifedBy.hashCode() : 0);
+        return result;
+    }
+
 }

@@ -128,7 +128,7 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     public void testSearchAudit() throws Exception {
         auditedUserRepo.save(hank);
 
-        List<UserAudit> hankAuditEntry = userAuditRepo.findByUser(hank);
+        List<UserAudit> hankAuditEntry = userAuditRepo.findByUser_Id(hank.getId());
         assertEquals("Williams",hankAuditEntry.get(0)
                 .getUser()
                 .getLastname());
@@ -136,15 +136,30 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
         hankAgain = new User();
         hankAgain.setId(hank.getId()); //query must contain id of saved user
         log.debug("hank id: "+hank.getId());
-        List<UserAudit> hankAgainAuditEntry = userAuditRepo.findByUser(hank);
+        List<UserAudit> hankAgainAuditEntry = userAuditRepo.findByUser_Id(hankAgain.getId());
         assertEquals("Williams",hankAgainAuditEntry.get(0).getUser().getLastname());
     }
 
     @Test
+    public void testSaveHankTwice() {
+        String id = "123456";
+        hank.setId(id);
+        User savedHank = auditedUserRepo.save(hank);
+        User savedHank2 = auditedUserRepo.save(hank);
+        assertEquals(2,userAuditRepo.findByUser_Id(id)
+                .size());
+    }
+
+    @Test
     public void testSaveTwice() throws Exception {
-        auditedUserRepo.save(hank);
+        String id = "123";
+        hank.setId(id);
+        User savedHank = auditedUserRepo.save(hank);
+        hankAgain.setId(id);
         auditedUserRepo.save(hankAgain);
-        assertEquals(2,autoUserRepo.count());
+//        assertEquals(2,autoUserRepo.count());
+        assertEquals(2,userAuditRepo.findByUser_Id(hank.getId())
+                .size());
     }
 
     @Test
@@ -197,7 +212,14 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     @Test
     public void testSearchAuditWithoutId() throws Exception {
         auditedUserRepo.save(hank);
-        assertTrue(userAuditRepo.findByUser(hankAgain).isEmpty());
+        assertTrue(userAuditRepo.findByUser_Id(hankAgain.getId()).isEmpty());
+    }
+
+    @Test
+    public void testEmptyObjectsString(){
+        log.info("hank is: "+hank.toString());
+        UserAudit ua = new UserAudit();
+        log.info("useraudit is "+ua.toString());
     }
 
     @Test

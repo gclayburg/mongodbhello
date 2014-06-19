@@ -96,7 +96,13 @@ public class UserStore {
     public
     @ResponseBody
     List<UserAudit> findUserAuditByUserId(@PathVariable("id") User user) {
-        return userAuditRepo.findByUser(user);
+        List<UserAudit> byUserId;
+        if (user !=null){
+            byUserId = userAuditRepo.findByUser_Id(user.getId());
+        } else{
+            byUserId = null; //todo better exception handling for invalid input
+        }
+        return byUserId;
     }
 
     public GeneratedUser findGeneratedUserByFirstname(String name) {
