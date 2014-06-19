@@ -61,7 +61,8 @@ import java.util.*;
  * @author Gary Clayburg
  */
 //@VaadinUI(path = "/console")
-@VaadinUI(path = "/start")  // maps to e.g.: localhost:8080/console via application.properties
+//@VaadinUI(path = "/start")  // maps to e.g.: localhost:8080/console via application.properties
+@VaadinUI  // maps to e.g.: localhost:8080/console via application.properties
 @Widgetset("com.garyclayburg.AppWidgetSet")
 @Title("policy console")
 @Theme("dashboard")
@@ -448,13 +449,22 @@ public class VConsole extends UI implements UserChangeListener {
         BeanItem item = beanContainer.getItem(user.getId());
         if (item != null) {
             log.info("updating user");
-            item.getItemProperty("firstname")
-                    .setValue(user.getFirstname());
-            item.getItemProperty("lastname")
-                    .setValue(user.getLastname());
-//            userTable.setImmediate(true);
-//            userTable.refreshRowCache();
-//            userTable.markAsDirty();
+
+            UI ui = userTable.getUI();
+            if (ui !=null){
+                VaadinSession session = ui.getSession();
+                if (session != null){
+                    session.getLockInstance().lock();
+                    try{
+                        item.getItemProperty("firstname")
+                            .setValue(user.getFirstname());
+                        item.getItemProperty("lastname")
+                            .setValue(user.getLastname());
+                    } finally{
+                        session.getLockInstance().unlock();
+                    }
+                }
+            }
         }
         if (userTable.isSelected(user.getId())) {
             refreshUserValues(user);
