@@ -179,6 +179,20 @@ public class AttributeServiceTest {
     }
 
     @Test
+    public void testStripPath() throws Exception {
+        AttributeService attributeService = new AttributeService();
+        attributeService.setScriptRunner(scriptRunner);
+        assertEquals("/com/initech/somejunk.groovy",attributeService.stripScriptRoot("/groovies","/groovies/com/initech/somejunk.groovy"));
+    }
+
+    @Test
+    public void testStripPathWin() throws Exception {
+        AttributeService attributeService = new AttributeService();
+        attributeService.setScriptRunner(scriptRunner);
+        assertEquals("\\com\\initech\\somejunk.groovy",attributeService.stripScriptRoot("c:\\dev\\stuff\\visualSyncSDK\\identitypolicy\\src\\main\\groovy","c:\\dev\\stuff\\visualSyncSDK\\identitypolicy\\src\\main\\groovy\\com\\initech\\somejunk.groovy"));
+    }
+
+    @Test
     public void testRunAScript() throws Exception {
 
         Map<String, Object> bindingMap = new HashMap<>();

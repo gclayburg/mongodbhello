@@ -37,6 +37,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Matcher;
 
 import static org.reflections.ReflectionUtils.getAllMethods;
 import static org.reflections.ReflectionUtils.withAnnotation;
@@ -133,7 +134,7 @@ public class AttributeService {
             String groovyPathKey = path.toAbsolutePath().toString();
             log.debug("reloading groovy: " + groovyPathKey);
 
-            String scriptName = groovyPathKey.replaceFirst(groovyRootPath,"");
+            String scriptName = stripScriptRoot(groovyRootPath,groovyPathKey);
             try {
                 Class groovyClass = runner.loadClass(scriptName);
                 synchronized(groovyClassMap){
@@ -322,8 +323,7 @@ java.lang.NullPointerException: null
             for (File listFile : listFiles) {
                 String groovyPathKey = listFile.getPath();
                 log.debug("processing groovy class: " + groovyPathKey);
-                String scriptName = groovyPathKey
-                        .replaceFirst(groovyRootPath,"");
+                String scriptName = stripScriptRoot(groovyRootPath,groovyPathKey);
                 try {
                     loadedClasses.put(groovyPathKey,runner.loadClass(scriptName));
                     scriptErrors.remove(groovyPathKey);
@@ -341,6 +341,14 @@ java.lang.NullPointerException: null
             log.info("Total groovy classes found in groovyRoot: " + listFiles.size());
         }
         return loadedClasses;
+    }
+
+    public String stripScriptRoot(String groovyRootPath,String absPath) {
+        log.debug("groovyrootpath {}", groovyRootPath);
+        log.debug("abspath {}", absPath);
+
+        String sanitizedGroovyRootPath = Matcher.quoteReplacement(groovyRootPath);
+        return absPath.replaceFirst(sanitizedGroovyRootPath,"");
     }
 
     Map<String, Class> findAnnotatedGroovyClasses(Class<? extends Annotation> desiredAnnotation) {
