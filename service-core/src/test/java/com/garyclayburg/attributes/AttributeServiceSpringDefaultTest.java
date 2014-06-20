@@ -21,6 +21,7 @@ package com.garyclayburg.attributes;
 import com.garyclayburg.MongoInMemoryTestBase;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.repository.UserStore;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -69,6 +70,12 @@ public class AttributeServiceSpringDefaultTest extends MongoInMemoryTestBase {
         log.debug("Running test setUp: " + testName.getMethodName());
     }
 
+    @After
+    public void tearDown() throws Exception {
+        log.debug("TearDown test: " + testName.getMethodName());
+
+    }
+
     @Test
     public void testGeneratedUser() {
 //        AttributeService attributeService = new AttributeService();
@@ -77,10 +84,11 @@ public class AttributeServiceSpringDefaultTest extends MongoInMemoryTestBase {
         luke.setLastname("Bryan");
         luke.setId("11223344");
         auditedUserRepo.save(luke);
-
+        log.debug("luke is saved");
         GeneratedUser lukeFound = auditedUserRepo.findGeneratedUserByFirstname("Luke");
-
+        log.debug("check attributes");
         assertEquals("Bryan",lukeFound.getLastname());
+        log.debug("check another attribute");
         assertEquals("Luke Bryan",lukeFound.getAttribute("cn"));
     }
 

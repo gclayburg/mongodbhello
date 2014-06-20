@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by IntelliJ IDEA.
@@ -42,6 +44,7 @@ public class ScriptRunner {
     private static final Logger log = LoggerFactory.getLogger(ScriptRunner.class);
     private GroovyScriptEngine gse = null;
     private String[] roots=null;
+    public static final Pattern LEADING_SLASH_P = Pattern.compile("^[\\\\/]*");
 
     public ScriptRunner() {
     }
@@ -73,7 +76,9 @@ public class ScriptRunner {
 
     public Class loadClass(String scriptName) throws ResourceException, ScriptException {
         if (scriptName !=null){
-            String scrubbedName = scriptName.replaceAll("^[\\\\/]*","");
+            Matcher matcher = LEADING_SLASH_P.matcher(scriptName);
+            String scrubbedName = matcher.replaceAll("");
+//            String scrubbedName = scriptName.replaceAll("^[\\\\/]*","");
             log.debug("start loading groovy class: " + scrubbedName);
             Class groovyClass = gse.loadScriptByName(scrubbedName);
             log.info("DONE  loading groovy class: " + scrubbedName);
