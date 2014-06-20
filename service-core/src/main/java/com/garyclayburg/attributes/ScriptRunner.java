@@ -73,7 +73,7 @@ public class ScriptRunner {
 
     public Class loadClass(String scriptName) throws ResourceException, ScriptException {
         if (scriptName !=null){
-            String scrubbedName = scriptName.replaceAll("^/*","");
+            String scrubbedName = scriptName.replaceAll("^[\\\\/]*","");
             log.debug("start loading groovy class: " + scrubbedName);
             Class groovyClass = gse.loadScriptByName(scrubbedName);
             log.info("DONE  loading groovy class: " + scrubbedName);
