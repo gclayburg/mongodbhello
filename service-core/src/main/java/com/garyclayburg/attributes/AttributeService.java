@@ -130,8 +130,8 @@ public class AttributeService {
                 log.info("re-loading all groovy because file removed: " + absolutePath);
                 scanGroovyClasses();
                 /* todo: this won't work well because gse by itself does not delete classes.  if we really want to support this and have it work for multiple classes per file, we need tighter integration to gse and the scriptcache it keeps, or punt and just re-initialize gse each time a delete file event occurs, which would be expensive */
-                policyChangeController.firePolicyChangedEvent();
             }
+            policyChangeController.firePolicyChangedEvent();
         }
     }
 
@@ -142,8 +142,8 @@ public class AttributeService {
                 log.info("re-loading all groovy because file changed: " + absolutePath);
                 /* all scripts are scanned so that we can catch any files that contain multiple classes.  This could be optimized for speed if needed */
                 scanGroovyClasses();
-                policyChangeController.firePolicyChangedEvent();
             }
+            policyChangeController.firePolicyChangedEvent();
         }
     }
 

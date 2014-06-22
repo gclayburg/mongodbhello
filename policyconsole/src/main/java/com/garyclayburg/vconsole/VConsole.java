@@ -136,7 +136,7 @@ public class VConsole extends UI implements UserChangeListener {
                     Iterable<User> searchedUsers = autoUserRepo.findAll(
                             qUser.firstname.containsIgnoreCase(searchText).or(qUser.lastname.containsIgnoreCase(searchText)));
                     long endSearch = System.nanoTime();
-                    log.info("Searched for \"{}\" in {} secs",searchText,((endSearch - startSearch) / 1000000000.0));
+                    log.info("Finshed searching for \"{}\" in {} secs",searchText,((endSearch - startSearch) / 1000000000.0));
                     searchStatus.setValue("? users matching: " + searchText);
                     updateUserList(searchedUsers,searchText);
                 } else if (searchText.equals("*")){
@@ -174,6 +174,9 @@ public class VConsole extends UI implements UserChangeListener {
                         refreshedSelected = true;
                     }
                 }
+                log.debug("forcing table update");
+                userTable.refreshRowCache(); // force right-click menu item update for possible change to valid menu items based on policy
+                log.debug("forcing table update complete");
                 if (!refreshedSelected && finalFirstUser != null){
                     refreshUserValues(finalFirstUser);
                 }
@@ -535,16 +538,22 @@ public class VConsole extends UI implements UserChangeListener {
                 Action[] actions = new Action[0];
                 if (item instanceof BeanItem) {
                     log.debug("create right-click menu items");
-                    User user = (User) ((BeanItem) item).getBean();
-                    if (user !=null) {
-                        Set<String> allEntitledTargets = attributeService.getEntitledTargets(user);
-                        Set<Action> entitledTargetActions = new HashSet<>();
+//                    if (target == null){ //create actions for item user clicked on
+                    Item targetItem = selectedUserTable.getItem(target);
+                    if (targetItem != null){
+                        User targetUser = (User) ((BeanItem) targetItem).getBean();
 
-                        for (String targetName : allEntitledTargets) {
-                            final Action action = new Action(targetName);
-                            entitledTargetActions.add(action);
+                        if (targetUser != null) {
+                            Set<String> allEntitledTargets = attributeService.getEntitledTargets(targetUser);
+                            Set<Action> entitledTargetActions = new HashSet<>();
+
+                            for (String targetName : allEntitledTargets) {
+                                final Action action = new Action(targetName);
+                                entitledTargetActions.add(action);
+                            }
+                            actions = entitledTargetActions.toArray(new Action[entitledTargetActions.size()]);
+                            log.debug("right-click actions for user {}: {}",target,entitledTargetActions);
                         }
-                        actions = entitledTargetActions.toArray(new Action[entitledTargetActions.size()]);
                     }
                 } else {
                     log.debug("Cannot create right-click menu items");

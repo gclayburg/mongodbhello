@@ -36,7 +36,6 @@ import org.vaadin.spring.VaadinComponent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -83,11 +82,8 @@ public class TargetWindows {
     }
 
     void refreshOpenTargets(User selectedUser) {
-        if (targetWindows.size() >0){ //avoid extra work if no windows are open
-            Set<String> entitledTargets = attributeService.getEntitledTargets(selectedUser);
-            for (String entitledTarget : entitledTargets) {
-                populateTarget(selectedUser,entitledTarget);
-            }
+        for (String openWindowTargetName : targetWindows.keySet()) {
+            populateTarget(selectedUser,openWindowTargetName);
         }
     }
 
