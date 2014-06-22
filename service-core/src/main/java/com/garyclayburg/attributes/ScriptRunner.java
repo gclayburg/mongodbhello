@@ -78,7 +78,6 @@ public class ScriptRunner {
         if (scriptName !=null){
             Matcher matcher = LEADING_SLASH_P.matcher(scriptName);
             String scrubbedName = matcher.replaceAll("");
-//            String scrubbedName = scriptName.replaceAll("^[\\\\/]*","");
             log.debug("start loading groovy class: " + scrubbedName);
             Class groovyClass = gse.loadScriptByName(scrubbedName);
             log.info("DONE  loading groovy class: " + scrubbedName);
@@ -87,5 +86,9 @@ public class ScriptRunner {
             log.error("Cannot load groovy class: null");
             throw new ResourceException("Cannot load groovy class: null");
         }
+    }
+    public Class[] getLoadedClasses(){
+
+        return gse.getGroovyClassLoader().getLoadedClasses();
     }
 }

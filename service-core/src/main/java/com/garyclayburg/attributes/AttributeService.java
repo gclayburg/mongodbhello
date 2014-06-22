@@ -89,11 +89,7 @@ public class AttributeService {
                      */
                     synchronized(groovyClassMap) {
                         initiallyScanned =true;
-                        log.info("     pre-loading initial groovy scripts...");
-                        Map<String, Class> annotatedClasses = findAnnotatedGroovyClasses(AttributesClass.class);
-                        groovyClassMap.clear();
-                        groovyClassMap.putAll(annotatedClasses);
-                        log.info("DONE pre-loading initial groovy scripts...");
+                        scanGroovyClasses();
                     }
                 }
             };
@@ -117,18 +113,42 @@ public class AttributeService {
         }
     }
 
+    private void scanGroovyClasses() {
+        long startTime = System.nanoTime();
+        log.info("     loading groovy scripts...");
+        Map<String, Class> annotatedClasses = findAnnotatedGroovyClasses(AttributesClass.class);
+        groovyClassMap.clear();
+        groovyClassMap.putAll(annotatedClasses);
+        long endTime = System.nanoTime();
+        log.info("DONE loading groovy scripts... {} millis",((endTime - startTime) / 1000000.0));
+    }
+
     public void removeGroovyClass(Path path){
         if (path.toString().endsWith(".groovy")) {
             String absolutePath = path.toAbsolutePath().toString();
             synchronized(groovyClassMap) {
-                groovyClassMap.remove(absolutePath);
-                log.info("removed groovy: " +absolutePath);
+                log.info("re-loading all groovy because file removed: " + absolutePath);
+                scanGroovyClasses();
+                /* todo: this won't work well because gse by itself does not delete classes.  if we really want to support this and have it work for multiple classes per file, we need tighter integration to gse and the scriptcache it keeps, or punt and just re-initialize gse each time a delete file event occurs, which would be expensive */
+                policyChangeController.firePolicyChangedEvent();
             }
         }
     }
 
-    @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    public void reloadGroovyClass(Path path){
+    public void reloadGroovyClass(Path path) {
+        if (path.toString().endsWith(".groovy")) {
+            String absolutePath = path.toAbsolutePath().toString();
+            synchronized(groovyClassMap) {
+                log.info("re-loading all groovy because file changed: " + absolutePath);
+                /* all scripts are scanned so that we can catch any files that contain multiple classes.  This could be optimized for speed if needed */
+                scanGroovyClasses();
+                policyChangeController.firePolicyChangedEvent();
+            }
+        }
+    }
+
+        @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+    public void reloadGroovyClassIndividual(Path path){
         String groovyRootPath = runner.getRoots()[0];
         if (path.toString().endsWith(".groovy")) {
             String groovyPathKey = path.toAbsolutePath().toString();
@@ -216,12 +236,14 @@ public class AttributeService {
             synchronized(groovyClassMap) {
                 log.debug("checking for annotated classes");
                 if (groovyClassMap.size() > 0) {
+
                     for (Class groovyAttributeClass : groovyClassMap.values()) {
+                        log.debug("checking for annotated classes: {}",groovyAttributeClass.getName());
                         try {
                             Object groovyObj = groovyAttributeClass.newInstance();
                             Set<Method> attributeMethods =
                                     getAllMethods(groovyAttributeClass,withAnnotation(TargetAttribute.class));
-
+                            log.debug("found annotated methods in class");
                             List<Method> methodList = new ArrayList<>(attributeMethods);
                             for (Method method : methodList) {
                                 String absMethodName = method.getDeclaringClass() + "." + method.getName();
@@ -279,26 +301,11 @@ public class AttributeService {
         return attributeValues;
     }
 
-    Map<String, Class> loadAllGroovyClasses() {
+    Class[] loadAllGroovyClasses() {
         Map<String,Class> loadedClasses = new HashMap<>();
         String[] roots = runner.getRoots();
         if (roots != null) {
             String groovyRootPath = roots[0];
-            //todo deal with exception if groovy root has not been set:
-            /*
-        2014-05-28 14:07:51,638 [p-bio-8386-exec-5] ERROR o.a.c.c.C.[.[.[.[springAwareVaadinServlet] - Servlet.service() for servlet [springAwareVaadinServlet] in context with path [] threw exception [com.vaadin.server.ServiceException: java.lang.NullPointerException] with root cause
-java.lang.NullPointerException: null
-	at com.garyclayburg.attributes.AttributeService.loadAllGroovyClasses(AttributeService.java:182) ~[service-core-1.0-SNAPSHOT.jar:na]
-	at com.garyclayburg.attributes.AttributeService.findAnnotatedGroovyClasses(AttributeService.java:208) ~[service-core-1.0-SNAPSHOT.jar:na]
-	at com.garyclayburg.attributes.AttributeService.generateAttributes(AttributeService.java:116) ~[service-core-1.0-SNAPSHOT.jar:na]
-	at com.garyclayburg.attributes.AttributeService.getGeneratedAttributesBean(AttributeService.java:92) ~[service-core-1.0-SNAPSHOT.jar:na]
-	at com.garyclayburg.attributes.AttributeService.getGeneratedAttributesBean(AttributeService.java:88) ~[service-core-1.0-SNAPSHOT.jar:na]
-	at com.garyclayburg.vconsole.VConsole.populateItems(VConsole.java:197) ~[VConsole.class:na]
-	at com.garyclayburg.vconsole.VConsole.init(VConsole.java:112) ~[VConsole.class:na]
-	at com.vaadin.ui.UI.doInit(UI.java:625) ~[vaadin-server-7.1.13.jar:7.1.13]
-	at com.vaadin.server.communication.UIInitHandler.getBrowserDetailsUI(UIInitHandler.java:223) ~[vaadin-server-7.1.13.jar:7.1.13]
-
-         */
             log.info("Looking for groovy classes in path: " + groovyRootPath);
             File groovyRootFile = new File(groovyRootPath);
 
@@ -323,24 +330,36 @@ java.lang.NullPointerException: null
             for (File listFile : listFiles) {
                 String groovyPathKey = listFile.getPath();
                 log.debug("processing groovy class: " + groovyPathKey);
-                String scriptName = stripScriptRoot(groovyRootPath,groovyPathKey);
+                String scriptFileName = stripScriptRoot(groovyRootPath,groovyPathKey);
                 try {
-                    loadedClasses.put(groovyPathKey,runner.loadClass(scriptName));
-                    scriptErrors.remove(groovyPathKey);
+                    Class loadedClass = runner.loadClass(scriptFileName);
+                    loadedClasses.put(groovyPathKey,loadedClass);
+                    synchronized(groovyClassMap) {
+                        scriptErrors.remove(groovyPathKey);
+                    }
                 } catch (ResourceException e) {
-                    log.error("Cannot access groovy script to load: " + scriptName + " Skipping.",e);
-                    scriptErrors.put(groovyPathKey,e);
+                    log.error("Cannot access groovy script to load: " + scriptFileName + " Skipping.",e);
+                    synchronized(groovyClassMap) {
+                        scriptErrors.put(groovyPathKey,e);
+                    }
+                    policyChangeController.firePolicyException(e);
                 } catch (ScriptException e) {
-                    log.error("Cannot parse groovy script: " + scriptName + " Skipping.",e);
-                    scriptErrors.put(groovyPathKey,e);
+                    log.error("Cannot parse groovy script: " + scriptFileName + " Skipping.",e);
+                    synchronized(groovyClassMap) {
+                        scriptErrors.put(groovyPathKey,e);
+                    }
+                    policyChangeController.firePolicyException(e);
                 } catch (GroovyRuntimeException gre){
-                    log.error("Cannot compile script: "+scriptName,gre);
-                    scriptErrors.put(groovyPathKey,gre);
+                    log.error("Cannot compile script: "+scriptFileName,gre);
+                    synchronized(groovyClassMap) {
+                        scriptErrors.put(groovyPathKey,gre);
+                    }
+                    policyChangeController.firePolicyException(gre);
                 }
             }
             log.info("Total groovy classes found in groovyRoot: " + listFiles.size());
         }
-        return loadedClasses;
+        return runner.getLoadedClasses();
     }
 
     public String stripScriptRoot(String groovyRootPath,String absPath) {
@@ -354,12 +373,13 @@ java.lang.NullPointerException: null
     Map<String, Class> findAnnotatedGroovyClasses(Class<? extends Annotation> desiredAnnotation) {
         Map<String,Class> foundClasses = new HashMap<>();
 
-        Map<String,Class> allGroovyClasses = loadAllGroovyClasses();
-        for (String absGroovyFileName : allGroovyClasses.keySet()) {
-            Class loadedGroovyClass = allGroovyClasses.get(absGroovyFileName);
-            if (loadedGroovyClass.isAnnotationPresent(desiredAnnotation)) {
-                foundClasses.put(absGroovyFileName,loadedGroovyClass);
-                log.info("detected " + desiredAnnotation + " annotation in groovy class: " + loadedGroovyClass);
+        Class[] loadedClasses = loadAllGroovyClasses();
+
+        for (Class loadedClass : loadedClasses) {
+            log.debug("gse loaded class: " + loadedClass.getName());
+            if (loadedClass.isAnnotationPresent(desiredAnnotation)) {
+                foundClasses.put(loadedClass.getName(),loadedClass);
+                log.info("gse detected {} annotation in groovy class: {}",desiredAnnotation,loadedClass);
             }
         }
         return foundClasses;

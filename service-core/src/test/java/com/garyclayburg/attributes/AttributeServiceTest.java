@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,15 +80,10 @@ public class AttributeServiceTest {
 
     @Test
     public void testOne() throws Exception {
-
         Map<String, String> generatedAttributes = attributeService.getGeneratedAttributes(barney);
-
         Assert.assertEquals("Barney Rubble",generatedAttributes.get("cn"));
-
         generatedAttributes = attributeService.getGeneratedAttributes(barney);
-
         Assert.assertEquals("Barney Rubble",generatedAttributes.get("cn"));
-
     }
     @Test
     public void testOneGeneratedBean() throws Exception {
@@ -146,51 +142,52 @@ public class AttributeServiceTest {
 
     @Test
     public void testLoadGroovyClasses() throws Exception {
-        AttributeService attributeService = new AttributeService();
-        attributeService.setScriptRunner(scriptRunner);
-        attributeService.setPolicyChangeController(new PolicyChangeController());
-
-        Map<String, Class> classList = attributeService.loadAllGroovyClasses();
-        assertEquals(3,classList.size());
+        Class[] classList = attributeService.loadAllGroovyClasses();
+        assertEquals(3,classList.length);
     }
 
     @Test
     public void testReLoadGroovyClasses() throws Exception {
-        AttributeService attributeService = new AttributeService();
-        attributeService.setScriptRunner(scriptRunner);
-        attributeService.setPolicyChangeController(new PolicyChangeController());
-        Map<String, Class> classList = attributeService.loadAllGroovyClasses();
-        assertEquals(3,classList.size());
+        Class[] classList = attributeService.loadAllGroovyClasses();
+        assertEquals(3,classList.length);
         String root = scriptRunner.getRoots()[0];
         log.info("groovy root: " + root);
         Path gpath = Paths.get(root + "/emptyscript.groovy");
         log.info("groovy path: " + gpath);
         attributeService.reloadGroovyClass(gpath);
-        assertEquals(3,classList.size());
+        assertEquals(3,classList.length);
+    }
+
+    @Test
+    public void testFirePolicyChangeOnReload(){
+        String root = scriptRunner.getRoots()[0];
+        log.info("groovy root: " + root);
+        Path gpath = Paths.get(root + "/emptyscript.groovy");
+        log.info("groovy path: " + gpath);
+
+        PolicyChangeController policyChangeControllerMock = Mockito.mock(PolicyChangeController.class);
+        attributeService.setPolicyChangeController(policyChangeControllerMock);
+        attributeService.reloadGroovyClass(gpath);
+
+        Mockito.verify(policyChangeControllerMock).firePolicyChangedEvent();
     }
 
     @Test
     public void testFindAnnotatedGroovyClasses() throws Exception {
-        AttributeService attributeService = new AttributeService();
-        attributeService.setScriptRunner(scriptRunner);
-        attributeService.setPolicyChangeController(new PolicyChangeController());
         Map<String, Class> classList = attributeService.findAnnotatedGroovyClasses(AttributesClass.class);
         assertEquals(1,classList.size());
     }
 
     @Test
     public void testStripPath() throws Exception {
-        AttributeService attributeService = new AttributeService();
-        attributeService.setScriptRunner(scriptRunner);
         assertEquals("/com/initech/somejunk.groovy",attributeService.stripScriptRoot("/groovies","/groovies/com/initech/somejunk.groovy"));
     }
 
     @Test
     public void testStripPathWin() throws Exception {
-        AttributeService attributeService = new AttributeService();
-        attributeService.setScriptRunner(scriptRunner);
         assertEquals("\\com\\initech\\somejunk.groovy",attributeService.stripScriptRoot("c:\\dev\\stuff\\visualSyncSDK\\identitypolicy\\src\\main\\groovy","c:\\dev\\stuff\\visualSyncSDK\\identitypolicy\\src\\main\\groovy\\com\\initech\\somejunk.groovy"));
     }
+
 
     @Test
     public void testRunAScript() throws Exception {
