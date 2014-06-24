@@ -30,11 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -103,13 +104,20 @@ public class AttributeService {
             ClassLoader parent = getClass().getClassLoader();
             String scriptName = "embeddedgroovy/com/embedded/DefaultAttributes.groovy";
             InputStream groovyIS = parent.getResourceAsStream(scriptName);
-
-            GroovyClassLoader loader = new GroovyClassLoader(parent);
-            Class parsedDefaultClass = loader.parseClass(groovyIS,scriptName);
-            groovyClassMap.clear();
-            groovyClassMap.put(scriptName,parsedDefaultClass);
-
-
+            StringBuilder sb = new StringBuilder();
+            try (Reader reader = new BufferedReader(new InputStreamReader(groovyIS,Charset.forName(StandardCharsets.UTF_8.name())))){
+                int c;
+                while ((c = reader.read()) != -1) {
+                    sb.append((char) c);
+                }
+                log.debug("complete default embedded groovy class:\n{}",sb.toString());
+                GroovyClassLoader loader = new GroovyClassLoader(parent);
+                Class parsedDefaultClass = loader.parseClass(sb.toString(),scriptName);
+                groovyClassMap.clear();
+                groovyClassMap.put(scriptName,parsedDefaultClass);
+            } catch (IOException e) {
+                log.warn("could not load embedded groovy scripts",e);
+            }
         }
     }
 
@@ -205,7 +213,7 @@ public class AttributeService {
                             Object groovyObj = groovyAttributeClass.newInstance();
                             Set<Method> attributeMethods =
                                     getAllMethods(groovyAttributeClass,withAnnotation(TargetAttribute.class));
-                            log.debug("found annotated methods in class");
+                            log.debug("found {} annotated methods in class",attributeMethods.size());
                             List<Method> methodList = new ArrayList<>(attributeMethods);
                             for (Method method : methodList) {
                                 String absMethodName = method.getDeclaringClass() + "." + method.getName();
