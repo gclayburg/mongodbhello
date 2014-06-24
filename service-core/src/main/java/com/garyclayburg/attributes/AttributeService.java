@@ -58,7 +58,7 @@ public class AttributeService {
     private ScriptRunner runner;
     private Set<String> detectedTargetIds;
 
-    private final Map<String,Class> groovyClassMap;
+    private final Map<String,Class> groovyClassMap; //script name -> compiled class
     private final Map<String, Throwable> scriptErrors;
     private boolean initiallyScanned = false;
 
@@ -144,44 +144,6 @@ public class AttributeService {
                 scanGroovyClasses();
             }
             policyChangeController.firePolicyChangedEvent();
-        }
-    }
-
-        @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    public void reloadGroovyClassIndividual(Path path){
-        String groovyRootPath = runner.getRoots()[0];
-        if (path.toString().endsWith(".groovy")) {
-            String groovyPathKey = path.toAbsolutePath().toString();
-            log.debug("reloading groovy: " + groovyPathKey);
-
-            String scriptName = stripScriptRoot(groovyRootPath,groovyPathKey);
-            try {
-                Class groovyClass = runner.loadClass(scriptName);
-                synchronized(groovyClassMap){
-                    groovyClassMap.put(groovyPathKey,groovyClass);
-                    scriptErrors.remove(groovyPathKey);
-                }
-                policyChangeController.firePolicyChangedEvent();
-                log.info("reloaded groovy: " + groovyPathKey);
-            } catch (ResourceException e) {
-                log.error("Cannot access groovy script to load: " + scriptName + " Skipping.",e);
-                synchronized(groovyClassMap) {
-                    scriptErrors.put(groovyPathKey,e);
-                }
-                policyChangeController.firePolicyException(e);
-            } catch (ScriptException e) {
-                log.error("Cannot parse groovy script: " + scriptName + " Skipping.",e);
-                synchronized(groovyClassMap) {
-                    scriptErrors.put(groovyPathKey,e);
-                }
-                policyChangeController.firePolicyException(e);
-            } catch (GroovyRuntimeException gre){
-                log.error("Cannot compile script: "+scriptName,gre);
-                synchronized(groovyClassMap) {
-                    scriptErrors.put(groovyPathKey,gre);
-                }
-                policyChangeController.firePolicyException(gre);
-            }
         }
     }
 
@@ -301,7 +263,7 @@ public class AttributeService {
         return attributeValues;
     }
 
-    Class[] loadAllGroovyClasses() {
+    Class[] loadAllGroovyClasses(Class<? extends Annotation> desiredAnnotation) {
         Map<String,Class> loadedClasses = new HashMap<>();
         String[] roots = runner.getRoots();
         if (roots != null) {
@@ -310,29 +272,13 @@ public class AttributeService {
             File groovyRootFile = new File(groovyRootPath);
 
             Collection<File> listFiles = FileUtils.listFiles(groovyRootFile,new String[]{"groovy"},true);
-            //todo dealwith this exception if s3 is screwey:
-            /*
-        java.lang.IllegalArgumentException: Parameter 'directory' is not a directory
-	at org.apache.commons.io.FileUtils.validateListFilesParameters(FileUtils.java:545) ~[commons-io-2.4.jar:2.4]
-	at org.apache.commons.io.FileUtils.listFiles(FileUtils.java:521) ~[commons-io-2.4.jar:2.4]
-	at org.apache.commons.io.FileUtils.listFiles(FileUtils.java:691) ~[commons-io-2.4.jar:2.4]
-	at com.garyclayburg.attributes.AttributeService.loadAllGroovyClasses(AttributeService.java:186) ~[service-core-1.0-SNAPSHOT.jar:na]
-	at com.garyclayburg.attributes.AttributeService.findAnnotatedGroovyClasses(AttributeService.java:208) ~[service-core-1.0-SNAPSHOT.jar:na]
-	at com.garyclayburg.attributes.AttributeService.generateAttributes(AttributeService.java:116) ~[service-core-1.0-SNAPSHOT.jar:na]
-	at com.garyclayburg.attributes.AttributeService.getGeneratedAttributesBean(AttributeService.java:92) ~[service-core-1.0-SNAPSHOT.jar:na]
-	at com.garyclayburg.attributes.AttributeService.getGeneratedAttributesBean(AttributeService.java:88) ~[service-core-1.0-SNAPSHOT.jar:na]
-	at com.garyclayburg.vconsole.VConsole.populateItems(VConsole.java:197) ~[VConsole.class:na]
-	at com.garyclayburg.vconsole.VConsole.init(VConsole.java:112) ~[VConsole.class:na]
-	at com.vaadin.ui.UI.doInit(UI.java:625) ~[vaadin-server-7.1.13.jar:7.1.13]
-
-         */
             log.info("Finished Looking for groovy classes in path: " + groovyRootPath);
             for (File listFile : listFiles) {
                 String groovyPathKey = listFile.getPath();
                 log.debug("processing groovy class: " + groovyPathKey);
                 String scriptFileName = stripScriptRoot(groovyRootPath,groovyPathKey);
                 try {
-                    Class loadedClass = runner.loadClass(scriptFileName);
+                    Class loadedClass = runner.loadClass(scriptFileName,false,desiredAnnotation);
                     loadedClasses.put(groovyPathKey,loadedClass);
                     synchronized(groovyClassMap) {
                         scriptErrors.remove(groovyPathKey);
@@ -373,7 +319,7 @@ public class AttributeService {
     Map<String, Class> findAnnotatedGroovyClasses(Class<? extends Annotation> desiredAnnotation) {
         Map<String,Class> foundClasses = new HashMap<>();
 
-        Class[] loadedClasses = loadAllGroovyClasses();
+        Class[] loadedClasses = loadAllGroovyClasses(desiredAnnotation);
 
         for (Class loadedClass : loadedClasses) {
             log.debug("gse loaded class: " + loadedClass.getName());

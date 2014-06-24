@@ -142,13 +142,13 @@ public class AttributeServiceTest {
 
     @Test
     public void testLoadGroovyClasses() throws Exception {
-        Class[] classList = attributeService.loadAllGroovyClasses();
+        Class[] classList = attributeService.loadAllGroovyClasses(null);
         assertEquals(3,classList.length);
     }
 
     @Test
     public void testReLoadGroovyClasses() throws Exception {
-        Class[] classList = attributeService.loadAllGroovyClasses();
+        Class[] classList = attributeService.loadAllGroovyClasses(null);
         assertEquals(3,classList.length);
         String root = scriptRunner.getRoots()[0];
         log.info("groovy root: " + root);

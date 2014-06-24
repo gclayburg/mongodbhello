@@ -18,8 +18,8 @@
 
 package com.garyclayburg.attributes;
 
+import com.garyclayburg.attributes.groovyfork.ForkedGroovyScriptEngine;
 import groovy.lang.Binding;
-import groovy.util.GroovyScriptEngine;
 import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 import org.slf4j.Logger;
@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -42,7 +43,7 @@ import java.util.regex.Pattern;
 public class ScriptRunner {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(ScriptRunner.class);
-    private GroovyScriptEngine gse = null;
+    private ForkedGroovyScriptEngine gse = null;
     private String[] roots=null;
     public static final Pattern LEADING_SLASH_P = Pattern.compile("^[\\\\/]*");
 
@@ -57,7 +58,7 @@ public class ScriptRunner {
         }
         String[] newRoots = al.toArray(new String[al.size()]);
         log.info("set script root to: " + Arrays.toString(newRoots));
-        gse = new GroovyScriptEngine(newRoots);
+        gse = new ForkedGroovyScriptEngine(newRoots);
         this.roots = newRoots;
     }
 
@@ -67,20 +68,21 @@ public class ScriptRunner {
 
     public Object execute(String scriptName,Binding bindingMap) throws ResourceException, ScriptException {
         return gse.run(scriptName,bindingMap);
-
     }
 
     public ClassLoader getClassLoader() {
         return gse.getGroovyClassLoader();
     }
 
-    public Class loadClass(String scriptName) throws ResourceException, ScriptException {
+    public Class loadClass(String scriptName,boolean forceReload,Class<? extends Annotation> desiredAnnotation) throws ResourceException, ScriptException {
         if (scriptName !=null){
+            long startTime = System.nanoTime();
             Matcher matcher = LEADING_SLASH_P.matcher(scriptName);
             String scrubbedName = matcher.replaceAll("");
-            log.debug("start loading groovy class: " + scrubbedName);
-            Class groovyClass = gse.loadScriptByName(scrubbedName);
-            log.info("DONE  loading groovy class: " + scrubbedName);
+            log.debug("start loading groovy class: {}",scrubbedName);
+            Class groovyClass = gse.loadScriptByName(scrubbedName,forceReload,desiredAnnotation);
+            long endtime = System.nanoTime();
+            log.info("DONE  loading groovy class: {} in {} microseconds",scrubbedName,((endtime - startTime) / 1000.0));
             return groovyClass;
         } else{
             log.error("Cannot load groovy class: null");
@@ -88,7 +90,6 @@ public class ScriptRunner {
         }
     }
     public Class[] getLoadedClasses(){
-
         return gse.getGroovyClassLoader().getLoadedClasses();
     }
 }

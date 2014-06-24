@@ -68,6 +68,10 @@ public class AttributeServiceMultipleClassTest {
 
         String scriptRoot = new File(groovyURL.toURI()).getParentFile()
             .getPath();
+        setServices(scriptRoot);
+    }
+
+    private void setServices(String scriptRoot) throws IOException {
         scriptRunner = new ScriptRunner();
         scriptRunner.setRoot(new String[]{scriptRoot});
         attributeService = new AttributeService();
@@ -80,7 +84,7 @@ public class AttributeServiceMultipleClassTest {
     }
 
     @Test
-    public void testMultipleClass() throws Exception {
+    public void testMultipleClassFile() throws Exception {
         URL groovyURL = this.getClass()
             .getClassLoader()
             .getResource("groovies-multipleclassperfile/emptyscript.groovy");
@@ -92,7 +96,7 @@ public class AttributeServiceMultipleClassTest {
     }
 
     @Test
-    public void testReverseOrderMultipleClass() throws Exception {
+    public void testReverseOrderMultipleClassFile() throws Exception {
         URL groovyURL = this.getClass()
             .getClassLoader()
             .getResource("groovies-reversemultipleclassperfile/emptyscript.groovy");
@@ -107,4 +111,7 @@ public class AttributeServiceMultipleClassTest {
         assertEquals(1,generatedAttributes1.size());
 
     }
+
+
+
 }
