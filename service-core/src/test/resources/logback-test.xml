@@ -35,6 +35,5 @@
 
     <root level="info">
         <appender-ref ref="STDOUT" />
-        <appender-ref ref="DEBUGFILE" />
     </root>
 </configuration>

@@ -175,7 +175,7 @@ public class VConsole extends UI implements UserChangeListener {
                     }
                 }
                 log.debug("forcing table update");
-                userTable.refreshRowCache(); // force right-click menu item update for possible change to valid menu items based on policy
+                updateRightClickItems();
                 log.debug("forcing table update complete");
                 if (!refreshedSelected && finalFirstUser != null){
                     refreshUserValues(finalFirstUser);
@@ -233,6 +233,23 @@ public class VConsole extends UI implements UserChangeListener {
         layout.addComponent(splitPanel);
         populateItems(firstUser,attributesBeanContainer);
 
+    }
+
+    private void updateRightClickItems() {
+        UI ui = userTable.getUI();
+        if (ui != null) {
+            VaadinSession session = ui.getSession();
+            if (session != null) {
+                session.getLockInstance()
+                    .lock();
+                try {
+                    userTable.refreshRowCache(); // force right-click menu item update for possible change to valid menu items based on policy
+                } finally {
+                    session.getLockInstance()
+                        .unlock();
+                }
+            }
+        }
     }
 
     private void showPolicyUpdated() {
