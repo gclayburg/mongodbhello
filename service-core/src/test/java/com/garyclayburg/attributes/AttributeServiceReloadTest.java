@@ -18,15 +18,8 @@
 
 package com.garyclayburg.attributes;
 
-import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.delete.DeletionFileVisitor;
-import com.garyclayburg.persistence.domain.User;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +32,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by IntelliJ IDEA.
@@ -48,41 +40,9 @@ import static org.mockito.Mockito.when;
  *
  * @author Gary Clayburg
  */
-public class AttributeServiceReloadTest {
+public class AttributeServiceReloadTest extends AttributeServiceTestBase {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AttributeServiceMultipleClassTest.class);
-    private AttributeService attributeService;
-    private User barney;
-
-    @Rule
-    public TestName testName = new TestName();
-
-    @Before
-    public void setUp() throws Exception {
-        log.debug("Running test setUp: " + testName.getMethodName());
-
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        log.debug("TearDown test: " + testName.getMethodName());
-    }
-
-    private void setServices(String scriptRoot) throws IOException {
-        ScriptRunner scriptRunner = new ScriptRunner();
-        scriptRunner.setRoot(new String[]{scriptRoot});
-        attributeService = new AttributeService();
-        barney = new User();
-        barney.setFirstname("Barney");
-        barney.setLastname("Rubble");
-        barney.setId("12345");
-        attributeService.setScriptRunner(scriptRunner);
-        attributeService.setPolicyChangeController(new PolicyChangeController());
-        ApplicationSettings applicationSettingsMock = Mockito.mock(ApplicationSettings.class);
-        when(applicationSettingsMock.isForceRecompileEntryPoints()).thenReturn(true);
-        attributeService.setApplicationSettings(applicationSettingsMock);
-
-    }
 
     @Test
     public void testStaticDependentClass() throws Exception {
@@ -205,7 +165,7 @@ public class AttributeServiceReloadTest {
                  "    }\n" +
                  "}\n","SingleAttribute.groovy");
 
-        setServices(grooviesDir.getPath());
+        setUpBeans(grooviesDir.getPath());
         return gw;
     }
 

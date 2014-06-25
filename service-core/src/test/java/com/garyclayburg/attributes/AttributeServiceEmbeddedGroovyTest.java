@@ -18,20 +18,14 @@
 
 package com.garyclayburg.attributes;
 
-import com.garyclayburg.ApplicationSettings;
-import com.garyclayburg.persistence.domain.User;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by IntelliJ IDEA.
@@ -40,37 +34,18 @@ import static org.mockito.Mockito.when;
  *
  * @author Gary Clayburg
  */
-public class AttributeServiceEmbeddedGroovyTest {
+public class AttributeServiceEmbeddedGroovyTest extends AttributeServiceTestBase{
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AttributeServiceEmbeddedGroovyTest.class);
-    private ScriptRunner scriptRunner;
-    private AttributeService attributeService;
-    private User barney;
-
-    @Rule
-    public TestName testName = new TestName();
 
     @Before
     public void setUp() throws Exception {
         log.debug("Running test setUp: " + testName.getMethodName());
-
-        scriptRunner = new ScriptRunner();
-        attributeService = new AttributeService();
-        barney = new User();
-        barney.setFirstname("Barney");
-        barney.setLastname("Rubble");
-        barney.setId("12345");
-        ApplicationSettings applicationSettingsMock = Mockito.mock(ApplicationSettings.class);
-        when(applicationSettingsMock.isForceRecompileEntryPoints()).thenReturn(true);
-        attributeService.setApplicationSettings(applicationSettingsMock);
-
+        setUpBeans(null);
     }
 
     @Test
     public void testNoGroovyRoot() throws Exception {
-        attributeService.setScriptRunner(scriptRunner);
-        attributeService.setPolicyChangeController(new PolicyChangeController());
-
         Map<String, String> generatedAttributes = attributeService.getGeneratedAttributes(barney);
         assertEquals(4,generatedAttributes.size());
     }

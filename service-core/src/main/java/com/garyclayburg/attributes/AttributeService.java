@@ -118,7 +118,7 @@ public class AttributeService {
                 while ((c = reader.read()) != -1) {
                     sb.append((char) c);
                 }
-                log.debug("complete default embedded groovy class:\n{}",sb.toString());
+//                log.debug("complete default embedded groovy class:\n{}",sb.toString());
                 GroovyClassLoader loader = new GroovyClassLoader(parent);
                 Class parsedDefaultClass = loader.parseClass(sb.toString(),scriptName);
                 groovyClassMap.clear();

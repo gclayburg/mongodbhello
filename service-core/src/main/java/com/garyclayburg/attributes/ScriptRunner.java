@@ -51,15 +51,19 @@ public class ScriptRunner {
     }
 
     public void setRoot(String[] strings) throws IOException {
-        ArrayList<String> al = new ArrayList<>();
-        for (String string : strings) {
-            String oneRoot = new File(string).getAbsolutePath();
-            al.add(oneRoot);
+        if (strings !=null && strings.length >0 && strings[0] !=null) {
+            ArrayList<String> al = new ArrayList<>();
+            for (String string : strings) {
+                String oneRoot = new File(string).getAbsolutePath();
+                al.add(oneRoot);
+            }
+            String[] newRoots = al.toArray(new String[al.size()]);
+            log.info("set script root to: " + Arrays.toString(newRoots));
+            gse = new ForkedGroovyScriptEngine(newRoots);
+            this.roots = newRoots;
+        } else {
+            log.warn("Cannot setup groovy script root");
         }
-        String[] newRoots = al.toArray(new String[al.size()]);
-        log.info("set script root to: " + Arrays.toString(newRoots));
-        gse = new ForkedGroovyScriptEngine(newRoots);
-        this.roots = newRoots;
     }
 
     public String[] getRoots() {

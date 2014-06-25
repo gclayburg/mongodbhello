@@ -18,19 +18,14 @@
 
 package com.garyclayburg.attributes;
 
-import com.garyclayburg.ApplicationSettings;
-import com.garyclayburg.persistence.domain.User;
 import groovy.lang.Binding;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,7 +33,6 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by IntelliJ IDEA.
@@ -47,40 +41,14 @@ import static org.mockito.Mockito.when;
  *
  * @author Gary Clayburg
  */
-public class AttributeServiceTest {
+public class AttributeServiceTest extends AttributeServiceTestBase{
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AttributeServiceTest.class);
-    private ScriptRunner scriptRunner;
-    private AttributeService attributeService;
-    private User barney;
-
-    @Rule
-    public TestName testName = new TestName();
 
     @Before
     public void setUp() throws Exception {
         log.debug("Running test setUp: " + testName.getMethodName());
-        URL groovyURL = this.getClass()
-                .getClassLoader()
-                .getResource("groovies/emptyscript.groovy");
-
-        assert groovyURL != null;
-
-        String scriptRoot = new File(groovyURL.toURI()).getParentFile()
-                .getPath();
-        scriptRunner = new ScriptRunner();
-        scriptRunner.setRoot(new String[]{scriptRoot});
-        attributeService = new AttributeService();
-        barney = new User();
-        barney.setFirstname("Barney");
-        barney.setLastname("Rubble");
-        barney.setId("12345");
-        attributeService.setScriptRunner(scriptRunner);
-        attributeService.setPolicyChangeController(new PolicyChangeController());
-        ApplicationSettings applicationSettingsMock = Mockito.mock(ApplicationSettings.class);
-        when(applicationSettingsMock.isForceRecompileEntryPoints()).thenReturn(true);
-        attributeService.setApplicationSettings(applicationSettingsMock);
-
+        setUpBeansWithRootFromClasspath("groovies/emptyscript.groovy");
     }
 
     @Test

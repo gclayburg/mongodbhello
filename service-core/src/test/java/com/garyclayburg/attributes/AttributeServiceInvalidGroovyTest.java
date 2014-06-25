@@ -18,23 +18,16 @@
 
 package com.garyclayburg.attributes;
 
-import com.garyclayburg.ApplicationSettings;
-import com.garyclayburg.persistence.domain.User;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.net.URL;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,46 +36,19 @@ import static org.mockito.Mockito.when;
  *
  * @author Gary Clayburg
  */
-public class AttributeServiceInvalidGroovyTest {
+public class AttributeServiceInvalidGroovyTest extends AttributeServiceTestBase{
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AttributeServiceInvalidGroovyTest.class);
-    private ScriptRunner scriptRunner;
-    private AttributeService attributeService;
-    private User barney;
-
-    @Rule
-    public TestName testName = new TestName();
 
     @Before
     public void setUp() throws Exception {
         log.debug("Running test setUp: " + testName.getMethodName());
-        URL groovyURL = this.getClass()
-                .getClassLoader()
-                .getResource("invalidgroovy1/emptyscript.groovy");
-
-        assert groovyURL != null;
-
-        String scriptRoot = new File(groovyURL.toURI()).getParentFile()
-                .getPath();
-        scriptRunner = new ScriptRunner();
-        scriptRunner.setRoot(new String[]{scriptRoot});
-        attributeService = new AttributeService();
-        barney = new User();
-        barney.setFirstname("Barney");
-        barney.setLastname("Rubble");
-        barney.setId("12345");
-
-        ApplicationSettings applicationSettingsMock = Mockito.mock(ApplicationSettings.class);
-        when(applicationSettingsMock.isForceRecompileEntryPoints()).thenReturn(true);
-        attributeService.setApplicationSettings(applicationSettingsMock);
-//        whenapplicationSettingsMock.
+        setUpBeansWithRootFromClasspath("invalidgroovy1/emptyscript.groovy");
     }
+
 
     @Test
     public void testInvalidGroovy() throws Exception {
-        attributeService.setScriptRunner(scriptRunner);
-        attributeService.setPolicyChangeController(new PolicyChangeController());
-
         Map<String, String> generatedAttributes = attributeService.getGeneratedAttributes(barney);
         assertEquals(0,generatedAttributes.size());
         Map<String,Throwable> errorMap = attributeService.getScriptErrors();
@@ -91,13 +57,7 @@ public class AttributeServiceInvalidGroovyTest {
 
     @Test
     public void testInvalidGroovyFiresException() throws Exception {
-        PolicyChangeController policyChangeControllerMock = Mockito.mock(PolicyChangeController.class);
-        attributeService.setPolicyChangeController(policyChangeControllerMock);
-        attributeService.setScriptRunner(scriptRunner);
         attributeService.getGeneratedAttributes(barney);
-
         Mockito.verify(policyChangeControllerMock).firePolicyException(any(Throwable.class));
-
-
     }
 }
