@@ -18,6 +18,7 @@
 
 package com.garyclayburg.attributes;
 
+import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.persistence.domain.User;
 import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyRuntimeException;
@@ -66,6 +67,13 @@ public class AttributeService {
     @Qualifier("policyChangeController")
     @Autowired
     private PolicyChangeController policyChangeController;
+
+    @Autowired
+    private ApplicationSettings applicationSettings;
+
+    public void setApplicationSettings(ApplicationSettings applicationSettings) {
+        this.applicationSettings = applicationSettings;
+    }
 
     public AttributeService() {
         detectedTargetIds = new HashSet<>();
@@ -286,7 +294,13 @@ public class AttributeService {
                 log.debug("processing groovy class: " + groovyPathKey);
                 String scriptFileName = stripScriptRoot(groovyRootPath,groovyPathKey);
                 try {
-                    Class loadedClass = runner.loadClass(scriptFileName,false,desiredAnnotation);
+                    Class loadedClass;
+                    if (applicationSettings.isForceRecompileEntryPoints()) {
+                        loadedClass = runner.loadClass(scriptFileName,false,desiredAnnotation);
+                    } else{
+                        loadedClass = runner.loadClass(scriptFileName,false,null);
+                    }
+                    log.info("standard name: {}",applicationSettings.getStandardName());
                     loadedClasses.put(groovyPathKey,loadedClass);
                     synchronized(groovyClassMap) {
                         scriptErrors.remove(groovyPathKey);
@@ -343,5 +357,9 @@ public class AttributeService {
         synchronized(groovyClassMap){
             return scriptErrors;
         }
+    }
+
+    public ApplicationSettings getApplicationSettings() {
+        return applicationSettings;
     }
 }

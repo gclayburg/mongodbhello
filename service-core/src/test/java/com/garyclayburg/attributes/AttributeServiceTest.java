@@ -18,6 +18,7 @@
 
 package com.garyclayburg.attributes;
 
+import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.persistence.domain.User;
 import groovy.lang.Binding;
 import org.junit.Assert;
@@ -37,6 +38,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by IntelliJ IDEA.
@@ -75,6 +77,9 @@ public class AttributeServiceTest {
         barney.setId("12345");
         attributeService.setScriptRunner(scriptRunner);
         attributeService.setPolicyChangeController(new PolicyChangeController());
+        ApplicationSettings applicationSettingsMock = Mockito.mock(ApplicationSettings.class);
+        when(applicationSettingsMock.isForceRecompileEntryPoints()).thenReturn(true);
+        attributeService.setApplicationSettings(applicationSettingsMock);
 
     }
 

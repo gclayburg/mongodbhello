@@ -18,6 +18,7 @@
 
 package com.garyclayburg.attributes;
 
+import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.MongoInMemoryTestBase;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.repository.UserStore;
@@ -90,6 +91,18 @@ public class AttributeServiceSpringDefaultTest extends MongoInMemoryTestBase {
         assertEquals("Bryan",lukeFound.getLastname());
         log.debug("check another attribute");
         assertEquals("Luke Bryan",lukeFound.getAttribute("cn"));
+    }
+
+    @Test
+    public void testSpringBootPropertiesWiring() throws Exception {
+        ApplicationSettings applicationSettings = attributeService.getApplicationSettings();
+        assertEquals("overriddenInApplicationProperties",applicationSettings.getStandardName());
+    }
+
+    @Test
+    public void testSpringBootPropertiesWiringBoolean() throws Exception {
+        ApplicationSettings applicationSettings = attributeService.getApplicationSettings();
+        assertEquals(true,applicationSettings.isForceRecompileEntryPoints());
     }
 
 }

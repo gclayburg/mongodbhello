@@ -18,6 +18,7 @@
 
 package com.garyclayburg.attributes;
 
+import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.delete.DeletionFileVisitor;
 import com.garyclayburg.persistence.domain.User;
 import org.junit.After;
@@ -25,6 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by IntelliJ IDEA.
@@ -75,6 +78,10 @@ public class AttributeServiceReloadTest {
         barney.setId("12345");
         attributeService.setScriptRunner(scriptRunner);
         attributeService.setPolicyChangeController(new PolicyChangeController());
+        ApplicationSettings applicationSettingsMock = Mockito.mock(ApplicationSettings.class);
+        when(applicationSettingsMock.isForceRecompileEntryPoints()).thenReturn(true);
+        attributeService.setApplicationSettings(applicationSettingsMock);
+
     }
 
     @Test
@@ -99,7 +106,6 @@ public class AttributeServiceReloadTest {
     @Test
     public void dependentClassChangeReload() throws Exception {
         GroovyWriter gw = setupStaticGroovies();
-        File multipleClassDir = gw.getRootDir();
         Set<String> entitledTargets = attributeService.getEntitledTargets(barney);
         assertThat(entitledTargets,contains("Active Directory ADT Domain"));
 
@@ -117,6 +123,7 @@ public class AttributeServiceReloadTest {
                  "}\n","TargetList.groovy");
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void dependentClassChangeTouch() throws InterruptedException, IOException {
         GroovyWriter gw = setupStaticGroovies();
@@ -136,7 +143,6 @@ public class AttributeServiceReloadTest {
     @Test
     public void dependentClassChangeMultiple() throws Exception{
         GroovyWriter gw = setupStaticGroovies();
-        File multipleClassDir = gw.getRootDir();
         Set<String> entitledTargets = attributeService.getEntitledTargets(barney);
         assertThat(entitledTargets,contains("Active Directory ADT Domain"));
 

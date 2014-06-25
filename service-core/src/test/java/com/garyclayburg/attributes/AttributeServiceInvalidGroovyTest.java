@@ -18,6 +18,7 @@
 
 package com.garyclayburg.attributes;
 
+import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.persistence.domain.User;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,6 +34,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by IntelliJ IDEA.
@@ -70,6 +72,10 @@ public class AttributeServiceInvalidGroovyTest {
         barney.setLastname("Rubble");
         barney.setId("12345");
 
+        ApplicationSettings applicationSettingsMock = Mockito.mock(ApplicationSettings.class);
+        when(applicationSettingsMock.isForceRecompileEntryPoints()).thenReturn(true);
+        attributeService.setApplicationSettings(applicationSettingsMock);
+//        whenapplicationSettingsMock.
     }
 
     @Test

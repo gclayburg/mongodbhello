@@ -18,12 +18,14 @@
 
 package com.garyclayburg.attributes;
 
+import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.persistence.domain.User;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,7 @@ import java.net.URL;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by IntelliJ IDEA.
@@ -81,6 +84,10 @@ public class AttributeServiceMultipleClassTest {
         barney.setId("12345");
         attributeService.setScriptRunner(scriptRunner);
         attributeService.setPolicyChangeController(new PolicyChangeController());
+        ApplicationSettings applicationSettingsMock = Mockito.mock(ApplicationSettings.class);
+        when(applicationSettingsMock.isForceRecompileEntryPoints()).thenReturn(true);
+        attributeService.setApplicationSettings(applicationSettingsMock);
+
     }
 
     @Test

@@ -18,6 +18,7 @@
 
 package com.garyclayburg.data;
 
+import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.importer.CsvImporter;
 import com.garyclayburg.persistence.UserChangeController;
 import com.garyclayburg.persistence.repository.UserStore;
@@ -25,6 +26,7 @@ import com.mongodb.Mongo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -37,6 +39,7 @@ import org.springframework.context.annotation.Import;
  * @author Gary Clayburg
  */
 @Configuration
+@EnableConfigurationProperties
 //@EnableMongoAuditing
 @Import(ServiceAttributeConfig.class)
 public class ServiceConfig {
@@ -71,5 +74,10 @@ public class ServiceConfig {
     @Bean
     public UserChangeController userChangeController() {
         return new UserChangeController();
+    }
+
+    @Bean
+    public ApplicationSettings applicationSettings() {
+        return new ApplicationSettings();
     }
 }
