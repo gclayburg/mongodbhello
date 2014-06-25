@@ -18,6 +18,7 @@
 
 package com.garyclayburg.data;
 
+import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.PolicyChangeController;
 import com.garyclayburg.attributes.ScriptRunner;
@@ -41,6 +42,8 @@ import java.util.Arrays;
  * Date: 5/27/14
  * Time: 1:11 PM
  *
+ * <br>
+ *     These beans are those beans that are needed before/during AttributeService configuration, i.e. mongo is not setup yet.
  * @author Gary Clayburg
  */
 @Configuration
@@ -121,4 +124,10 @@ public class ServiceAttributeConfig {
     public PolicyChangeController policyChangeController(){
         return new PolicyChangeController();
     }
+
+    @Bean
+    public ApplicationSettings applicationSettings() {
+        return new ApplicationSettings();
+    }
+
 }

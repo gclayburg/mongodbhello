@@ -18,7 +18,6 @@
 
 package com.garyclayburg.data;
 
-import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.importer.CsvImporter;
 import com.garyclayburg.persistence.UserChangeController;
 import com.garyclayburg.persistence.repository.UserStore;
@@ -76,8 +75,4 @@ public class ServiceConfig {
         return new UserChangeController();
     }
 
-    @Bean
-    public ApplicationSettings applicationSettings() {
-        return new ApplicationSettings();
-    }
 }
