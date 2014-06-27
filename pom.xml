@@ -26,7 +26,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <querydsl.version>3.2.2</querydsl.version>
-        <my.build.directory>target</my.build.directory>
+        <groovy.version>2.2.2</groovy.version>
+      <my.build.directory>target</my.build.directory>
         <!--<my.build.directory>/dev/shm/maven/${project.groupId}-${project.artifactId}/target</my.build.directory>-->
     </properties>
 
