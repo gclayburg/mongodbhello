@@ -26,46 +26,46 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
- * Created by IntelliJ IDEA.
- * Date: 4/7/14
- * Time: 12:05 PM
+ * Created by IntelliJ IDEA. Date: 4/7/14 Time: 12:05 PM
  *
  * @author Gary Clayburg
  */
 
 public final class DeletionFileVisitor implements FileVisitor<Path> {
-    @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(DeletionFileVisitor.class);
+  @SuppressWarnings("UnusedDeclaration")
+  private static final Logger log = LoggerFactory.getLogger(DeletionFileVisitor.class);
 
-    @Override
-    public FileVisitResult preVisitDirectory(final Path dir,final BasicFileAttributes attrs) throws IOException {
-        return FileVisitResult.CONTINUE;
-    }
+  @Override
+  public FileVisitResult preVisitDirectory(final Path dir,final BasicFileAttributes attrs) throws IOException {
+    return FileVisitResult.CONTINUE;
+  }
 
-    @Override
-    public FileVisitResult visitFile(final Path file,final BasicFileAttributes attrs) throws IOException {
-        Files.delete(file);
-        return FileVisitResult.CONTINUE;
-    }
+  @Override
+  public FileVisitResult visitFile(final Path file,final BasicFileAttributes attrs) throws IOException {
+    log.debug("delete file : " + file);
+    Files.delete(file);
+    return FileVisitResult.CONTINUE;
+  }
 
-    @Override
-    public FileVisitResult visitFileFailed(final Path file,final IOException exc) throws IOException {
-        throw exc;
-    }
+  @Override
+  public FileVisitResult visitFileFailed(final Path file,final IOException exc) throws IOException {
+    throw exc;
+  }
 
-    @Override
-    public FileVisitResult postVisitDirectory(final Path dir,final IOException exc) throws IOException {
-        if (exc != null) throw exc;
-        Files.delete(dir);
-        return FileVisitResult.CONTINUE;
-    }
+  @Override
+  public FileVisitResult postVisitDirectory(final Path dir,final IOException exc) throws IOException {
+    if (exc != null) throw exc;
+    log.debug("delete dir: " + dir);
+    Files.delete(dir);
+    return FileVisitResult.CONTINUE;
+  }
 
-    public static void deletePath(Path rootDir,String fileGlob) throws IOException {
-        DirectoryStream<Path> paths = Files.newDirectoryStream(rootDir,fileGlob);
-        for (Path path : paths) {
-            log.info("deleting path: " + path.toString() + " name: " + path.getFileName());
-            Files.walkFileTree(path,new DeletionFileVisitor());
-        }
+  public static void deletePath(Path rootDir,String fileGlob) throws IOException {
+    DirectoryStream<Path> paths = Files.newDirectoryStream(rootDir,fileGlob);
+    for (Path path : paths) {
+      log.info("deleting path: " + path.toString() + " name: " + path.getFileName());
+      Files.walkFileTree(path,new DeletionFileVisitor());
     }
+  }
 
 }
