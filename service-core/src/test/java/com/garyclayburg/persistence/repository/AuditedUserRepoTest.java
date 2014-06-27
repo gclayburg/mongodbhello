@@ -45,7 +45,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -109,7 +108,7 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
         autoUserRepo.save(hank);
 
         mockMvc.perform(get("/audited-users/findByFirstname?firstname=Hank"))
-                .andDo(print())
+//                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Williams")));
 
@@ -144,8 +143,8 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     public void testSaveHankTwice() {
         String id = "123456";
         hank.setId(id);
-        User savedHank = auditedUserRepo.save(hank);
-        User savedHank2 = auditedUserRepo.save(hank);
+        auditedUserRepo.save(hank);
+        auditedUserRepo.save(hank);
         assertEquals(2,userAuditRepo.findByUser_Id(id)
                 .size());
     }
@@ -154,7 +153,7 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     public void testSaveTwice() throws Exception {
         String id = "123";
         hank.setId(id);
-        User savedHank = auditedUserRepo.save(hank);
+        auditedUserRepo.save(hank);
         hankAgain.setId(id);
         auditedUserRepo.save(hankAgain);
 //        assertEquals(2,autoUserRepo.count());
@@ -254,7 +253,6 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
         auditedUserRepo.save(hank);
 
         mockMvc.perform(get("/audited-users/findByFirstname?firstname=Hank"))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Williams")));
 
