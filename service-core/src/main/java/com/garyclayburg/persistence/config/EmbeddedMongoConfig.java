@@ -47,6 +47,7 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -107,8 +108,12 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
         log.info("configuring embedded mongo");
         //Files that could be left over after a previous execution was (rudely) killed with kill -9
 
+      try {
         DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),"embedmongo-db-*");
         DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),"extract-*-mongod*");
+      } catch (IOException e) {
+        log.warn("could not delete temporary files from embedded mongod process.  Try manually stopping or killing mongod.exe process first.");
+      }
 
 //        RuntimeConfig config = new RuntimeConfig();
 //        config.setExecutableNaming(new UserTempNaming());
@@ -149,7 +154,7 @@ public class EmbeddedMongoConfig extends AbstractMongoConfiguration {
                     .build();
         }
         MongodStarter runtime = MongodStarter.getInstance(runtimeConfig);
-        MongodExecutable mongodExe = runtime.prepare(new MongodConfigBuilder().version(Version.Main.PRODUCTION)
+        MongodExecutable mongodExe = runtime.prepare(new MongodConfigBuilder().version(Version.Main.PRODUCTION).timeout(new Timeout(60000))
                                                              .net(new Net(MONGO_TEST_PORT,Network.localhostIsIPv6()))
                                                              .build());
         mongodExe.start();
