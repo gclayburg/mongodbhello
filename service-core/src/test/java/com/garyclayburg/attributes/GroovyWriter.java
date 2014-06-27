@@ -46,9 +46,6 @@ public class GroovyWriter {
 
     public File write(String groovyFileContents,String fileName) throws IOException {
         File groovyFile = new File(rootDir,fileName);
-        System.gc();  //windows bug     //http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4715154
-        boolean ignored = groovyFile.delete();
-        assertTrue(groovyFile.createNewFile());
         FileWriter fw2 = new FileWriter(groovyFile);
         fw2.write(groovyFileContents);
         fw2.close();
