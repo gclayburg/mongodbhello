@@ -98,6 +98,7 @@ public class ServiceAttributeConfig {
         if (scriptRunner.getRoots() != null) {
             log.info("setting up AttributeService " + Arrays.toString(scriptRunner.getRoots()));
         }
+        attributeService.setApplicationSettings(applicationSettings());
         attributeService.setScriptRunner(scriptRunner);
         return attributeService;
     }
@@ -121,12 +122,14 @@ public class ServiceAttributeConfig {
     }
 
     @Bean
-    public PolicyChangeController policyChangeController(){
+    public PolicyChangeController policyChangeController() {
+        log.debug("creating policychangecontroller");
         return new PolicyChangeController();
     }
 
     @Bean
     public ApplicationSettings applicationSettings() {
+        log.debug("creating applicationsettings");
         return new ApplicationSettings();
     }
 
