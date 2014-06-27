@@ -19,7 +19,6 @@
 package com.garyclayburg.attributes;
 
 import com.garyclayburg.delete.DeletionFileVisitor;
-import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +43,6 @@ import static org.junit.Assert.assertTrue;
 public class AttributeServiceReloadTest extends AttributeServiceTestBase {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(AttributeServiceMultipleClassTest.class);
-
-    @After
-    public void tearDown() throws Exception {
-        log.debug("TearDown test: " + testName.getMethodName());
-        String baseDir = "grooviesStatic";
-        DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),baseDir);
-    }
 
     @Test
     public void testStaticDependentClass() throws Exception {
@@ -140,6 +132,8 @@ public class AttributeServiceReloadTest extends AttributeServiceTestBase {
     }
 
     private GroovyWriter setupStaticGroovies() throws IOException {
+        String baseDir = "grooviesStatic";
+        DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),baseDir);
 
         String tmpDir = System.getProperty("java.io.tmpdir");
         File grooviesDir = new File(tmpDir + File.separatorChar + "grooviesStatic");
