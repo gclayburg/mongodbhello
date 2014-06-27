@@ -231,7 +231,7 @@ public class AttributeService {
                                 detectedTargetIds.add(annotation.target());
                                 try {
                                     String attributeValue =
-                                            (String) method.invoke(groovyObj,user); //todo figure out what to do when user is null instead of just throwing ugly exception, i.e. using vconsole without any users in db (yet)
+                                            (String) method.invoke(groovyObj,user);
                                     synchronized(groovyClassMap) {
                                         scriptErrors.remove(absMethodName);
                                     }
