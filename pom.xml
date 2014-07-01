@@ -5,7 +5,7 @@
 
     <groupId>com.garyclayburg</groupId>
     <artifactId>mongodbhello</artifactId>
-    <version>0.3-SNAPSHOT</version>
+    <version>0.3</version>
     <modules>
         <!--<module>springbootboot</module>-->
         <module>service-core</module>
@@ -131,7 +131,7 @@
             <dependency>
                 <groupId>com.garyclayburg</groupId>
                 <artifactId>service-core</artifactId>
-                <version>0.3-SNAPSHOT</version>
+                <version>0.3</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.opencsv</groupId>

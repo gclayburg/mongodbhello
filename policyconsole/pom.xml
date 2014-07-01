@@ -5,7 +5,7 @@
     <parent>
         <artifactId>mongodbhello</artifactId>
         <groupId>com.garyclayburg</groupId>
-        <version>0.3-SNAPSHOT</version>
+        <version>0.3</version>
     </parent>
     <artifactId>policyconsole</artifactId>
     <packaging>war</packaging>
@@ -368,6 +368,7 @@
 
                         <executions>
                             <execution>
+                                <!-- just run the app under jetty during development.  Stop via IDE 'kill' -->
                                 <id>jetty-run</id>
                                 <phase>prepare-package</phase>
                                 <goals>
