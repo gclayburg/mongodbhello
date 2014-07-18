@@ -84,6 +84,24 @@ public class UserStore {
         return savedUser;
     }
 
+    /**
+     * Adds auditing support for saving users.  All fields are saved.
+     *
+     * @param user user to save
+     *
+     * @return user being saved, after fields such as "id" are inserted, if necessary
+     */
+    @RequestMapping(value = "/auditedenterprisesave",method = RequestMethod.POST)
+    public
+    @ResponseBody
+    User saveEnterprise(@RequestBody User user) {
+        User savedUser = autoUserRepo.save(user);
+        UserAudit userAudit = new UserAudit(savedUser);
+        userAuditRepo.save(userAudit);
+        userChangeController.fireUserChangedEvent(savedUser);
+        return savedUser;
+    }
+
     @RequestMapping(value = "/findUserAuditById", method = RequestMethod.GET)
     public
     @ResponseBody

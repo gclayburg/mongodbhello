@@ -300,7 +300,6 @@ public class AttributeService {
                     } else{
                         loadedClass = runner.loadClass(scriptFileName,false,null);
                     }
-                    log.info("standard name: {}",applicationSettings.getStandardName());
                     loadedClasses.put(groovyPathKey,loadedClass);
                     synchronized(groovyClassMap) {
                         scriptErrors.remove(groovyPathKey);
