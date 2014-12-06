@@ -1,3 +1,4 @@
+#gclaybug/java7
 FROM ubuntu
 MAINTAINER Gary Clayburg <gclaybur@comcast.net>
 

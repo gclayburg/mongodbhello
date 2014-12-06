@@ -1,3 +1,4 @@
+#gclayburg/tomcat7
 FROM gclayburg/java7
 MAINTAINER Gary Clayburg <gclaybur@comcast.net>
 
