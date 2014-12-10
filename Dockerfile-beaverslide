@@ -1,0 +1,8 @@
+FROM gclayburg/java7
+MAINTAINER Gary Clayburg <gclaybur@comcast.net>
+
+RUN mkdir /groovyroot && mkdir /approot
+
+ADD policyconsole/target/policyconsole*.war /approot
+
+CMD java -jar /approot/policyconsole*.war
