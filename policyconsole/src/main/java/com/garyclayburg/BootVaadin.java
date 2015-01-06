@@ -75,7 +75,7 @@ public class BootVaadin extends SpringBootServletInitializer {
         return application.sources(applicationClass);
     }
 
-    private static void ensureActiveProfile() {
+    private static void ensureActiveProfile() { //todo: this is misleading if the spring command line option is used: --spring.profiles.active=mongolocal
         String specifiedProfile = System.getProperty("spring.profiles.active");
         if (specifiedProfile != null) {
             log.info("using specified spring profile: " + specifiedProfile);

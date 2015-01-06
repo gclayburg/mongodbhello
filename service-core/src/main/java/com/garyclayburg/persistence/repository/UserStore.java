@@ -77,6 +77,7 @@ public class UserStore {
     public
     @ResponseBody
     User save(@RequestBody User user) {
+        log.info("saving user " + user.getId());
         User savedUser = autoUserRepo.save(user);
         UserAudit userAudit = new UserAudit(savedUser);
         userAuditRepo.save(userAudit);
