@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ VisualSync - a tool to visualize user data synchronization
+  ~ Copyright (c) 2015 Gary Clayburg
+  ~ This program is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU General Public License
+  ~ as published by the Free Software Foundation; either version 2
+  ~ of the License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>mongodbhello</artifactId>
+        <groupId>com.garyclayburg</groupId>
+        <version>0.3</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>smoketest</artifactId>
+    <dependencies>
+    </dependencies>
+    <!-- by default, no tests are executed -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>smokeprofile</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>smokeme</id>
+                                <phase>integration-test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>false</skip>
+                                    <includes>
+                                        <include>**/*Test.java</include>
+                                    </includes>
+                                    <systemProperties>
+                                        <!-- these tests need a running server to communicate with.  This value assumes the smoke-tomcat7 profile is also active -->
+                                        <!-- Override at runtime with -Dendpoint=someserver:8080/ -->
+                                        <endpoint>localhost:8085/policyconsole</endpoint>
+                                    </systemProperties>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>smoke-tomcat7</id>
+            <!-- verify that basic "ping" of the console works on tomcat 7-->
+            <dependencies>
+                <dependency>
+                    <groupId>com.garyclayburg</groupId>
+                    <artifactId>policyconsole</artifactId>
+                    <version>0.3</version>
+                    <type>war</type>
+                </dependency>
+            </dependencies>
+            <properties>
+                <application.properties>${project.build.testSourceDirectory}/application.properties</application.properties>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven2-plugin</artifactId>
+                        <version>1.4.2</version>
+                        <executions>
+                            <execution>
+                                <id>start-container</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>start</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>stop-container</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+
+                        </executions>
+                        <configuration>
+                            <container>
+                                <containerId>tomcat7x</containerId>
+                                <zipUrlInstaller>
+                                    <url>
+                                        http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.42/bin/apache-tomcat-7.0.42.zip
+                                    </url>
+                                    <downloadDir>${project.build.directory}/downloads</downloadDir>
+                                    <extractDir>${java.io.tmpdir}</extractDir>
+                                </zipUrlInstaller>
+                            </container>
+                            <deployables>
+                                <deployable>
+                                    <groupId>com.garyclayburg</groupId>
+                                    <artifactId>policyconsole</artifactId>
+                                    <properties>
+                                        <context>policyconsole</context> <!-- deploy war in root console so that app appears at http://localhost:8085/policyconsole/ instead of http://localhost:8085/policyconsole-0.3/ -->
+                                    </properties>
+                                    <type>war</type>
+                                    <pingURL>http://localhost:8085/policyconsole/console/start</pingURL>
+                                    <pingTimeout>100000</pingTimeout>
+                                </deployable>
+                            </deployables>
+                            <configuration>
+                                <properties>
+                                    <cargo.servlet.port>8085</cargo.servlet.port>
+                                    <cargo.tomcat.ajp.port>8086</cargo.tomcat.ajp.port>
+                                </properties>
+                                <configfiles>
+                                    <configfile>
+                                        <file>${application.properties}</file>
+                                        <todir>config</todir>
+                                    </configfile>
+                                </configfiles>
+                            </configuration>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
+</project>

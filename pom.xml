@@ -13,6 +13,7 @@
 
         <!--<module>vconsole</module>-->
         <module>policyconsole</module>
+        <module>smoketest</module>
     </modules>
     <packaging>pom</packaging>
 
