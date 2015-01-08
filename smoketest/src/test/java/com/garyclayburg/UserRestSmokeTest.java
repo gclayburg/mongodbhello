@@ -20,10 +20,7 @@ package com.garyclayburg;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -71,7 +68,7 @@ public class UserRestSmokeTest {
     }
 
     @Test
-    public void testOne() throws Exception {
+    public void testHalJsonApache() throws Exception {
         RestTemplate rest = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
         SimpleUser user1 = new SimpleUser();
         user1.setFirstname("Tommy");
@@ -93,7 +90,79 @@ public class UserRestSmokeTest {
 
     }
 
+    @Ignore
     @Test
+    public void testJsonApache() throws Exception {
+        RestTemplate rest = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        SimpleUser user1 = new SimpleUser();
+        user1.setFirstname("Tommy");
+        user1.setLastname("Deleteme");
+        user1.setId("112" + (int) (Math.floor(Math.random() * 10000)));
+
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set("Content-Type", "application/json");
+//        HttpEntity<?> requestEntity = new HttpEntity(requestHeaders);
+        HttpEntity<?> requestEntity = new HttpEntity(user1,requestHeaders);
+
+        ResponseEntity<SimpleUser> simpleUserResponseEntity = rest.exchange(
+            "http://" + endpoint + "/audited-users/auditedsave",HttpMethod.POST,requestEntity,SimpleUser.class);
+
+//        ResponseEntity<SimpleUser> userResponseEntity =
+//            rest.postForEntity("http://" + endpoint + "/audited-users/auditedsave",user1,SimpleUser.class);
+        log.info("got a response");
+        MatcherAssertionErrors.assertThat(simpleUserResponseEntity.getStatusCode(),Matchers.equalTo(HttpStatus.OK));
+
+    }
+
+    @Ignore
+    @Test
+    public void testJsonutf8Apache() throws Exception {
+        RestTemplate rest = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        SimpleUser user1 = new SimpleUser();
+        user1.setFirstname("Tommy");
+        user1.setLastname("Deleteme");
+        user1.setId("112" + (int) (Math.floor(Math.random() * 10000)));
+
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set("Content-Type", "application/json;charset=UTF-8");
+//        HttpEntity<?> requestEntity = new HttpEntity(requestHeaders);
+        HttpEntity<?> requestEntity = new HttpEntity(user1,requestHeaders);
+
+        ResponseEntity<SimpleUser> simpleUserResponseEntity = rest.exchange(
+            "http://" + endpoint + "/audited-users/auditedsave",HttpMethod.POST,requestEntity,SimpleUser.class);
+
+//        ResponseEntity<SimpleUser> userResponseEntity =
+//            rest.postForEntity("http://" + endpoint + "/audited-users/auditedsave",user1,SimpleUser.class);
+        log.info("got a response");
+        MatcherAssertionErrors.assertThat(simpleUserResponseEntity.getStatusCode(),Matchers.equalTo(HttpStatus.OK));
+
+    }
+    @Test
+    public void testHalJsonutf8Apache() throws Exception {
+        RestTemplate rest = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        SimpleUser user1 = new SimpleUser();
+        user1.setFirstname("Tommy");
+        user1.setLastname("Deleteme");
+        user1.setId("112" + (int) (Math.floor(Math.random() * 10000)));
+
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set("Content-Type", "application/hal+json;charset=UTF-8");
+//        HttpEntity<?> requestEntity = new HttpEntity(requestHeaders);
+        HttpEntity<?> requestEntity = new HttpEntity(user1,requestHeaders);
+
+        ResponseEntity<SimpleUser> simpleUserResponseEntity = rest.exchange(
+            "http://" + endpoint + "/audited-users/auditedsave",HttpMethod.POST,requestEntity,SimpleUser.class);
+
+//        ResponseEntity<SimpleUser> userResponseEntity =
+//            rest.postForEntity("http://" + endpoint + "/audited-users/auditedsave",user1,SimpleUser.class);
+        log.info("got a response");
+        MatcherAssertionErrors.assertThat(simpleUserResponseEntity.getStatusCode(),Matchers.equalTo(HttpStatus.OK));
+
+    }
+
+
+    @Test
+    @Ignore
     public void testPlainApache() throws Exception{
         RestTemplate rest = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
         SimpleUser user1 = new SimpleUser();
@@ -107,6 +176,8 @@ public class UserRestSmokeTest {
         MatcherAssertionErrors.assertThat(userResponseEntity.getStatusCode(),Matchers.equalTo(HttpStatus.OK));
 
     }
+
+    @Ignore
     @Test
     public void testPlain() throws Exception{
         RestTemplate rest = new RestTemplate();
