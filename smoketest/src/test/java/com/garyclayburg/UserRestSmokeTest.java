@@ -30,9 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.MatcherAssertionErrors;
 import org.springframework.web.client.RestTemplate;
@@ -73,7 +72,30 @@ public class UserRestSmokeTest {
 
     @Test
     public void testOne() throws Exception {
-        RestTemplate rest = new TestRestTemplate();
+        RestTemplate rest = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        SimpleUser user1 = new SimpleUser();
+        user1.setFirstname("Tommy");
+        user1.setLastname("Deleteme");
+        user1.setId("112" + (int) (Math.floor(Math.random() * 10000)));
+
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.set("Content-Type", "application/hal+json");
+//        HttpEntity<?> requestEntity = new HttpEntity(requestHeaders);
+        HttpEntity<?> requestEntity = new HttpEntity(user1,requestHeaders);
+
+        ResponseEntity<SimpleUser> simpleUserResponseEntity = rest.exchange(
+            "http://" + endpoint + "/audited-users/auditedsave",HttpMethod.POST,requestEntity,SimpleUser.class);
+
+//        ResponseEntity<SimpleUser> userResponseEntity =
+//            rest.postForEntity("http://" + endpoint + "/audited-users/auditedsave",user1,SimpleUser.class);
+        log.info("got a response");
+        MatcherAssertionErrors.assertThat(simpleUserResponseEntity.getStatusCode(),Matchers.equalTo(HttpStatus.OK));
+
+    }
+
+    @Test
+    public void testPlainApache() throws Exception{
+        RestTemplate rest = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
         SimpleUser user1 = new SimpleUser();
         user1.setFirstname("Tommy");
         user1.setLastname("Deleteme");
@@ -81,7 +103,21 @@ public class UserRestSmokeTest {
 
         ResponseEntity<SimpleUser> userResponseEntity =
             rest.postForEntity("http://" + endpoint + "/audited-users/auditedsave",user1,SimpleUser.class);
+        log.info("got a response");
+        MatcherAssertionErrors.assertThat(userResponseEntity.getStatusCode(),Matchers.equalTo(HttpStatus.OK));
 
+    }
+    @Test
+    public void testPlain() throws Exception{
+        RestTemplate rest = new RestTemplate();
+        SimpleUser user1 = new SimpleUser();
+        user1.setFirstname("Tommy");
+        user1.setLastname("Deleteme");
+        user1.setId("112" + (int) (Math.floor(Math.random() * 10000)));
+
+        ResponseEntity<SimpleUser> userResponseEntity =
+            rest.postForEntity("http://" + endpoint + "/audited-users/auditedsave",user1,SimpleUser.class);
+        log.info("got a response");
         MatcherAssertionErrors.assertThat(userResponseEntity.getStatusCode(),Matchers.equalTo(HttpStatus.OK));
 
     }

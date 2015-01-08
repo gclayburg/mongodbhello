@@ -1,0 +1,76 @@
+<!--
+  ~ VisualSync - a tool to visualize user data synchronization
+  ~ Copyright (c) 2015 Gary Clayburg
+  ~ This program is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU General Public License
+  ~ as published by the Free Software Foundation; either version 2
+  ~ of the License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  -->
+
+<!--<configuration debug="true">-->
+<configuration >
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- deny all events with a level below INFO, that is TRACE and DEBUG -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+
+
+        <!-- encoders are  by default assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <!-- On Windows machines setting withJansi to true enables ANSI
+         color code interpretation by the Jansi library. This requires
+         org.fusesource.jansi:jansi:1.8 on the class path.  Note that
+         Unix-based operating systems such as Linux and Mac OS X
+         support ANSI color codes by default. -->
+        <withJansi>true</withJansi>
+        <encoder>
+            <pattern>%date{ISO8601} [%17.17thread] %-5level %-36logger{36} - %msg%n</pattern>
+            <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-36logger{36} - %msg%n</pattern>-->
+            <!--<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-36logger - %msg%n</pattern>-->
+            <!--<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} %file:%line - %msg%n%caller{8, CALLER_EVAL}</Pattern>-->
+
+        </encoder>
+
+    </appender>
+
+    <appender name="DEBUGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- On Windows machines setting withJansi to true enables ANSI
+         color code interpretation by the Jansi library. This requires
+         org.fusesource.jansi:jansi:1.8 on the class path.  Note that
+         Unix-based operating systems such as Linux and Mac OS X
+         support ANSI color codes by default. -->
+        <withJansi>true</withJansi>
+        <file>smoketest-debug.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>visualsync-debug.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <!-- keep 5 days' worth of history -->
+            <maxHistory>5</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%date{ISO8601} [%17.17thread] %highlight(%-5level) %-36logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <logger name="com.garyclayburg" level="DEBUG" >
+    </logger>
+
+    <root level="debug">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="DEBUGFILE" />
+    </root>
+</configuration>
