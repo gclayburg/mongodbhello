@@ -182,7 +182,7 @@ public class WatchDir implements Runnable {
                     Path child = dir.resolve(name);
 
                     // print out event
-                    log.debug("{}: {}",event.kind()
+                    log.info("{}: {}",event.kind()
                             .name(),child);
                     if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
                         attributeService.reloadGroovyClass(child);
