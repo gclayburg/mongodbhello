@@ -26,6 +26,7 @@
         <!--</filter>-->
 
 
+
         <!-- encoders are  by default assigned the type
              ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
         <!-- On Windows machines setting withJansi to true enables ANSI
