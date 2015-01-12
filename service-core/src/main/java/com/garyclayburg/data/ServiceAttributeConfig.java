@@ -114,9 +114,9 @@ public class ServiceAttributeConfig {
         }
         Path watchPath = Paths.get(roots[0]);
         WatchDir watcher = new WatchDir(watchPath,true);
-        Thread t = new Thread(watcher,"groovyWatcher");
-        t.setDaemon(true);
-        t.start();
+//        Thread t = new Thread(watcher,"groovyWatcher");
+//        t.setDaemon(true);
+//        t.start();
 
         return watcher;
     }
