@@ -124,7 +124,8 @@ public class UserStore {
         return byUserId;
     }
 
-    public GeneratedUser findGeneratedUserByFirstname(String name) {
+    @RequestMapping(value = "/findGeneratedUserByFirstname",method = RequestMethod.GET)
+    public @ResponseBody GeneratedUser findGeneratedUserByFirstname(@RequestParam(value = "firstname",required = true) String name) {
         User u = findByFirstname(name);
         GeneratedUser generatedUser = new GeneratedUser(u);
         generatedUser.setAttributeService(attributeService);
