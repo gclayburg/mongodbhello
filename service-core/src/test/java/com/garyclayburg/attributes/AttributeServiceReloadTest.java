@@ -43,11 +43,13 @@ import static org.junit.Assert.assertTrue;
 public class AttributeServiceReloadTest extends AttributeServiceTestBase {
   @SuppressWarnings("UnusedDeclaration")
   private static final Logger log = LoggerFactory.getLogger(AttributeServiceMultipleClassTest.class);
+  private String groovyTmpBaseDir;
 
   @Override
   @Before
   public void setUp() throws Exception {
     log.debug("Running test setUp: " + testName.getMethodName());
+      groovyTmpBaseDir = "grooviesStatic" + Math.round(Math.random() * 1000000);
     wipeTmpFiles();
   }
 
@@ -62,8 +64,7 @@ public class AttributeServiceReloadTest extends AttributeServiceTestBase {
     System.gc();  //without this, the test will sometimes fail on windows when deleting files.  code smell? yes. bug? you bet.
     // http://stackoverflow.com/questions/991489/i-cant-delete-a-file-in-java
     //http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4715154
-    String baseDir = "grooviesStatic";
-    DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),baseDir);
+    DeletionFileVisitor.deletePath(Paths.get(System.getProperty("java.io.tmpdir")),groovyTmpBaseDir);
   }
 
   @Test
@@ -161,10 +162,10 @@ public class AttributeServiceReloadTest extends AttributeServiceTestBase {
 
   private GroovyWriter setupStaticGroovies() throws IOException {
     String tmpDir = System.getProperty("java.io.tmpdir");
-    File grooviesDir = new File(tmpDir + File.separatorChar + "grooviesStatic");
+    File grooviesDir = new File(tmpDir + File.separatorChar + groovyTmpBaseDir);
     assertTrue(grooviesDir.mkdir());
     File multipleClassDir = new File(
-            tmpDir + File.separatorChar + "grooviesStatic" + File.separatorChar + "com" + File.separatorChar +
+            tmpDir + File.separatorChar + groovyTmpBaseDir + File.separatorChar + "com" + File.separatorChar +
             "multipleclass");
     log.info("tmp: {}",tmpDir);
     assertTrue(multipleClassDir.mkdirs());
