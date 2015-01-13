@@ -54,6 +54,13 @@ def stopcoreos(instance){
         sh "./stopcoreos.sh $instance"
     }
 }
+def startcoreos(instance){
+    dir('docker/visualsync') {
+        echo "start: I think I am running in a directory"
+        sh "pwd"
+        sh "./startcoreos.sh $instance"
+    }
+}
 /*
  * VisualSync - a tool to visualize user data synchronization
  * Copyright (c) 2015 Gary Clayburg
