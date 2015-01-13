@@ -2,6 +2,7 @@
 
 date
 INSTANCE=${INSTANCE:-9}
+echo "stopping console@${INSTANCE}"
 fleetctl --version
 fleetctl -tunnel mink -strict-host-key-checking=false list-machines
 fleetctl -tunnel mink -strict-host-key-checking=false stop console@${INSTANCE}.service

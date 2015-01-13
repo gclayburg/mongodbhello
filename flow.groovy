@@ -51,7 +51,7 @@ def stopcoreos(instance){
     dir('docker/visualsync') {
         echo "I think I am running in a directory"
         sh "pwd"
-        sh "stopcoreos.sh $instance"
+        sh "./stopcoreos.sh $instance"
     }
 }
 /*
