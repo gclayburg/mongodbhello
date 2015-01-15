@@ -67,9 +67,9 @@ def startcoreos(instance){
 def fastWar(){
     node('bagley-dind'){
 //        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
-        unarchive mapping: ['pom.xml' : '.']
-        echo 'do fast war'
-        sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
+//        unarchive mapping: ['pom.xml' : '.']
+//        echo 'do fast war'
+//        sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
     }
 }
 
@@ -84,9 +84,9 @@ def doBuild() {
 
     parallel firstBranch: {
         fastWar()
-    } //,secondBranch: {
-//        stopCopper()
-//    }
+    } ,secondBranch: {
+        stopCopper()
+    }
 }
 /*
  * VisualSync - a tool to visualize user data synchronization
