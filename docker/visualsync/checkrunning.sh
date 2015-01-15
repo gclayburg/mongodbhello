@@ -19,6 +19,6 @@ date
 echo "tomcat url is: $myurl"
 ENDPOINT="$(echo $url | jq -r '.host'):$(echo $url | jq -r '.port')"
 echo "endpoint is: $ENDPOINT"
-echo "ENDPOINT=$ENDPOINT" > /tmp/thechosenone.properties
+echo "ENDPOINT=$ENDPOINT" > chosenone.properties
 
 isTomcatRunning.sh $myurl

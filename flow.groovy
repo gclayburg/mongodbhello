@@ -78,7 +78,7 @@ def waitForRunningTomcat(instance) {
         echo "start checking for running tomcat"
         sh "./checkrunning.sh $instance"
 
-        def str = readFile name: '/tmp/thechosenone.properties', charset : 'utf-8'
+        def str = readFile file: 'chosenone.properties', encoding : 'utf-8'
         def sr = new StringReader(str)
         def props = new Properties()
         props.load(sr)
