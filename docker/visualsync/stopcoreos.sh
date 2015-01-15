@@ -9,6 +9,8 @@ fleetctl -tunnel mink -strict-host-key-checking=false stop console@${INSTANCE}.s
 fleetctl -tunnel mink -strict-host-key-checking=false stop console-discovery@${INSTANCE}.service
 fleetctl -tunnel mink -strict-host-key-checking=false stop empty-mongodb@${INSTANCE}.service
 fleetctl -tunnel mink -strict-host-key-checking=false unload console-discovery@${INSTANCE}.service
+#fleetctl -tunnel mink -strict-host-key-checking=false unload console@${INSTANCE}.service
+#fleetctl -tunnel mink -strict-host-key-checking=false unload empty-mongodb@${INSTANCE}.service
 fleetctl -tunnel mink -strict-host-key-checking=false list-units
 echo "console should be dead now"
 date
