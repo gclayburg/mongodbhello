@@ -74,7 +74,7 @@ def fastWar(){
 }
 
 def fullBuild(){
-    node('bagley-dind'){
+    node('master'){
         sh "pwd"
         unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
         sh "${tool 'M3'}/bin/mvn -B clean install"
