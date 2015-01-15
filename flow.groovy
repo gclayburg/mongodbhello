@@ -76,6 +76,10 @@ def fastWar(){
 def fullBuild(){
     node('bagley-dind'){
         sh "pwd"
+        def javaHOME= tool 'Oracle JDK 8u25'
+//        def javaHOME= tool 'Oracle JDK 7u72'
+        env.PATH = "${javaHOME}/bin:${env.PATH}"
+
         unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
         sh "${tool 'M3'}/bin/mvn -B clean install"
     }
