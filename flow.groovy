@@ -90,11 +90,16 @@ def stopCopper() {
 def doBuild() {
 
     parallel firstBranch: {
-        fastWar()
-    } ,secondBranch: {
-        stopCopper()
+        parallel firstBranch: {
+            fastWar()
+        },secondBranch: {
+            stopCopper()
+        }
+        startcoreos(9)
+    }, secondBranch: {
+        fullBuild()
     }
-    startcoreos(9)
+    echo "done with double build"
 }
 /*
  * VisualSync - a tool to visualize user data synchronization
