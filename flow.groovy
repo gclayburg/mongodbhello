@@ -83,7 +83,7 @@ def waitForRunningTomcat(instance) {
         def props = new Properties()
         props.load(sr)
         def chosenserver = props.getProperty('ENDPOINT')
-        echo "startcoreos output: ${ENDPOINT}"
+        echo "startcoreos output: ${chosenserver}"
         env.ENDPOINT= "${chosenserver}"
         echo "startcoreos output server env: ${env.ENDPOINT}"
 
