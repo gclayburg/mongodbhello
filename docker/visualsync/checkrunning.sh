@@ -1,6 +1,8 @@
 #!/bin/bash
 
-INSTANCE=${1:-9}
+echo "param is $1"
+echo "param still is ${1}"
+INSTANCE=${INSTANCE:-9}
 echo "checking key: /services/website/console@${INSTANCE}..."
 if url=$(etcdctl -C=http://mink:4001 get /services/website/console@${INSTANCE} 2> /dev/null); then
   echo ok
