@@ -60,9 +60,14 @@ def startcoreos(instance){
         echo "start: I think I am running in a directory"
         sh "pwd"
         sh "chmod 755 ./startcoreos.sh"
-        sh "./startcoreos.sh $instance"
+        def myout = sh "./startcoreos.sh $instance"
+        echo "startcoreos output: ${myout}"
     }
 }
+
+//def waitForRunningTomcat() {
+
+//}
 
 def fastWar(){
     node('master'){
@@ -92,21 +97,6 @@ def stopCopper() {
         stopcoreos('9')
     }
 }
-
-def doBuild() {
-
-    parallel firstBranch: {
-        parallel firstBranch: {
-            fastWar()
-        },secondBranch: {
-            stopCopper()
-        }
-        startcoreos(9)
-    }, secondBranch: {
-        fullBuild()
-    }
-    echo "done with double build"
-}
 /*
  * VisualSync - a tool to visualize user data synchronization
  * Copyright (c) 2015 Gary Clayburg
@@ -124,5 +114,21 @@ def doBuild() {
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+def doBuild() {
+
+    parallel firstBranch: {
+        parallel firstBranch: {
+            fastWar()
+        },secondBranch: {
+            stopCopper()
+        }
+        startcoreos(9)
+//        waitForRunningTomcat(9)
+    }, secondBranch: {
+        fullBuild()
+    }
+    echo "done with double build"
+}
 
 return this;
