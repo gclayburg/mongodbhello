@@ -61,6 +61,28 @@ def startcoreos(instance){
         sh "./startcoreos.sh $instance"
     }
 }
+
+def fastWar(){
+    node('master'){
+        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
+        sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
+    }
+}
+
+def stopCopper() {
+    node('bagley-dind') {
+        stopcoreos('9')
+    }
+}
+
+def doBuild() {
+
+    parallel firstBranch: {
+        fastWar()
+    },secondBranch: {
+        stopCopper()
+    }
+}
 /*
  * VisualSync - a tool to visualize user data synchronization
  * Copyright (c) 2015 Gary Clayburg
