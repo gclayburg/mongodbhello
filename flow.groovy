@@ -75,6 +75,7 @@ def fastWar(){
 
 def fullBuild(){
     node('bagley-dind'){
+        sh "pwd"
         unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
         sh "${tool 'M3'}/bin/mvn -B clean install"
     }
@@ -82,6 +83,7 @@ def fullBuild(){
 
 def stopCopper() {
     node('bagley-dind') {
+        sh "pwd"
         unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
         stopcoreos('9')
     }
