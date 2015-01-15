@@ -71,6 +71,7 @@ def fastWar(){
 
 def stopCopper() {
     node('bagley-dind') {
+        unarchive mapping: [ 'docker/' : '.']
         stopcoreos('9')
     }
 }
