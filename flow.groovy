@@ -65,11 +65,11 @@ def startcoreos(instance){
 }
 
 def fastWar(){
-    node('bagley-dind'){
-//        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
+    node('master'){
+        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
 //        unarchive mapping: ['pom.xml' : '.']
-//        echo 'do fast war'
-//        sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
+        echo 'do fast war'
+        sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
     }
 }
 
