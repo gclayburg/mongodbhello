@@ -73,9 +73,22 @@ def startcoreos(instance){
     }
 }
 
-//def waitForRunningTomcat() {
+def waitForRunningTomcat(instance) {
+    dir('docker/visualsync') {
+        echo "start checking for running tomcat"
+        sh "./checkrunning.sh $instance"
 
-//}
+        def str = readFile name: '/tmp/thechosenone.properties', charset : 'utf-8'
+        def sr = new StringReader(str)
+        def props = new Properties()
+        props.load(sr)
+        def chosenserver = props.getProperty('ENDPOINT')
+        echo "startcoreos output: ${ENDPOINT}"
+        env.ENDPOINT= "${chosenserver}"
+        echo "startcoreos output server env: ${env.ENDPOINT}"
+
+    }
+}
 
 def fastWar(){
     node('master'){
