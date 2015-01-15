@@ -58,6 +58,7 @@ def startcoreos(instance){
     dir('docker/visualsync') {
         echo "start: I think I am running in a directory"
         sh "pwd"
+        sh "chmod 755 ./startcoreos.sh"
         sh "./startcoreos.sh $instance"
     }
 }
