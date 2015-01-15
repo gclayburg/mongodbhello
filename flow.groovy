@@ -83,9 +83,9 @@ def doBuild() {
 
     parallel firstBranch: {
         fastWar()
-    },secondBranch: {
-        stopCopper()
-    }
+    } //,secondBranch: {
+//        stopCopper()
+//    }
 }
 /*
  * VisualSync - a tool to visualize user data synchronization
