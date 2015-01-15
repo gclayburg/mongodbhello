@@ -73,6 +73,13 @@ def fastWar(){
     }
 }
 
+def fullBuild(){
+    node('master'){
+        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
+        sh "${tool 'M3'}/bin/mvn -B clean install"
+    }
+}
+
 def stopCopper() {
     node('bagley-dind') {
         unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
@@ -87,6 +94,7 @@ def doBuild() {
     } ,secondBranch: {
         stopCopper()
     }
+    startcoreos(9)
 }
 /*
  * VisualSync - a tool to visualize user data synchronization
