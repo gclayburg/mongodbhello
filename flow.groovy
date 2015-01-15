@@ -62,7 +62,7 @@ def startcoreos(instance){
         sh "chmod 755 ./startcoreos.sh"
         def myout = sh "./startcoreos.sh $instance "
 
-        def str = readFile name: 'thechosenone.properties', charset : 'utf-8'
+        def str = readFile name: '/tmp/thechosenone.properties', charset : 'utf-8'
         def sr = new StringReader(str)
         def props = new Properties()
         props.load(sr)
