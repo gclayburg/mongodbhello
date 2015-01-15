@@ -60,7 +60,7 @@ def startcoreos(instance){
         echo "start: I think I am running in a directory"
         sh "pwd"
         sh "chmod 755 ./startcoreos.sh"
-        def myout = sh "./startcoreos.sh $instance 3> thechosenone.properties"
+        def myout = sh "./startcoreos.sh $instance "
 
         def str = readFile name: 'thechosenone.properties', charset : 'utf-8'
         def sr = new StringReader(str)
