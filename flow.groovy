@@ -67,6 +67,7 @@ def startcoreos(instance){
 def fastWar(){
     node('master'){
         unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
+        echo 'do fast war'
         sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
     }
 }
