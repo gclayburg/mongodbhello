@@ -62,7 +62,7 @@ def startcoreos(instance){
         sh "chmod 755 ./startcoreos.sh"
         def myout = sh "./startcoreos.sh $instance "
 
-        def str = readFile name: '/tmp/thechosenone.properties', charset : 'utf-8'
+        def str = readFile file: 'chosenone.properties', encoding : 'utf-8'
         def sr = new StringReader(str)
         def props = new Properties()
         props.load(sr)
@@ -73,7 +73,8 @@ def startcoreos(instance){
     }
 }
 
-def waitForRunningTomcat(instance) {
+def String waitForRunningTomcat(instance) {
+    def chosenserver=""
     dir('docker/visualsync') {
         echo "start checking for running tomcat"
         sh "./checkrunning.sh $instance"
@@ -82,13 +83,21 @@ def waitForRunningTomcat(instance) {
         def sr = new StringReader(str)
         def props = new Properties()
         props.load(sr)
-        def chosenserver = props.getProperty('ENDPOINT')
+        chosenserver = props.getProperty('ENDPOINT')
         echo "startcoreos output: ${chosenserver}"
         env.ENDPOINT= "${chosenserver}"
         echo "startcoreos output server env: ${env.ENDPOINT}"
 
     }
+    return chosenserver
 }
+
+def runSmokeTest(){
+    def chosen = waitForRunningTomcat('9')
+    sh "${tool 'M3'}/bin/mvn -B --projects smoketest -Psmokeprofile -Dendpoint=${chosen} integration-test"
+}
+
+
 
 def fastWar(){
     node('master'){
