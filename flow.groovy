@@ -74,7 +74,7 @@ def fastWar(){
 }
 
 def fullBuild(){
-    node('bagley-dind'){
+    node('master'){
         sh "pwd"
         def javaHOME= tool 'Oracle JDK 8u25'
 //        def javaHOME= tool 'Oracle JDK 7u72'
