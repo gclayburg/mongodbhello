@@ -84,16 +84,12 @@ def String waitForRunningTomcat(instance) {
         def props = new Properties()
         props.load(sr)
         chosenserver = props.getProperty('ENDPOINT')
-        echo "startcoreos output: ${chosenserver}"
-        env.ENDPOINT= "${chosenserver}"
-        echo "startcoreos output server env: ${env.ENDPOINT}"
-
     }
     return chosenserver
 }
 
-def runSmokeTest(){
-    def chosen = waitForRunningTomcat('9')
+def runSmokeTest(instance){
+    def chosen = waitForRunningTomcat(instance)
     sh "${tool 'M3'}/bin/mvn -B --projects smoketest -Psmokeprofile -Dendpoint=${chosen} integration-test"
 }
 
@@ -120,11 +116,11 @@ def fullBuild(){
     }
 }
 
-def stopCopper() {
+def stopCopper(instance) {
     node('bagley-dind') {
         sh "pwd"
         unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
-        stopcoreos('9')
+        stopcoreos(instance)
     }
 }
 /*
@@ -146,15 +142,16 @@ def stopCopper() {
  */
 
 def doBuild() {
+    def NINE = "9"
 
     parallel firstBranch: {
         parallel firstBranch: {
             fastWar()
         },secondBranch: {
-            stopCopper()
+            stopCopper(NINE)
         }
-        startcoreos(9)
-//        waitForRunningTomcat(9)
+        startcoreos(NINE)
+        runSmokeTest(NINE)
     }, secondBranch: {
         fullBuild()
     }
