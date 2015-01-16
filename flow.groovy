@@ -60,16 +60,7 @@ def startcoreos(instance){
         echo "start: I think I am running in a directory"
         sh "pwd"
         sh "chmod 755 ./startcoreos.sh"
-        def myout = sh "./startcoreos.sh $instance "
-
-        def str = readFile file: 'chosenone.properties', encoding : 'utf-8'
-        def sr = new StringReader(str)
-        def props = new Properties()
-        props.load(sr)
-        def chosenserver = props.getProperty('ENDPOINT')
-        echo "startcoreos output: ${ENDPOINT}"
-        env.ENDPOINT= "${chosenserver}"
-        echo "startcoreos output server env: ${env.ENDPOINT}"
+        sh "./startcoreos.sh $instance "
     }
 }
 
