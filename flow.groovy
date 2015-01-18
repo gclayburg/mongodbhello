@@ -84,13 +84,6 @@ def String waitForRunningTomcat(instance) {
     return chosenserver
 }
 
-def createDockerImage() {
-    dir('docker/visualsync'){
-        sh "chmod 755 make.sh"
-        sh "./make.sh docker build -t registry:5000/visualsync ."
-        sh "docker push registry:5000/visualsync"
-    }
-}
 
 
 
@@ -100,10 +93,16 @@ def runSmokeTest(instance){
 }
 
 def fastWar(){
-    node('master'){
-        echo 'do fast war'
-        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
-        sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
+    echo 'do fast war'
+    unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
+    sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
+}
+
+def createDockerImage() {
+    dir('docker/visualsync'){
+        sh "chmod 755 make.sh"
+        sh "./make.sh docker build -t registry:5000/visualsync ."
+        sh "docker push registry:5000/visualsync"
     }
 }
 
@@ -149,13 +148,13 @@ def doBuild() {
 
     parallel firstBranch: {
         parallel firstBranch: {
-            fastWar()
-            createDockerImage()
-//            pushDockerImage()
+            node('master') {
+                fastWar()
+                createDockerImage()
+            }
         },secondBranch: {
             stopCopper(NINE)
         }
-        startcoreos(NINE)
         startcoreos NINE
         runSmokeTest(NINE)
     }, secondBranch: {
