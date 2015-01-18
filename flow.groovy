@@ -51,14 +51,19 @@ def stopcoreos(instance){
     dir('docker/visualsync') {
         echo "I think I am running in a directory"
         sh "pwd"
-//        sh "chmod 755 ./stopcoreos.sh"
+        sh "chmod 755 ./stopcoreos.sh"
         sh "./stopcoreos.sh $instance"
     }
 }
+
+/**
+ Start coreos instance
+ @param instance number of the coreos instance to start (1-99)
+ */
 def startcoreos(instance){
     dir('docker/visualsync') {
         echo "start: I think I am running in a directory"
-        sh "pwd"
+        sh 'pwd'
         sh "chmod 755 ./startcoreos.sh"
         sh "./startcoreos.sh $instance "
     }
@@ -67,9 +72,9 @@ def startcoreos(instance){
 def String waitForRunningTomcat(instance) {
     def chosenserver=""
     dir('docker/visualsync') {
-        echo "start checking for running tomcat"
+        echo "start checking for running" +
+             " tomcat $instance"
         sh "./checkrunning.sh $instance"
-
         def str = readFile file: 'chosenone.properties', encoding : 'utf-8'
         def sr = new StringReader(str)
         def props = new Properties()
@@ -88,9 +93,10 @@ def runSmokeTest(instance){
 
 def fastWar(){
     node('master'){
-        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
-//        unarchive mapping: ['pom.xml' : '.']
         echo 'do fast war'
+        def str = readFile file: 'chosenone.properties', encoding : 'utf-8'
+
+        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
         sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
     }
 }
@@ -142,11 +148,25 @@ def doBuild() {
             stopCopper(NINE)
         }
         startcoreos(NINE)
+        startcoreos NINE
         runSmokeTest(NINE)
     }, secondBranch: {
         fullBuild()
     }
-    echo "done with double build"
+    echo message: "done with double build"
+}
+
+def echome(){
+    def hi="hello"
+    echo 'Deployed to http://localhost:8080/production/'
+    echo message: "done now"
+    echo "done $hi"
+    echo 78
+    echo
+
+    def str = readFile file: 'pom.xml', encoding : 'utf-8'
+    def str2 = readFile 'pom.xml'
+
 }
 
 return this;
