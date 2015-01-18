@@ -84,12 +84,20 @@ def String waitForRunningTomcat(instance) {
     return chosenserver
 }
 
+def createDockerImage() {
+    dir('docker/visualsync'){
+        sh "chmod 755 make.sh"
+        sh "./make.sh docker build -t registry:5000/visualsync ."
+        sh "docker push registry:5000/visualsync"
+    }
+}
+
+
+
 def runSmokeTest(instance){
     def chosen = waitForRunningTomcat(instance)
     sh "${tool 'M3'}/bin/mvn -B --projects smoketest -Psmokeprofile -Dendpoint=${chosen} integration-test"
 }
-
-
 
 def fastWar(){
     node('master'){
@@ -110,14 +118,6 @@ def fullBuild(){
         sh "${tool 'M3'}/bin/mvn -B clean install"
     }
 }
-
-def stopCopper(instance) {
-    node('bagley-dind') {
-        sh "pwd"
-        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
-        stopcoreos(instance)
-    }
-}
 /*
  * VisualSync - a tool to visualize user data synchronization
  * Copyright (c) 2015 Gary Clayburg
@@ -136,12 +136,22 @@ def stopCopper(instance) {
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+def stopCopper(instance) {
+    node('bagley-dind') {
+        sh "pwd"
+        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
+        stopcoreos(instance)
+    }
+}
+
 def doBuild() {
     def NINE = "9"
 
     parallel firstBranch: {
         parallel firstBranch: {
             fastWar()
+            createDockerImage()
+//            pushDockerImage()
         },secondBranch: {
             stopCopper(NINE)
         }
@@ -163,6 +173,7 @@ def echome(){
 //    echo  //will fail
 
     def str = readFile file: 'pom.xml', encoding : 'utf-8'
+    def str3 = readFile file: 'pom.xml'
     def str2 = readFile 'pom.xml'
 
 }
