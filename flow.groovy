@@ -160,7 +160,7 @@ def echome(){
     echo message: "done now"
     echo "done $hi"  //ok
 //    echo 78  //will fail
-    echo
+//    echo  //will fail
 
     def str = readFile file: 'pom.xml', encoding : 'utf-8'
     def str2 = readFile 'pom.xml'
