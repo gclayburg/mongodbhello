@@ -158,8 +158,8 @@ def echome(){
     def hi="hello"
     echo 'Deployed to http://localhost:8080/production/'
     echo message: "done now"
-    echo "done $hi"
-    echo 78
+    echo "done $hi"  //ok
+//    echo 78  //will fail
     echo
 
     def str = readFile file: 'pom.xml', encoding : 'utf-8'
