@@ -94,8 +94,6 @@ def runSmokeTest(instance){
 def fastWar(){
     node('master'){
         echo 'do fast war'
-        def str = readFile file: 'chosenone.properties', encoding : 'utf-8'
-
         unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
         sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
     }
