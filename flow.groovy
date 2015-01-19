@@ -160,6 +160,7 @@ def doBuild() {
     }, secondBranch: {
         fullBuild()
     }
+    step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     echo message: "done with double build"
 }
 
