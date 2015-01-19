@@ -52,7 +52,8 @@ def stopcoreos(instance){
         echo "I think I am running in a directory"
         sh "pwd"
         sh "chmod 755 ./stopcoreos.sh"
-        sh "./stopcoreos.sh $instance"
+        def exitcode = sh "./stopcoreos.sh $instance"
+        echo "Exit code from stopcoreos: ${exitcode}"
     }
 }
 
