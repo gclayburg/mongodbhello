@@ -177,7 +177,7 @@ def echome(){
 
     def tmpdir = "/tmp"
     sh "ls -l $tmpdir"
-
+    sh script: "ls -l /"
     def str = readFile file: 'pom.xml', encoding : 'utf-8'
     def str3 = readFile file: 'pom.xml'
     def str2 = readFile 'pom.xml'
