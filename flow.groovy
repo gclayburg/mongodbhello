@@ -167,12 +167,16 @@ def doBuild() {
 }
 
 def echome(){
-    def hi="hello"
     echo 'Deployed to http://localhost:8080/production/'
-    echo message: "done now"
+    def hi="hello"
+    echo message: "done now "
+    echo message: "done now $hi"
     echo "done $hi"  //ok
 //    echo 78  //will fail
 //    echo  //will fail
+
+    def tmpdir = "/tmp"
+    sh "ls -l $tmpdir"
 
     def str = readFile file: 'pom.xml', encoding : 'utf-8'
     def str3 = readFile file: 'pom.xml'
