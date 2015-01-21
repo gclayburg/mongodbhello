@@ -178,7 +178,7 @@ def echome(){
     def tmpdir = "/tmp"
     sh "chmod 644 pom.xml"
     sh "ls -l $tmpdir"
-    sh """  //multiline script
+    sh """  #multiline script
 chmod 644 pom.xml
 ls /
 echo "home is HOME"
