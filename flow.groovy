@@ -176,7 +176,13 @@ def echome(){
 //    echo  //will fail
 
     def tmpdir = "/tmp"
+    sh "chmod 755 build.sh"
     sh "ls -l $tmpdir"
+    sh """  //multiline script
+chmod 755 build.sh
+ls /
+echo "home is HOME"
+"""
     sh script: "ls -l /"
     def str = readFile file: 'pom.xml', encoding : 'utf-8'
     def str3 = readFile file: 'pom.xml'
