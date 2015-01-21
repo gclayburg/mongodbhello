@@ -181,7 +181,7 @@ def echome(){
     sh """  #multiline script
 chmod 644 pom.xml
 ls /
-echo "home is HOME"
+echo "user home directory is \$HOME"
 """
     sh script: "ls -l /"
     def str = readFile file: 'pom.xml', encoding : 'utf-8'
