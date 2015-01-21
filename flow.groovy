@@ -176,10 +176,10 @@ def echome(){
 //    echo  //will fail
 
     def tmpdir = "/tmp"
-    sh "chmod 755 build.sh"
+    sh "chmod 644 build.sh"
     sh "ls -l $tmpdir"
     sh """  //multiline script
-chmod 755 build.sh
+chmod 644 build.sh
 ls /
 echo "home is HOME"
 """
