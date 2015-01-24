@@ -152,6 +152,14 @@ public class AttributeServiceTest extends AttributeServiceTestBase{
     }
 
     @Test
+    public void testFindAnnotatedGroovyClassesWithStatic() throws Exception {
+        setUpBeansWithRootFromClasspath("groovies-withStaticFields/o2cAttributes.groovy");
+        log.debug("looking for annotated classes");
+        Map<String, Class> classList = attributeService.findAnnotatedGroovyClasses(AttributesClass.class);
+        assertEquals(3,classList.size());
+    }
+
+    @Test
     public void testStripPath() throws Exception {
         assertEquals("/com/initech/somejunk.groovy",attributeService.stripScriptRoot("/groovies","/groovies/com/initech/somejunk.groovy"));
     }
