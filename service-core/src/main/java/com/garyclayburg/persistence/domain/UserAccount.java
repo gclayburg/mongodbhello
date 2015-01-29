@@ -29,6 +29,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
  *
  * @author Gary Clayburg
  */
+
 @Document
 public class UserAccount {
     @SuppressWarnings("UnusedDeclaration")
