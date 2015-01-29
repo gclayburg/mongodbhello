@@ -25,6 +25,7 @@ import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -58,6 +59,16 @@ public class User {
     protected String createdBy;
     @LastModifiedBy
     protected String lastModifedBy;
+
+    List<UserAccount> userAccounts;
+
+    public List<UserAccount> getUserAccounts() {
+        return userAccounts;
+    }
+
+    public void setUserAccounts(List<UserAccount> userAccounts) {
+        this.userAccounts = userAccounts;
+    }
 
     @SuppressWarnings("UnusedDeclaration")
     public DateTime getCreatedAt() {

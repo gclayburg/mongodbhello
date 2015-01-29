@@ -1,0 +1,21 @@
+{
+  "user": [
+    {
+      "firstname": "Bill",
+      "lastname": "Smith",
+      "userAccounts": [
+        {
+          "accountType": "com.acmewidgets.bogusmail",
+          "accountActive": "1",
+          "displayname": "Bill Smith",
+          "username": "bsmith",
+          "emailaddress": "bsmith@acmewidgets.com"
+        },
+        {
+          "accountType": "com.acmewidgets.gmailwrapper",
+          "email": "bill.smith@gmail.com"
+        }
+      ]
+    }
+  ]
+}

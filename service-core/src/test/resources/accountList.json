@@ -1,0 +1,23 @@
+{
+  "user": [
+    {
+      "firstname": "Johan",
+      "lastname": "Smith",
+      "email": "johan@nowhere.info"
+    }
+  ],
+  "account": [
+    {
+      "username": "jsmith",
+      "accountStyle": "boguscloudservice1",
+      "accountActive": 1,
+      "groups": ["users","printers"]
+    },
+    {
+      "username": "jsmith",
+      "accountStyle": "boguscloudservice2",
+      "uid": 17
+    }
+
+  ]
+}
