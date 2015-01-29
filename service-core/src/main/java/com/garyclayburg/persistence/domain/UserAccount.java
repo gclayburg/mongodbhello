@@ -29,7 +29,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
  *
  * @author Gary Clayburg
  */
-//todo:  use @DBRef ?
 @Document
 public class UserAccount {
     @SuppressWarnings("UnusedDeclaration")
