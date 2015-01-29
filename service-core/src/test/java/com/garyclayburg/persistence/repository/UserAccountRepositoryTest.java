@@ -111,7 +111,6 @@ public class UserAccountRepositoryTest extends MongoInMemoryTestBase{
         newUser.setLastname("Smith");
 
         UserAccount billUserAccountAD = new UserAccount();
-        billUserAccountAD.setAccountType("com.acmewidgets.bogusmail");
         billUserAccountAD.setUsername("bsmith");
         List<UserAccount> accountList = new ArrayList<>();
         accountList.add(billUserAccountAD);
@@ -132,7 +131,6 @@ public class UserAccountRepositoryTest extends MongoInMemoryTestBase{
         newUser.setLastname("Smith");
 
         BogusMailAccount steveAccount = new BogusMailAccount();
-        steveAccount.setAccountType("com.acmewidgets.bogusmail");
         steveAccount.setAccountActive("1");
         steveAccount.setUsername("ssmith");
         steveAccount.setDisplayname("Steve Smith");
@@ -149,4 +147,9 @@ public class UserAccountRepositoryTest extends MongoInMemoryTestBase{
 
     }
 
+    @Test
+    public void testAccountType() throws Exception {
+        BogusMailAccount bogus = new BogusMailAccount();
+        assertEquals("com.garyclayburg.persistence.domain.BogusMailAccount",bogus.getAccountType());
+    }
 }

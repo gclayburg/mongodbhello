@@ -35,6 +35,9 @@ public class BogusMailAccount extends UserAccount{
     private String displayname;
     private String emailAddress;
 
+    public BogusMailAccount() {
+    }
+
     public String getAccountActive() {
         return accountActive;
     }

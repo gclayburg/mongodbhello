@@ -34,12 +34,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class UserAccount {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(UserAccount.class);
-    private String accountType;
-//    private int accountActive; //this should probably be put in subclasses
+    protected String accountType;
     private String username;
 
-    public void setAccountType(String accountType) {
-        this.accountType = accountType;
+    public UserAccount() {
+        this.accountType = this.getClass().getName();
     }
 
     public String getAccountType() {
