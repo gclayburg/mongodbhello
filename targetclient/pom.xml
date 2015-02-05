@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ VisualSync - a tool to visualize user data synchronization
+  ~ Copyright (c) 2015 Gary Clayburg
+  ~ This program is free software; you can redistribute it and/or
+  ~ modify it under the terms of the GNU General Public License
+  ~ as published by the Free Software Foundation; either version 2
+  ~ of the License, or (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program; if not, write to the Free Software
+  ~ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>mongodbhello</artifactId>
+        <groupId>com.garyclayburg</groupId>
+        <version>0.3</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>targetclient</artifactId>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>
+<!--
+    <?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
+
+<groupId>org.springframework</groupId>
+<artifactId>gs-consuming-rest</artifactId>
+<version>0.1.0</version>
+
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>1.1.10.RELEASE</version>
+</parent>
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+    </dependency>
+</dependencies>
+
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+    </plugins>
+</build>
+
+<repositories>
+    <repository>
+        <id>spring-releases</id>
+        <url>https://repo.spring.io/libs-release</url>
+    </repository>
+</repositories>
+
+<pluginRepositories>
+    <pluginRepository>
+        <id>spring-releases</id>
+        <url>https://repo.spring.io/libs-release</url>
+    </pluginRepository>
+</pluginRepositories>
+
+</project>
+-->

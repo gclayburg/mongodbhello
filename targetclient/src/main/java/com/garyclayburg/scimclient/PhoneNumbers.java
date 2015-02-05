@@ -16,41 +16,40 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package com.garyclayburg.persistence.domain;
+package com.garyclayburg.scimclient;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
  * Created by IntelliJ IDEA.
- * Date: 1/28/15
- * Time: 4:27 PM
+ * Date: 2/4/15
+ * Time: 2:54 PM
  *
  * @author Gary Clayburg
  */
-
-@Document
-public class UserAccount {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class PhoneNumbers {
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(UserAccount.class);
-    protected String accountType;
-    private String username;
+    private static final Logger log = LoggerFactory.getLogger(PhoneNumbers.class);
 
-    public UserAccount() {
-        this.accountType = this.getClass().getName();
-        log.info("created UserAccount: "+accountType);
+    private String value;
+    private String type;
+
+    public String getValue() {
+        return value;
     }
 
-    public String getAccountType() {
-        return accountType;
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getType() {
+        return type;
     }
 
-    public String getUsername() {
-        return username;
+    public void setType(String type) {
+        this.type = type;
     }
 }
