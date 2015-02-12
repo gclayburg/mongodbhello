@@ -20,6 +20,7 @@ package com.garyclayburg.data;
 
 import com.garyclayburg.importer.CsvImporter;
 import com.garyclayburg.persistence.UserChangeController;
+import com.garyclayburg.persistence.repository.AccountMatcher;
 import com.garyclayburg.persistence.repository.UserStore;
 import com.mongodb.Mongo;
 import org.slf4j.Logger;
@@ -63,6 +64,11 @@ public class ServiceConfig {
     @Bean
     public UserStore auditedUserRepo() {
         return new UserStore();
+    }
+
+    @Bean
+    public AccountMatcher accountMatcher(){
+        return new AccountMatcher();
     }
 
     @Bean

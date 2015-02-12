@@ -36,6 +36,7 @@ public class UserAccount {
     private static final Logger log = LoggerFactory.getLogger(UserAccount.class);
     protected String accountType;
     private String username;
+    private String instanceName;
 
     public UserAccount() {
         this.accountType = this.getClass().getName();
@@ -52,5 +53,16 @@ public class UserAccount {
 
     public String getUsername() {
         return username;
+    }
+
+    /**
+     Name used to distinguish multiple instances of the same account type, i.e. 2 separate LDAP servers that might have the same username
+     */
+    public void setInstanceName(String instanceName) {
+        this.instanceName = instanceName;
+    }
+
+    public String getInstanceName() {
+        return instanceName;
     }
 }

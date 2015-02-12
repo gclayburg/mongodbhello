@@ -64,7 +64,11 @@ public class AttributeServiceTestBase {
         log.debug("TearDown test: " + testName.getMethodName());
     }
 
-    protected void setUpBeansWithRootFromClasspath(String sampleGroovyScript) throws URISyntaxException, IOException {
+    public AttributeService getAttributeService() {
+        return attributeService;
+    }
+
+    public void setUpBeansWithRootFromClasspath(String sampleGroovyScript) throws URISyntaxException, IOException {
         URL groovyURL = this.getClass()
             .getClassLoader()
             .getResource(sampleGroovyScript);

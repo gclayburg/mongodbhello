@@ -126,6 +126,7 @@ public class AttributeService {
             } catch (IOException e) {
                 log.warn("could not load embedded groovy scripts",e);
             }
+            log.debug("finished reading embedded groovy");
         }
     }
 
