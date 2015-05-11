@@ -1,0 +1,17 @@
+[Unit]
+Description=Standalone Mongodb with /data/db  embedded data
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill emptymongodb
+ExecStartPre=-/usr/bin/docker rm emptymongodb
+ExecStartPre=-/usr/bin/docker rm tmpMongoData
+ExecStartPre=-/usr/bin/docker run -v /data/db --name tmpMongoData scratch ignore-command
+ExecStartPre=/usr/bin/docker pull mongo
+ExecStart=/usr/bin/docker run -e "TZ=America/Denver" --volumes-from tmpMongoData --name emptymongodb -p 27017:27017 mongo
+ExecStop=/usr/bin/docker stop emptymongodb
+
+[X-Fleet]
+MachineOf=console@%i.service
