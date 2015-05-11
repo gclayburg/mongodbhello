@@ -95,7 +95,7 @@ def runSmokeTest(instance){
 
 def fastWar(){
     echo 'do fast war'
-    unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
+    unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
     sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
 }
 
@@ -114,7 +114,8 @@ def fullBuild(){
 //        def javaHOME= tool 'Oracle JDK 7u72'
         env.PATH = "${javaHOME}/bin:${env.PATH}"
 
-        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
+        unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
+
         sh "${tool 'M3'}/bin/mvn -B clean install"
         step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     }
@@ -140,7 +141,8 @@ def fullBuild(){
 def stopCopper(instance) {
     node('bagley-dind') {
         sh "pwd"
-        unarchive mapping: ['pom.xml' : '.', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : '.'  ]
+        unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
+
         stopcoreos(instance)
     }
 }
@@ -178,16 +180,19 @@ def echome(){
     def tmpdir = "/tmp"
     sh "chmod 644 pom.xml"
     sh "ls -l $tmpdir"
+    sh("ls")
     sh """  #multiline script
 chmod 644 pom.xml
 ls /
 echo "user home directory is \$HOME"
 """
-    sh script: "ls -l /"
+    sh script: "echo hi"
     def str = readFile file: 'pom.xml', encoding : 'utf-8'
     def str3 = readFile file: 'pom.xml'
     def str2 = readFile 'pom.xml'
-
+    String string1 = "hi";
+    String string2 = "hi $tmpdir"
+    String string3 = new String("hi $tmpdir")
 }
 
 return this;
