@@ -10,6 +10,9 @@ do_shell(){
     echo "$(date +%F_%T) --> $*"
     eval "$*"
     STATUS=$?
+    if [[ $STATUS -ne 0 ]]; then 
+      exit $STATUS; 
+    fi
     return $STATUS
 }
 
