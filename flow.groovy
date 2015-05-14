@@ -150,18 +150,18 @@ def stopCopper(instance) {
 def doBuild() {
     def NINE = "9"
 
-    parallel firstBranch: {
-        parallel firstBranch: {
+    parallel quickBuildBranch: {
+        parallel qbb_fastWarDockerBranch: {
             node('master') {
                 fastWar()
                 createDockerImage()
             }
-        },secondBranch: {
+        },qbb_stopCoreOsBranch: {
             stopCopper(NINE)
         }
         startcoreos NINE
         runSmokeTest(NINE)
-    }, secondBranch: {
+    }, fullBuildBranch: {
         fullBuild()
     }
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
