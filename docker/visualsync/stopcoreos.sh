@@ -1,20 +1,6 @@
 #!/bin/bash
-
-date_echo(){
-    datestamp=$(date +%F_%T)
-    echo "${datestamp} $*"
-}
-
-do_shell_fail(){
-# Execute command in shell, while logging complete command to stdout
-    echo "$(date +%F_%T) --> $*"
-    eval "$*"
-    STATUS=$?
-    if [[ $STATUS -ne 0 ]]; then # exit entire script to fail the build
-      exit $STATUS;
-    fi
-    return $STATUS
-}
+RUNDIR="$( cd "$( dirname "${BASH_SOURCE[0]:-$$}" )" && pwd )"
+. ${RUNDIR}/shellbase.sh
 
 INSTANCE=${INSTANCE:-${1:-9}} # order of preference: env.INSTANCE, $1, 9
 date_echo "stopping console@${INSTANCE} from host $(uname -n)"
