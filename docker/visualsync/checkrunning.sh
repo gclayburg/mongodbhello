@@ -1,22 +1,25 @@
 #!/bin/bash
+RUNDIR="$( cd "$( dirname "${BASH_SOURCE[0]:-$$}" )" && pwd )"
+echo "RUNDIR: $RUNDIR"
+. "${RUNDIR}"/shellbase.sh
 
 INSTANCE=${INSTANCE:-${1:-9}} # order of preference: env.INSTANCE, $1, 9
-echo "checking key: /services/website/console@${INSTANCE}..."
+date_echo "checking key: /services/website/console@${INSTANCE}..."
 if url=$(etcdctl -C=http://mink:4001 get /services/website/console@${INSTANCE} 2> /dev/null); then
   echo ok
   myurl=$(echo $url | jq -r '.url')
 else
-  echo "waiting for key: /services/website/console@${INSTANCE}..."
+  date_echo "waiting for key: /services/website/console@${INSTANCE}..."
   if url=$(etcdctl -C=http://mink:4001 watch /services/website/console@${INSTANCE}); then
     myurl=$(echo $url | jq -r '.url')
   else
     exit 500
   fi
 fi
-date
-echo "tomcat url is: $myurl"
+date_echo "tomcat url is: $myurl"
 ENDPOINT="$(echo $url | jq -r '.host'):$(echo $url | jq -r '.port')"
-echo "endpoint is: $ENDPOINT"
-echo "ENDPOINT=$ENDPOINT" > chosenone.properties
+date_echo "endpoint is: $ENDPOINT"
+date_echo "ENDPOINT=$ENDPOINT" > chosenone.properties
 
 isTomcatRunning.sh $myurl
+date_echo "tomcat should be up"
