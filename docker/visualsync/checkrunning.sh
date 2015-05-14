@@ -21,6 +21,11 @@ ENDPOINT="$(echo $url | jq -r '.host'):$(echo $url | jq -r '.port')"
 date_echo "endpoint is: $ENDPOINT"
 echo "ENDPOINT=$ENDPOINT" > chosenone.properties
 
-"${RUNDIR}"/isTomcatRunning.sh $myurl
-"${RUNDIR}"/isMongoRunning.sh ${myurl/:*}:27017  # for now, we assume that mongodb service needed will always be running on port 27017 on the same host as tomcat
-date_echo "tomcat should be up"
+#tomcat usually takes longer to startup.  mongodb may be slow if mongodb docker image has not yet been installed on this host.  both need to be running before clients can use the service
+if "${RUNDIR}"/isTomcatRunning.sh $myurl ; then
+  if "${RUNDIR}"/isMongoRunning.sh ${myurl/:8*}:27017 ; then  # for now, we assume that mongodb service needed will always be running on port 27017 on the same host as tomcat
+    date_echo "tomcat and mongodb should be running"
+    exit 3
+  fi
+fi
+exit 1
