@@ -25,7 +25,7 @@ echo "ENDPOINT=$ENDPOINT" > chosenone.properties
 if "${RUNDIR}"/isTomcatRunning.sh $myurl ; then
   if "${RUNDIR}"/isMongoRunning.sh ${myurl/:8*}:27017 ; then  # for now, we assume that mongodb service needed will always be running on port 27017 on the same host as tomcat
     date_echo "tomcat and mongodb should be running"
-    exit 3
+    exit 0
   fi
 fi
 exit 1
