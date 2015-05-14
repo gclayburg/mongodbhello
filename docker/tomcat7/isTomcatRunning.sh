@@ -1,20 +1,12 @@
-#!/bin/sh
-date_echo(){
-    datestamp=$(date)
-    echo "${datestamp} $*"
-}
-do_shell(){
-# Execute command in shell, while logging complete command to stdout
-    echo "$(date +%F_%T) --> $*"
-    eval "$*"
-    STATUS=$?
-    return $STATUS
-}
+#!/bin/bash
+RUNDIR="$( cd "$( dirname "${BASH_SOURCE[0]:-$$}" )" && pwd )"
+. "${RUNDIR}"/shellbase.sh
+LOG_CONTEXT="$0 -"
 
-HOSTNAME=$1
+URL=$1
 
-if [[ -x /usr/bin/curl ]]; then
-  until [ "`curl --silent --show-error --connect-timeout 1 -I http://$HOSTNAME/webconsole 2> /dev/null | grep 'Coyote'`" != "" ];
+if [ -x /usr/bin/curl ]; then
+  until [ "`curl --silent --show-error --connect-timeout 1 -I $URL 2> /dev/null | grep 'Coyote'`" != "" ];
   do
     date_echo "waiting for tomcat to respond"
     sleep 1
