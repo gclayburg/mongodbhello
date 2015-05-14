@@ -1,6 +1,7 @@
 #!/bin/bash
 RUNDIR="$( cd "$( dirname "${BASH_SOURCE[0]:-$$}" )" && pwd )"
 . "${RUNDIR}"/shellbase.sh
+LOG_CONTEXT="$0 -"
 
 INSTANCE=${INSTANCE:-${1:-9}} # order of preference: env.INSTANCE, $1, 9
 date_echo "starting console@${INSTANCE} from host $(uname -n)"

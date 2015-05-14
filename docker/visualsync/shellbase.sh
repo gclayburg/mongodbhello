@@ -3,7 +3,7 @@
 LOG_CONTEXT="-"  #override to add extra stuff to log messages
 date_echo(){
     datestamp=$(date +%F_%T)
-    echo "${datestamp} $LOG_CONTEXT $*"
+    echo "${datestamp} ${LOG_CONTEXT} $*"
 }
 
 do_shell_fail(){
