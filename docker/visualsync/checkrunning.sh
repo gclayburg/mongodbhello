@@ -21,5 +21,5 @@ ENDPOINT="$(echo $url | jq -r '.host'):$(echo $url | jq -r '.port')"
 date_echo "endpoint is: $ENDPOINT"
 date_echo "ENDPOINT=$ENDPOINT" > chosenone.properties
 
-"${RUNDIR}"/../tomcat7/isTomcatRunning.sh $myurl
+"${RUNDIR}"/isTomcatRunning.sh $myurl
 date_echo "tomcat should be up"
