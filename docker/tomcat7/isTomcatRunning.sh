@@ -4,7 +4,7 @@ RUNDIR="$( cd "$( dirname "${BASH_SOURCE[0]:-$$}" )" && pwd )"
 LOG_CONTEXT="$0 -"
 
 URL=$1
-
+date_echo "checking for running tomcat at: $URL"
 if [ -x /usr/bin/curl ]; then
   until [ "`curl --silent --show-error --connect-timeout 1 -I $URL 2> /dev/null | grep 'Coyote'`" != "" ];
   do
