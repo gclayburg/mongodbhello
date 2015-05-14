@@ -1,0 +1,11 @@
+[Unit]
+Description=Announce console
+BindsTo=console@%i.service
+After=console@%i.service
+
+[Service]
+ExecStart=/bin/sh -c "while true; do etcdctl --peers http://mink:4001 set /services/website/console@%i '{ \"host\": \"%H\", \"port\": 808%i, \"version\": \"52c7248a14\", \"url\": \"http://%H:808%i/console\" }' --ttl 60;sleep 45;done"
+ExecStop=/usr/bin/etcdctl --peers http://mink:4001 rm /services/website/console@%i
+
+[X-Fleet]
+MachineOf=console@%i.service
