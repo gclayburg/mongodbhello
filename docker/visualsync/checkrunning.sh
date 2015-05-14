@@ -2,7 +2,7 @@
 RUNDIR="$( cd "$( dirname "${BASH_SOURCE[0]:-$$}" )" && pwd )"
 echo "RUNDIR: $RUNDIR"
 . "${RUNDIR}"/shellbase.sh
-
+LOG_CONTEXT="$0 *"
 INSTANCE=${INSTANCE:-${1:-9}} # order of preference: env.INSTANCE, $1, 9
 date_echo "checking key: /services/website/console@${INSTANCE}..."
 if url=$(etcdctl -C=http://mink:4001 get /services/website/console@${INSTANCE} 2> /dev/null); then
