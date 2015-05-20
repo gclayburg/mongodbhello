@@ -148,7 +148,6 @@ def doBuild() {
     def NINE = "9"
 
     parallel quickBuildBranch: {
-        echosomestuff()
         parallel qbb_fastWarDockerBranch: {
             node('master') {
                 fastWar()
@@ -159,11 +158,10 @@ def doBuild() {
                 stopCopper(NINE)
             }
         }
-        echosomestuff()
         startcoreos NINE
         runSmokeTest(NINE)
     }, fullBuildBranch: {
-        node('master') {
+        node('bagley-dind') {
             fullBuild()
         }
     }
@@ -171,12 +169,6 @@ def doBuild() {
     echo message: "done with double build"
 }
 
-def echosomestuff(){
-    echo 'just spitting stuff to console'
-    def hi="hello"
-    echo message: "done now "
-    echo message: "done now $hi"
-}
 def echome(){
     echo 'Deployed to http://localhost:8080/production/'
     def hi="hello"
