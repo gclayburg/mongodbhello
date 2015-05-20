@@ -108,17 +108,15 @@ def createDockerImage() {
 }
 
 def fullBuild(){
-    node('master'){
-        sh "pwd"
-        def javaHOME= tool 'Oracle JDK 8u25'
+    sh "pwd"
+    def javaHOME= tool 'Oracle JDK 8u25'
 //        def javaHOME= tool 'Oracle JDK 7u72'
-        env.PATH = "${javaHOME}/bin:${env.PATH}"
+    env.PATH = "${javaHOME}/bin:${env.PATH}"
 
-        unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
+    unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
 
-        sh "${tool 'M3'}/bin/mvn -B clean install"
-        step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
-    }
+    sh "${tool 'M3'}/bin/mvn -B clean install"
+    step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
 }
 /*
  * VisualSync - a tool to visualize user data synchronization
@@ -139,12 +137,10 @@ def fullBuild(){
  */
 
 def stopCopper(instance) {
-    node('bagley-dind') {
-        sh "pwd"
-        unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
+    sh "pwd"
+    unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
+    stopcoreos(instance)
 
-        stopcoreos(instance)
-    }
 }
 
 def doBuild() {
@@ -157,12 +153,16 @@ def doBuild() {
                 createDockerImage()
             }
         },qbb_stopCoreOsBranch: {
-            stopCopper(NINE)
+            node('bagley-dind') {
+                stopCopper(NINE)
+            }
         }
         startcoreos NINE
         runSmokeTest(NINE)
     }, fullBuildBranch: {
-        fullBuild()
+        node('master') {
+            fullBuild()
+        }
     }
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     echo message: "done with double build"
