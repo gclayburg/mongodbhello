@@ -159,11 +159,9 @@ def doBuild() {
                 stopCopper(NINE)
             }
         }
-        node('master') {
-            echosomestuff()
-            startcoreos NINE
-            runSmokeTest(NINE)
-        }
+        echosomestuff()
+        startcoreos NINE
+        runSmokeTest(NINE)
     }, fullBuildBranch: {
         node('master') {
             fullBuild()
