@@ -6,6 +6,13 @@ date_echo(){
     echo "${datestamp} ${LOG_CONTEXT} $*"
 }
 
+do_shell(){
+# Execute command in shell, while logging complete command to stdout
+    echo "$(date +%F_%T) --> $*"
+    eval "$*"
+    STATUS=$?
+    return $STATUS
+}
 do_shell_fail(){
 # Execute command in shell, while logging complete command to stdout
     echo "$(date +%F_%T) --> $*"
