@@ -52,6 +52,8 @@ def stopcoreos(instance){
         echo "I think I am running in a directory"
         sh "pwd"
         sh "chmod 755 ./stopcoreos.sh"
+        env.FLEETCTL_TUNNEL="gopher"
+        env.FLEETENDPOINT="http://192.168.1.58:4001"
         def exitcode = sh "./stopcoreos.sh $instance"
         echo "Exit code from stopcoreos: ${exitcode}"
     }
@@ -144,8 +146,9 @@ def stopCopper(instance) {
 }
 
 def doBuild() {
-//hi
     def NINE = "9"
+    env.FLEETCTL_TUNNEL="gopher"
+    env.FLEETENDPOINT="http://192.168.1.58:4001"
 
     parallel quickBuildBranch: {
         parallel qbb_fastWarDockerBranch: {
