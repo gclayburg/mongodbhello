@@ -5,6 +5,8 @@ LOG_CONTEXT="$0 -"
 
 INSTANCE=${INSTANCE:-${1:-9}} # order of preference: env.INSTANCE, $1, 9
 date_echo "starting console@${INSTANCE} from host $(uname -n)"
+date_echo "using FLEETCTL_TUNNEL=${FLEETCTL_TUNNEL}"
+date_echo "using FLEETCTL_ENDPOINT=${FLEETCTL_ENDPOINT}"
 do_shell_fail fleetctl -strict-host-key-checking=false submit console@.service
 do_shell_fail fleetctl -strict-host-key-checking=false start console@${INSTANCE}.service
 date_echo "starting console-discovery@${INSTANCE}"

@@ -7,7 +7,7 @@ LOG_CONTEXT="$0 -"
 INSTANCE=${INSTANCE:-${1:-9}} # order of preference: env.INSTANCE, $1, 9
 date_echo "stopping console@${INSTANCE} from host $(uname -n) "
 date_echo "using FLEETCTL_TUNNEL=${FLEETCTL_TUNNEL}"
-date_echo "using FLEETCTL_ENDPOINt=${FLEETCTL_ENDPOINT}"
+date_echo "using FLEETCTL_ENDPOINT=${FLEETCTL_ENDPOINT}"
 do_shell_fail fleetctl --version
 do_shell_fail fleetctl -strict-host-key-checking=false list-machines
 do_shell_fail fleetctl -strict-host-key-checking=false stop console@${INSTANCE}.service

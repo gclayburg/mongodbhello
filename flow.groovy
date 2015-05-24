@@ -146,7 +146,7 @@ def stopCopper(instance) {
 def doBuild() {
     def NINE = "9"
     env.FLEETCTL_TUNNEL="mink"
-    env.FLEETENDPOINT="http://192.168.1.58:4001"
+    env.FLEETCTL_ENDPOINT="http://192.168.1.58:4001"
 
     parallel quickBuildBranch: {
         parallel qbb_fastWarDockerBranch: {
