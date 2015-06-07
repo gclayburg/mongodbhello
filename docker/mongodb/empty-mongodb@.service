@@ -6,8 +6,8 @@ Requires=docker.service
 [Service]
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill emptymongodb
-ExecStartPre=-/usr/bin/docker rm emptymongodb
-ExecStartPre=-/usr/bin/docker rm tmpMongoData
+ExecStartPre=-/usr/bin/docker rm -v emptymongodb
+ExecStartPre=-/usr/bin/docker rm -v tmpMongoData
 ExecStartPre=-/usr/bin/docker run -v /data/db --name tmpMongoData --entrypoint /bin/echo mongo creating empty mongo data container
 ExecStartPre=/usr/bin/docker pull mongo
 ExecStart=/usr/bin/docker run -e "TZ=America/Denver" --volumes-from tmpMongoData --name emptymongodb -p 27017:27017 mongo
