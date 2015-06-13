@@ -143,6 +143,14 @@ def stopCopper(instance) {
 
 }
 
+def buildOracleJava8(){
+    dir('docker/java8'){
+//        sh "chmod 755 make.sh"
+        sh "docker build -t registry:5000/java8:gjava8 ."
+        sh "docker push registry:5000/java8:gjava8"
+    }
+}
+
 def doBuild() {
     def NINE = "9"
     env.FLEETCTL_TUNNEL="mink"
