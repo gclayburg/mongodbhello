@@ -1,4 +1,5 @@
-FROM dockerfile/java:oracle-java8
+FROM registry:5000/java8:gjava8
+#FROM dockerfile/java:oracle-java8
 MAINTAINER Gary Clayburg <gclaybur@comcast.net>
 
 EXPOSE 8080
