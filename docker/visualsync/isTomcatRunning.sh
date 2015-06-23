@@ -14,7 +14,11 @@ if [ -x /usr/bin/curl ]; then
     sleep 1
     counter=$((counter +1))
   done
-    date_echo "Tomcat is ready!"
+  if [[ $counter == $max_seconds ]]; then
+    date_echo "ERROR: Timeout waiting for server to respond: $max_seconds"
+    exit 1
+  fi
+  date_echo "Tomcat is ready!"
 else
   date_echo "waiting for tomcat to respond"
   do_shell "sleep 120"
