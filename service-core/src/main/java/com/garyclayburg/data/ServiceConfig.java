@@ -51,6 +51,7 @@ public class ServiceConfig {
 
     @Bean
     public UserService userService() {
+        log.debug("Creating UserService bean");
         UserService userService = new UserService();
         userService.setMongoClient(mongoClient);
         return userService;
@@ -58,26 +59,31 @@ public class ServiceConfig {
 
     @Bean
     public CsvImporter csvImporter() {
+        log.debug("Creating CsvImporter bean");
         return new CsvImporter();
     }
 
     @Bean
     public UserStore auditedUserRepo() {
+        log.debug("Creating UserStore bean");
         return new UserStore();
     }
 
     @Bean
     public AccountMatcher accountMatcher(){
+        log.debug("Creating AccountMatcher bean");
         return new AccountMatcher();
     }
 
     @Bean
     public ProvisionService provisionService() {
+        log.debug("Creating ProvisionService bean");
         return new ProvisionService();
     }
 
     @Bean
     public UserChangeController userChangeController() {
+        log.info("Creating UserChangeController bean");
         return new UserChangeController();
     }
 

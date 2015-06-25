@@ -42,7 +42,8 @@ import java.net.UnknownHostException;
  * @author Gary Clayburg
  */
 @Configuration
-@EnableMongoRepositories
+//@EnableMongoRepositories
+@EnableMongoRepositories(basePackages = "com.garyclayburg.persistence")  //make sure spring finds and creates implementation for spring data mongo interfaces in com.garyclayburg.persistence.repository
 @EnableMongoAuditing
 @Profile("mongolocal")
 public class LocalMongoClientConfig extends AbstractMongoConfiguration{

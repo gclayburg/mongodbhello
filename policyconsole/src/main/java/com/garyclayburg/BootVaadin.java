@@ -21,7 +21,6 @@ package com.garyclayburg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
@@ -41,7 +40,7 @@ import java.util.TreeMap;
  * @author Gary Clayburg
  */
 @Configuration
-@EnableAutoConfiguration
+//@EnableAutoConfiguration
 @Import({BootUp.class})
 //component scanning apparently can only be configured in one place - BootUp.class in this case
 //@ComponentScan(basePackages = {"com.garyclayburg.vconsole"})

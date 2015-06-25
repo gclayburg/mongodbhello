@@ -59,7 +59,7 @@ import java.util.ArrayList;
  * @author Gary Clayburg
  */
 @Configuration
-@EnableMongoRepositories
+@EnableMongoRepositories(basePackages = "com.garyclayburg.persistence") //make sure spring finds and creates implementation for spring data mongo interfaces in com.garyclayburg.persistence.repository
 @EnableMongoAuditing
 @Profile("mongoembedded")
 @DependsOn({"attributeService"}) //This "code smell" is used to force the pre-loading of groovy scripts before starting embedded mongo in order to get a usable vaadin userconsole running quicker when groovy scripts are hosted on S3 - which is slow to initially load scripts
