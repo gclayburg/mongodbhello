@@ -152,7 +152,7 @@ def buildOracleJava8(){
     }
 }
 
-def doBuild() {
+def doParallelBuild() {
     def NINE = "9"
     env.FLEETCTL_TUNNEL="mink"
     env.FLEETCTL_ENDPOINT="http://192.168.1.58:4001"
@@ -177,6 +177,13 @@ def doBuild() {
     }
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     echo message: "done with double build"
+}
+
+
+def doBuild() {
+    node('bagley-dind') {
+        fullBuild()
+    }
 }
 
 def echome(){
