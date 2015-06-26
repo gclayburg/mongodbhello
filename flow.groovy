@@ -95,6 +95,7 @@ def runSmokeTest(instance){
 
 def fastWar(){
     echo 'do fast war'
+    sh 'rm -rf *'
     unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
     sh "${tool 'M3'}/bin/mvn -B -DskipTests=true clean install"
 }
