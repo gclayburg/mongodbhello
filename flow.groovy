@@ -116,7 +116,7 @@ def fullBuild(){
 
     unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
 
-    sh "${tool 'M3'}/bin/mvn -B clean install"
+    sh "${tool 'M3'}/bin/mvn -B -U clean install"
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
 }
 /*
