@@ -181,7 +181,7 @@ def doParallelBuild() {
 
 
 def doBuild() {
-    node('bagley-dind') {
+    node('master') {
         fullBuild()
     }
 }
