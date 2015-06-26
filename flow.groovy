@@ -152,7 +152,7 @@ def buildOracleJava8(){
     }
 }
 
-def doParallelBuild() {
+def doBuild() {
     def NINE = "9"
     env.FLEETCTL_TUNNEL="mink"
     env.FLEETCTL_ENDPOINT="http://192.168.1.58:4001"
@@ -179,8 +179,7 @@ def doParallelBuild() {
     echo message: "done with double build"
 }
 
-
-def doBuild() {
+def doFullBuildOnly() {
     node('master') {
         fullBuild()
     }
