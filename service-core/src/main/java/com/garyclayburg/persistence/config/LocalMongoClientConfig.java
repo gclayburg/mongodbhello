@@ -21,6 +21,8 @@ package com.garyclayburg.persistence.config;
 import com.garyclayburg.persistence.MongoAuditorUserProvider;
 import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +35,8 @@ import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -75,7 +79,7 @@ public class LocalMongoClientConfig extends AbstractMongoConfiguration{
             log.debug("mongoHost: " + mongoHost);
             log.debug("mongoPort: " + mongoPort);
             log.debug("mongoUser: " + mongoUser);
-            /*
+
             if (mongoUser != null) {
                 log.debug("using user/password authentication to mongodb");
                 MongoCredential credential =
@@ -84,12 +88,12 @@ public class LocalMongoClientConfig extends AbstractMongoConfiguration{
                 credList.add(credential);
                 mongoClient = new MongoClient(new ServerAddress(mongoHost,mongoPort),credList);
             } else{
-            */
+
                 log.debug("attempting no authentication to mongodb");
                 mongoClient = new MongoClient(mongoHost,mongoPort);
-            /*
+
             }
-            */
+
         } catch (UnknownHostException e) {
             log.warn("kaboom",e);
         }

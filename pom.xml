@@ -29,7 +29,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <querydsl.version>3.2.2</querydsl.version>
-      <my.build.directory>target</my.build.directory>
+
+        <mongodb.version>2.13.2</mongodb.version>  <!-- force usage of updated mongodb driver to support SCRAM mongodb authentication, without moving to non-RELEASE spring version 1.3.0.M1 -->
+
+        <my.build.directory>target</my.build.directory>
         <!--<my.build.directory>/dev/shm/maven/${project.groupId}-${project.artifactId}/target</my.build.directory>-->
     </properties>
 
