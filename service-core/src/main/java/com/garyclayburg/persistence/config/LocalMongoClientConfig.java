@@ -65,9 +65,12 @@ public class LocalMongoClientConfig extends AbstractMongoConfiguration{
     @Value(value = "${mongoPassword:#{null}}")
     private String mongoPassword;
 
+    @Value(value = "${mongoDatabase:demo}")
+    private String mongoDatabase;
+
     @Override
     protected String getDatabaseName() {
-        return "demo";
+        return mongoDatabase;
     }
 
     @Override
@@ -79,6 +82,7 @@ public class LocalMongoClientConfig extends AbstractMongoConfiguration{
             log.debug("mongoHost: " + mongoHost);
             log.debug("mongoPort: " + mongoPort);
             log.debug("mongoUser: " + mongoUser);
+            log.debug("mongoDatabase: " + mongoDatabase);
 
             if (mongoUser != null) {
                 log.debug("using user/password authentication to mongodb");
