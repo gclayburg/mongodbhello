@@ -115,6 +115,14 @@ http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#us
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
+        <dependency>
+            <!--activate debugging stuff like http://ultra40:8080/autoconfig -->
+            <!--activate debugging stuff like http://ultra40:8080/configprops -->
+            <!--activate debugging stuff like http://ultra40:8080/health -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-actuator</artifactId>
+        </dependency>
+
         <!--
         <dependency>
             <groupId>visualSyncSDK</groupId>
