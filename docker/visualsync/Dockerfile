@@ -8,4 +8,6 @@ ADD policyconsole.war /approot/
 
 RUN apt-get update && apt-get install -y git
 
-ENTRYPOINT ["java","-jar","/approot/policyconsole.war"]
+#ENTRYPOINT ["java","-jar","/approot/policyconsole.war"]
+ADD ./injectenv.sh /approot
+ENTRYPOINT ["/approot/injectenv.sh"]
