@@ -53,19 +53,19 @@ import java.util.List;
 public class LocalMongoClientConfig extends AbstractMongoConfiguration{
     private static final Logger log = LoggerFactory.getLogger(LocalMongoClientConfig.class);
 
-    @Value(value = "${mongoHost:localhost}")
+    @Value(value = "${mongohost:localhost}")
     private String mongoHost;
 
-    @Value(value = "${mongoPort:27017}")
+    @Value(value = "${mongoport:27017}")
     private int mongoPort;
 
-    @Value(value = "${mongoUser:#{null}}")  //spring way of assigning null reference to mongoUser when commandline arguments are not specified
+    @Value(value = "${mongouser:#{null}}")  //spring way of assigning null reference to mongoUser when commandline arguments are not specified
     private String mongoUser;
 
-    @Value(value = "${mongoPassword:#{null}}")
+    @Value(value = "${mongopassword:#{null}}")
     private String mongoPassword;
 
-    @Value(value = "${mongoDatabase:demo}")
+    @Value(value = "${mongodatabase:demo}")
     private String mongoDatabase;
 
     @Override
