@@ -10,4 +10,5 @@ RUN apt-get update && apt-get install -y git
 
 #ENTRYPOINT ["java","-jar","/approot/policyconsole.war"]
 ADD ./injectenv.sh /approot/
+RUN chmod 755 /approot/injectenv.sh
 ENTRYPOINT ["/approot/injectenv.sh"]
