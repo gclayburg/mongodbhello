@@ -1,7 +1,11 @@
 #!/bin/bash
+date_echo(){
+    datestamp=$(date +%F_%T)
+    echo "${datestamp} $*"
+}
 
 iterate_secrets(){
-  echo "checking secrets: $1"
+  date_echo "checking secrets in directory: $1"
   for file in $(ls $1); do
      myvars="${myvars} ${file}=$(cat $1/${file})"
      echo "adding secret: $file"
@@ -11,20 +15,20 @@ iterate_secrets(){
 }
 if [[ $# >0 ]]; then
   myvars=""
-  if [[ -d $1 ]]; then
+  if [[ -d $1 ]]; then # first argument is a directory, lets assume kubernetes secrets are stored there
     iterate_secrets $1
     shift
   else
-    if [[ -d /tmp/secrets ]]; then
+    if [[ -d /tmp/secrets ]]; then  #/tmp/secrets is the standard secret directory
       iterate_secrets /tmp/secrets
     fi
   fi
-#  env ${myvars} /approot/runprog.sh "$@"
-  env ${myvars} java -jar /approot/policyconsole.war "$@"
-
 else
-  echo "usage: $0 dir"
-  echo ""
-  echo "dir : directory to scan for environment injection"
-  exit 1
+  if [[ -d /tmp/secrets ]]; then  #/tmp/secrets is the standard secret directory
+    iterate_secrets /tmp/secrets
+  fi
 fi
+#  env ${myvars} /approot/runprog.sh "$@"
+date_echo "running war..."
+date_echo "java -jar /approot/policyconsole.war $@ "
+env ${myvars} java -jar /approot/policyconsole.war "$@"
