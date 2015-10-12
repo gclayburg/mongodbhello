@@ -114,7 +114,7 @@ def fullBuild(){
 //        def javaHOME= tool 'Oracle JDK 7u72'
     env.PATH = "${javaHOME}/bin:${env.PATH}"
 
-    unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
+    unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy', '.git/': '.'  ]
 
     sh "${tool 'M3'}/bin/mvn -B -U clean install"
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
