@@ -114,9 +114,7 @@ def fullBuild(){
 //        def javaHOME= tool 'Oracle JDK 7u72'
     env.PATH = "${javaHOME}/bin:${env.PATH}"
 
-    git url: 'https://github.com/gclayburg/mongodbhello.git'
-
-//    unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy', '.git/': '.'  ]
+    git url: 'https://github.com/gclayburg/mongodbhello.git' // we need to re-checkout the whole repo  instead of using the workflow archive/unarchive mechanism so that we have a local .git/ directory.  The git id is used by git-commit-id-plugin to embed the id in our war file
 
     sh "${tool 'M3'}/bin/mvn -B -U clean install"
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
