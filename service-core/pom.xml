@@ -70,6 +70,7 @@ http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#us
                 <artifactId>git-commit-id-plugin</artifactId>
                 <configuration>
                     <dotGitDirectory>${project.basedir}/../.git</dotGitDirectory>
+                    <verbose>true</verbose>
                 </configuration>
             </plugin>
         </plugins>
