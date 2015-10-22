@@ -29,9 +29,10 @@ else
   fi
 fi
 #  env ${myvars} /approot/runprog.sh "$@"
+export SOMEJUNK=hello
 date_echo "env is: "
 env
 date_echo "myvars is: ${myvars}"
 date_echo "running war..."
-date_echo "java -jar /approot/policyconsole.war $@ "
-exec "java -jar /approot/policyconsole.war $@"
+date_echo "/usr/bin/java -jar /approot/policyconsole.war $@ "
+exec "/usr/bin/java -jar /approot/policyconsole.war $@"
