@@ -39,6 +39,6 @@ date_echo "java -version"
 java -version
 date_echo "/usr/bin/java -version"
 /usr/bin/java -version
-date_echo "running war..."
+date_echo "running war... with args: $@"
 date_echo "/usr/bin/java -jar /approot/policyconsole.war $@ "
 exec "/usr/bin/java"  "-jar /approot/policyconsole.war $@"
