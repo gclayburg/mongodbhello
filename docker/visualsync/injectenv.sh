@@ -30,6 +30,7 @@ else
 fi
 #  env ${myvars} /approot/runprog.sh "$@"
 export SOMEJUNK=hello
+export ${myvars}
 date_echo "env is: "
 env
 date_echo "myvars is: ${myvars}"
@@ -37,8 +38,8 @@ date_echo "which java"
 which java
 date_echo "java -version"
 java -version
-date_echo "/usr/bin/java -version"
-/usr/bin/java -version
 date_echo "running war... with args: $@"
 date_echo "/usr/bin/java -jar /approot/policyconsole.war $@ "
+
+#exec the JVM so that it will get a SIGTERM signal on shutdown
 exec /usr/bin/java  -jar /approot/policyconsole.war "$@"
