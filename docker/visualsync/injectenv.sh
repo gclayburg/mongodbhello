@@ -31,4 +31,4 @@ fi
 #  env ${myvars} /approot/runprog.sh "$@"
 date_echo "running war..."
 date_echo "java -jar /approot/policyconsole.war $@ "
-env ${myvars} java -jar /approot/policyconsole.war "$@"
+exec "env ${myvars} java -jar /approot/policyconsole.war $@"
