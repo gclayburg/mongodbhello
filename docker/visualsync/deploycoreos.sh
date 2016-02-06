@@ -18,12 +18,12 @@ fleetctl -tunnel mink -strict-host-key-checking=false start empty-mongodb@${INST
 fleetctl -tunnel mink -strict-host-key-checking=false list-units
 date
 echo "checking key: /services/website/console@${INSTANCE}..."
-if url=$(etcdctl -C=http://mink:4001 get /services/website/console@${INSTANCE} 2> /dev/null); then
+if url=$(etcdctl --no-sync -C=http://mink:4001 get /services/website/console@${INSTANCE} 2> /dev/null); then
   echo ok
   myurl=$(echo $url | jq -r '.url')
 else
   echo "waiting for key: /services/website/console@${INSTANCE}..."
-  if url=$(etcdctl -C=http://mink:4001 watch /services/website/console@${INSTANCE}); then
+  if url=$(etcdctl --no-sync -C=http://mink:4001 watch /services/website/console@${INSTANCE}); then
     myurl=$(echo $url | jq -r '.url')
   else
     exit 500

@@ -5,16 +5,16 @@ echo "RUNDIR: $RUNDIR"
 LOG_CONTEXT="$0 -"
 INSTANCE=${INSTANCE:-${1:-9}} # order of preference: env.INSTANCE, $1, 9
 date_echo "checking key: /services/website/console@${INSTANCE}..."
-if url=$(etcdctl -C=http://mink:4001 get /services/website/console@${INSTANCE} 2> /dev/null); then
+if url=$(etcdctl --no-sync -C=http://mink:4001 get /services/website/console@${INSTANCE} 2> /dev/null); then
   echo ok
   myurl=$(echo $url | jq -r '.url')
 else
   date_echo "waiting for key: /services/website/console@${INSTANCE}..."
-  if url=$(etcdctl -C=http://mink:4001 watch /services/website/console@${INSTANCE}); then
+  if url=$(etcdctl --no-sync  -C=http://mink:4001 watch /services/website/console@${INSTANCE}); then
     myurl=$(echo $url | jq -r '.url')
   else
-    exit 500
     date_echo "error returned from etcdctl"
+    exit 500
   fi
 fi
 date_echo "tomcat url is: $myurl"
