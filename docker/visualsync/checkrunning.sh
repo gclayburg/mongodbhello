@@ -14,6 +14,7 @@ else
     myurl=$(echo $url | jq -r '.url')
   else
     exit 500
+    date_echo "error returned from etcdctl"
   fi
 fi
 date_echo "tomcat url is: $myurl"
