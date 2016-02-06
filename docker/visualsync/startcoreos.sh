@@ -10,6 +10,7 @@ date_echo "using FLEETCTL_ENDPOINT=${FLEETCTL_ENDPOINT}"
 do_shell_fail fleetctl -strict-host-key-checking=false submit console@.service
 do_shell_fail fleetctl -strict-host-key-checking=false start console@${INSTANCE}.service
 date_echo "starting console-discovery@${INSTANCE}"
+do_shell_fail fleetctl -strict-host-key-checking=false submit console-discovery@.service
 do_shell_fail fleetctl -strict-host-key-checking=false start console-discovery@${INSTANCE}.service
 date_echo "starting empty-mongodb@${INSTANCE}"
 do_shell_fail fleetctl -strict-host-key-checking=false submit ../mongodb/empty-mongodb@.service

@@ -18,6 +18,8 @@ do_shell fleetctl -strict-host-key-checking=false unload console-discovery@${INS
 #remove all traces of service files on cluster - needed in case the checked in service file has changed
 do_shell fleetctl -strict-host-key-checking=false destroy console@${INSTANCE}.service
 do_shell fleetctl -strict-host-key-checking=false destroy console@.service
+do_shell fleetctl -strict-host-key-checking=false destroy console-discovery@${INSTANCE}.service
+do_shell fleetctl -strict-host-key-checking=false destroy console-discovery@.service
 do_shell fleetctl -strict-host-key-checking=false destroy empty-mongodb@${INSTANCE}.service
 do_shell fleetctl -strict-host-key-checking=false destroy empty-mongodb@.service
 
