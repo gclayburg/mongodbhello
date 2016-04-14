@@ -58,6 +58,7 @@ public class UserStore {
     @Autowired
     private UserChangeController userChangeController;
 
+    @CrossOrigin(origins = "*")
     @RequestMapping(value = "/findByFirstname",method = RequestMethod.GET)
     public
     @ResponseBody
