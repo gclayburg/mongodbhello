@@ -63,8 +63,11 @@ public class UserStore {
     public
     @ResponseBody
     User findByFirstname(@RequestParam(value = "firstname",required = true) String firstname) {
-        log.info("returning a found user...");
-        return autoUserRepo.findByFirstname(firstname);
+        log.info( "looking for firstname "+firstname);
+        long start = System.nanoTime();
+        User byFirstname = autoUserRepo.findByFirstname(firstname);
+        log.debug("           found user "+firstname+ " "+(System.nanoTime() - start)/1000+ " microseconds" );
+        return byFirstname;
     }
 
     /**
