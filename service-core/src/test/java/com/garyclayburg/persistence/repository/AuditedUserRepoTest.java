@@ -129,7 +129,7 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
         ArrayList<String> users = new ArrayList<>();
         users.add("Hank");
         users.add("nobody");
-        List<User> hankFound = auditedUserRepo.findOnceByFirstname(users);
+        List<User> hankFound = auditedUserRepo.findByFirstname(users);
         assertEquals(2,hankFound.size());
         assertEquals("Williams",hankFound.get(0).getLastname());
         assertEquals(null,hankFound.get(1));

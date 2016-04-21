@@ -71,11 +71,12 @@ public class UserStore {
         return byFirstname;
     }
 
+    //todo maybe we just need one findByFirstname that returns a list of found users?
     @CrossOrigin(origins = "*")
     @RequestMapping(value = "/findOnceByFirstname",method = RequestMethod.GET)
     public
     @ResponseBody
-    List<User> findOnceByFirstname(@RequestParam(value = "firstname",required = true) List<String> firstnames) {
+    List<User> findByFirstname(@RequestParam(value = "firstname",required = true) List<String> firstnames) {
         long start = System.nanoTime();
         log.info( "looking for firstname "+firstnames.size());
         ArrayList<User> users = new ArrayList<>();
@@ -95,6 +96,7 @@ public class UserStore {
      * @return user being saved, after fields such as "id" are inserted, if necessary
      */
     @RequestMapping(value = "/auditedsave",method = RequestMethod.POST)
+    @CrossOrigin(origins = "*")
     public
     @ResponseBody
     User save(@RequestBody User user) {
