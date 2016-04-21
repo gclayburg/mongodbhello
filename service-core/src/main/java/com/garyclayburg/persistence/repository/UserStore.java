@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -68,6 +69,22 @@ public class UserStore {
         User byFirstname = autoUserRepo.findByFirstname(firstname);
         log.debug("           found user "+firstname+ " "+(System.nanoTime() - start)/1000+ " microseconds" );
         return byFirstname;
+    }
+
+    @CrossOrigin(origins = "*")
+    @RequestMapping(value = "/findOnceByFirstname",method = RequestMethod.GET)
+    public
+    @ResponseBody
+    List<User> findOnceByFirstname(@RequestParam(value = "firstname",required = true) List<String> firstnames) {
+        long start = System.nanoTime();
+        log.info( "looking for firstname "+firstnames.size());
+        ArrayList<User> users = new ArrayList<>();
+        for (String firstname : firstnames) {
+            User byFirstname = autoUserRepo.findByFirstname(firstname);
+            users.add(byFirstname);
+        }
+        log.debug("          found users "+firstnames.size()+ " "+(System.nanoTime() - start)/1000+ " microseconds" );
+        return users;
     }
 
     /**

@@ -124,6 +124,20 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     }
 
     @Test
+    public void testFindOnce() throws Exception {
+        auditedUserRepo.save(hank);
+        ArrayList<String> users = new ArrayList<>();
+        users.add("Hank");
+        users.add("nobody");
+        List<User> hankFound = auditedUserRepo.findOnceByFirstname(users);
+        assertEquals(2,hankFound.size());
+        assertEquals("Williams",hankFound.get(0).getLastname());
+        assertEquals(null,hankFound.get(1));
+        assertEquals(1,autoUserRepo.count());
+        assertEquals(1,userAuditRepo.count());
+    }
+
+    @Test
     public void testSearchAudit() throws Exception {
         auditedUserRepo.save(hank);
 
