@@ -30,6 +30,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.filter.AbstractRequestLoggingFilter;
+
+import javax.servlet.Filter;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by IntelliJ IDEA.
@@ -87,4 +91,30 @@ public class ServiceConfig {
         return new UserChangeController();
     }
 
+//http://stackoverflow.com/questions/12371168/how-can-i-log-restful-post-data
+    @Bean
+    public Filter loggingFilter(){
+        AbstractRequestLoggingFilter f = new AbstractRequestLoggingFilter() {
+
+            @Override
+            protected void beforeRequest(HttpServletRequest request, String message) {
+                log.debug("beforeRequest messsage is: "+message);
+//                System.out.println("message);
+            }
+
+            @Override
+            protected void afterRequest(HttpServletRequest request, String message) {
+                log.debug("afterRequest messsage is: "+message);
+//                System.out.println("message);
+            }
+        };
+        f.setIncludeClientInfo(true);
+        f.setIncludePayload(true);
+        f.setIncludeQueryString(true);
+
+        f.setBeforeMessagePrefix("BEFORE REQUEST  [");
+        f.setAfterMessagePrefix("AFTER REQUEST    [");
+        f.setAfterMessageSuffix("]\n");
+        return f;
+    }
 }
