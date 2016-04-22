@@ -107,10 +107,18 @@ public class ServiceConfig {
                 log.debug("afterRequest messsage is: "+message);
 //                System.out.println("message);
             }
+
+            @Override
+            protected boolean shouldLog(HttpServletRequest request) {
+                log.debug("log uri details? " + request.getRequestURI());
+                return request.getRequestURI() != null ? request.getRequestURI().contains("audited-users") : false;
+//                return super.shouldLog(request);
+            }
         };
         f.setIncludeClientInfo(true);
         f.setIncludePayload(true);
         f.setIncludeQueryString(true);
+        f.setMaxPayloadLength(200);
 
         f.setBeforeMessagePrefix("BEFORE REQUEST  [");
         f.setAfterMessagePrefix("AFTER REQUEST    [");
