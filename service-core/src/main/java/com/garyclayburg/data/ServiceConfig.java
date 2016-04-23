@@ -99,20 +99,17 @@ public class ServiceConfig {
             @Override
             protected void beforeRequest(HttpServletRequest request, String message) {
                 log.debug("beforeRequest messsage is: "+message);
-//                System.out.println("message);
             }
 
             @Override
             protected void afterRequest(HttpServletRequest request, String message) {
                 log.debug("afterRequest messsage is: "+message);
-//                System.out.println("message);
             }
 
             @Override
             protected boolean shouldLog(HttpServletRequest request) {
-                log.debug("log uri details? " + request.getRequestURI());
+                //For now, I only care about logging certain REST requests
                 return request.getRequestURI() != null ? request.getRequestURI().contains("audited-users") : false;
-//                return super.shouldLog(request);
             }
         };
         f.setIncludeClientInfo(true);
