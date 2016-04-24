@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -40,7 +41,7 @@ import java.util.Arrays;
  * @author Gary Clayburg
  */
 @Configuration
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude={EmbeddedMongoAutoConfiguration.class})  // I do not want spring to automatically startup an embedded mongo server, simply because the dependency exists in pom.xml.  I start up embedded mongo server at runtime only when "mongoembedded" profile is active
 @Import({ServiceConfig.class,RepositoryRestMvcConfiguration.class})
 @ComponentScan(basePackages = {"com.garyclayburg.persistence.config","com.garyclayburg.vconsole"})
 //spring4vaadin module requires UI class to be componentscaned
