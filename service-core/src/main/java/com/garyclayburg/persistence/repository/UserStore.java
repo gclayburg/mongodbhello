@@ -19,6 +19,7 @@
 package com.garyclayburg.persistence.repository;
 
 import com.garyclayburg.attributes.AttributeService;
+import com.garyclayburg.attributes.DynamicUser;
 import com.garyclayburg.attributes.GeneratedUser;
 import com.garyclayburg.persistence.UserChangeController;
 import com.garyclayburg.persistence.domain.User;
@@ -72,6 +73,7 @@ public class UserStore {
     }
 
     //todo maybe we just need one findByFirstname that returns a list of found users?
+    //i.e. used by google sheets add-in to lookup a range of users
     @CrossOrigin(origins = "*")
     @RequestMapping(value = "/findOnceByFirstname",method = RequestMethod.GET)
     public
@@ -155,4 +157,14 @@ public class UserStore {
         return generatedUser;
 
     }
+
+    @RequestMapping(value = "/findDynamicUserByFirstname",method = RequestMethod.GET)
+    public @ResponseBody DynamicUser findDynamicUserByFirstname(@RequestParam(value = "firstname",required = true) String name) {
+        User u = findByFirstname(name);
+        DynamicUser generatedUser = new DynamicUser(u);
+        generatedUser.setAttributes(attributeService.getGeneratedAttributesBean(u));
+        return generatedUser;
+
+    }
 }
+
