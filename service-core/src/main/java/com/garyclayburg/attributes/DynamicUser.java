@@ -38,18 +38,7 @@ public class DynamicUser extends User {
     List<GeneratedAttributesBean> attributes;
 
     public DynamicUser(User u) {
-        //todo - move this to super()
-        this.firstname = u.getFirstname();
-        this.lastname = u.getLastname();
-        this.id = u.getId();
-        this.email = u.getEmail();
-        this.createdAt = u.getCreatedAt();
-        this.createdBy = this.getCreatedBy();
-        this.lastModifedBy = u.getLastModifedBy();
-        this.lastModifiedDate = u.getLastModifiedDate();
-
-        this.createDate = u.getCreateDate();
-        this.modifiedDate = u.getModifiedDate();
+        super(u);
     }
 
     public List<GeneratedAttributesBean> getAttributes() {

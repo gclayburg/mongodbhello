@@ -62,6 +62,19 @@ public class User {
 
     List<UserAccount> userAccounts;
 
+    public User(User u) {
+        this.firstname = u.getFirstname();
+        this.lastname = u.getLastname();
+        this.id = u.getId();
+        this.email = u.getEmail();
+        this.createdAt = u.getCreatedAt();
+        this.createdBy = this.getCreatedBy();
+        this.lastModifedBy = u.getLastModifedBy();
+        this.lastModifiedDate = u.getLastModifiedDate();
+
+        this.createDate = u.getCreateDate();
+        this.modifiedDate = u.getModifiedDate();
+    }
     public List<UserAccount> getUserAccounts() {
         return userAccounts;
     }
