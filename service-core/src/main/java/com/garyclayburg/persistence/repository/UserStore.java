@@ -161,10 +161,12 @@ public class UserStore {
     @RequestMapping(value = "/findDynamicUserByFirstname",method = RequestMethod.GET)
     public @ResponseBody DynamicUser findDynamicUserByFirstname(@RequestParam(value = "firstname",required = true) String name) {
         User u = findByFirstname(name);
-        DynamicUser generatedUser = new DynamicUser(u);
-        generatedUser.setAttributes(attributeService.getGeneratedAttributesBean(u));
+        DynamicUser generatedUser = null;
+        if (u != null) {
+            generatedUser = new DynamicUser(u);
+            generatedUser.setAttributes(attributeService.getGeneratedAttributesBean(u));
+        }
         return generatedUser;
-
     }
 }
 
