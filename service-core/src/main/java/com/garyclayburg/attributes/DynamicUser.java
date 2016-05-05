@@ -18,11 +18,14 @@
 
 package com.garyclayburg.attributes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.garyclayburg.persistence.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -35,10 +38,17 @@ public class DynamicUser extends User {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(DynamicUser.class);
 
+    @JsonIgnore
     List<GeneratedAttributesBean> attributes;
+
+    Map<String, String> dynamicAttributes;
+
+    public DynamicUser() {
+    }
 
     public DynamicUser(User u) {
         super(u);
+        dynamicAttributes = new HashMap<>();
     }
 
     public List<GeneratedAttributesBean> getAttributes() {
@@ -47,5 +57,13 @@ public class DynamicUser extends User {
 
     public void setAttributes(List<GeneratedAttributesBean> attributes) {
         this.attributes = attributes;
+        for (GeneratedAttributesBean attribute : attributes) {
+            dynamicAttributes.put(attribute.getAttributeName(),attribute.getAttributeValue());
+        }
+    }
+
+    //    @JsonAnyGetter
+    public Map<String, String> getDynamicAttributes() {
+        return dynamicAttributes;
     }
 }

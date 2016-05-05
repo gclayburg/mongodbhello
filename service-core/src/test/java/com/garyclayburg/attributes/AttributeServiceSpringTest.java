@@ -18,6 +18,8 @@
 
 package com.garyclayburg.attributes;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.garyclayburg.MongoInMemoryTestBase;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.repository.UserStore;
@@ -36,7 +38,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  * Created by IntelliJ IDEA.
@@ -63,39 +68,56 @@ public class AttributeServiceSpringTest extends MongoInMemoryTestBase {
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     private UserStore auditedUserRepo;
     @Rule
-    public TestName testName = new TestName();
-
+    public  TestName  testName = new TestName();
+    private User luke;
 
     @Before
     public void setUp() throws IOException, URISyntaxException {
         log.debug("Running test setUp: " + testName.getMethodName());
-        URL groovyURL = this.getClass()
-                .getClassLoader()
-                .getResource("groovies/emptyscript.groovy");
+        URL groovyURL = this.getClass().getClassLoader().getResource("groovies/emptyscript.groovy");
 
         assert groovyURL != null;
 
-        String scriptRoot = new File(groovyURL.toURI()).getParentFile()
-                .getPath();
+        String scriptRoot = new File(groovyURL.toURI()).getParentFile().getPath();
         scriptRunner.setRoot(new String[]{scriptRoot});
 
         attributeService.setScriptRunner(scriptRunner);
 
-    }
-
-    @Test
-    public void testGeneratedUser() {
-//        AttributeService attributeService = new AttributeService();
-        User luke = new User();
+        luke = new User();
         luke.setFirstname("Luke");
         luke.setLastname("Bryan");
         luke.setId("11223345");
         auditedUserRepo.save(luke);
 
+    }
+
+    @Test
+    public void testGeneratedUser() {
+
         GeneratedUser lukeFound = auditedUserRepo.findGeneratedUserByFirstname("Luke");
 
         assertEquals("Bryan",lukeFound.getLastname());
         assertEquals("Luke Bryan",lukeFound.getAttribute("cn"));
+    }
+
+    @Test
+    public void whenSerializingUsingJsonGetter() throws JsonProcessingException {
+        DynamicUser generatedUser = new DynamicUser(luke);
+        generatedUser.setAttributes(attributeService.getGeneratedAttributesBean(luke));
+
+        String result = new ObjectMapper().writeValueAsString(generatedUser);
+        assertThat(result,containsString("dynamicAttributes"));
+        assertThat(result,containsString("Luke Bryan"));
+        assertThat(result,containsString("\"cn\":\"Luke Bryan\""));
+    }
+
+    @Test
+    public void whenSerializingIgnoreAttributesBean() throws JsonProcessingException {
+        DynamicUser generatedUser = new DynamicUser(luke);
+        generatedUser.setAttributes(attributeService.getGeneratedAttributesBean(luke));
+
+        String result = new ObjectMapper().writeValueAsString(generatedUser);
+        assertThat(result,not(containsString("attributes")));
     }
 
 }

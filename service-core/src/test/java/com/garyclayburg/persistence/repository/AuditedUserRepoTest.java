@@ -45,6 +45,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -69,12 +70,11 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     @SuppressWarnings({"SpringJavaAutowiringInspection","SpringJavaAutowiredMembersInspection"})
     @Autowired
     private UserAuditRepo userAuditRepo;
-    private User hank;
-    private User hankAgain;
+    private User          hank;
+    private User          hankAgain;
 
     @Rule
     public TestName testName = new TestName();
-
 
     @Before
     public void setUp() throws Exception {
@@ -104,13 +104,20 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     }
 
     @Test
-    public void testHelloRest() throws Exception {
+    public void testUserJsonStructure() throws Exception {
         autoUserRepo.save(hank);
 
-        mockMvc.perform(get("/audited-users/findByFirstname?firstname=Hank"))
-//                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Williams")));
+        mockMvc.perform(get("/audited-users/findByFirstname?firstname=Hank")).andDo(print()).andExpect(status().isOk())
+            .andExpect(content().string(containsString("Williams")));
+
+    }
+
+    @Test
+    public void testDynamicUserJsonStructure() throws Exception {
+        autoUserRepo.save(hank);
+
+        mockMvc.perform(get("/audited-users/findDynamicUserByFirstname?firstname=Hank")).andDo(print())
+            .andExpect(status().isOk()).andExpect(content().string(containsString("Williams")));
 
     }
 
@@ -142,13 +149,11 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
         auditedUserRepo.save(hank);
 
         List<UserAudit> hankAuditEntry = userAuditRepo.findByUser_Id(hank.getId());
-        assertEquals("Williams",hankAuditEntry.get(0)
-                .getUser()
-                .getLastname());
+        assertEquals("Williams",hankAuditEntry.get(0).getUser().getLastname());
 
         hankAgain = new User();
         hankAgain.setId(hank.getId()); //query must contain id of saved user
-        log.debug("hank id: "+hank.getId());
+        log.debug("hank id: " + hank.getId());
         List<UserAudit> hankAgainAuditEntry = userAuditRepo.findByUser_Id(hankAgain.getId());
         assertEquals("Williams",hankAgainAuditEntry.get(0).getUser().getLastname());
     }
@@ -159,8 +164,7 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
         hank.setId(id);
         auditedUserRepo.save(hank);
         auditedUserRepo.save(hank);
-        assertEquals(2,userAuditRepo.findByUser_Id(id)
-                .size());
+        assertEquals(2,userAuditRepo.findByUser_Id(id).size());
     }
 
     @Test
@@ -171,8 +175,7 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
         hankAgain.setId(id);
         auditedUserRepo.save(hankAgain);
 //        assertEquals(2,autoUserRepo.count());
-        assertEquals(2,userAuditRepo.findByUser_Id(hank.getId())
-                .size());
+        assertEquals(2,userAuditRepo.findByUser_Id(hank.getId()).size());
     }
 
     @Test
@@ -200,7 +203,6 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
         }
     }
 
-
     @Test
     public void testFindQuserAudit() throws Exception {
         auditedUserRepo.save(hank);
@@ -218,8 +220,8 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
 
         assertEquals("Williams",hankFoundFromQuery.getUser().getLastname());
 
-        hankFoundFromQuery = userAuditRepo.findOne(qUserAudit.user.lastname.eq("Williams")
-                                                           .and(qUserAudit.user.firstname.eq("Seth")));
+        hankFoundFromQuery =
+            userAuditRepo.findOne(qUserAudit.user.lastname.eq("Williams").and(qUserAudit.user.firstname.eq("Seth")));
         assertNull(hankFoundFromQuery);
     }
 
@@ -230,10 +232,10 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     }
 
     @Test
-    public void testEmptyObjectsString(){
-        log.info("hank is: "+hank.toString());
+    public void testEmptyObjectsString() {
+        log.info("hank is: " + hank.toString());
         UserAudit ua = new UserAudit();
-        log.info("useraudit is "+ua.toString());
+        log.info("useraudit is " + ua.toString());
     }
 
     @Test
@@ -267,9 +269,8 @@ public class AuditedUserRepoTest extends MongoInMemoryTestBase {
     public void testSaveRest() throws Exception {
         auditedUserRepo.save(hank);
 
-        mockMvc.perform(get("/audited-users/findByFirstname?firstname=Hank"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("Williams")));
+        mockMvc.perform(get("/audited-users/findByFirstname?firstname=Hank")).andExpect(status().isOk())
+            .andExpect(content().string(containsString("Williams")));
 
     }
 

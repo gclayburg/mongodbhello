@@ -62,6 +62,9 @@ public class User {
 
     List<UserAccount> userAccounts;
 
+    public User() {
+    }
+
     public User(User u) {
         this.firstname = u.getFirstname();
         this.lastname = u.getLastname();
