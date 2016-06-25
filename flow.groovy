@@ -160,6 +160,7 @@ def doBuild() {
     env.FLEETCTL_TUNNEL="mink"
     env.FLEETCTL_ENDPOINT="http://192.168.1.67:4001"
 
+    stage "parallel build"
     parallel quickBuildBranch: {
         parallel qbb_fastWarDockerBranch: {
             node('master') {
@@ -178,6 +179,7 @@ def doBuild() {
             fullBuild()
         }
     }
+    stage "archive"
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     echo message: "done with double build"
 }
