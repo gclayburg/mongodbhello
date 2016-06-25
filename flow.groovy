@@ -181,7 +181,7 @@ def doBuild() {
     }
     stage "archive"
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
-    echo message: "done with double build"
+    echo message: "done with pipeline build"
 }
 
 def doFullBuildOnly() {
