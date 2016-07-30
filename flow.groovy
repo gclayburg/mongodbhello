@@ -168,14 +168,14 @@ def doBuild() {
                 createDockerImage()
             }
         },qbb_stopCoreOsBranch: {
-            node('bagley-dind') {
+            node('nodejs4') {
                 stopCopper(NINE)
             }
         }
         startcoreos NINE
         runSmokeTest(NINE)
     }, fullBuildBranch: {
-        node('bagley-dind') {
+        node('nodejs4') {
             fullBuild()
         }
     }
