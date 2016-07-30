@@ -15,7 +15,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
+#!groovy
+def starttime = System.currentTimeMillis()
+stage "provision build node"
 node('nodejs4') {  //this node label must match jenkins slave with nodejs installed
     println("begin: build node ready in ${(System.currentTimeMillis() - starttime) / 1000}  seconds")
     wrap([$class: 'TimestamperBuildWrapper']) {  //wrap each Jenkins job console output line with timestamp
