@@ -21,9 +21,34 @@ stage "provision build node"
 node('nodejs4') {  //this node label must match jenkins slave with nodejs installed
     println("begin: build node ready in ${(System.currentTimeMillis() - starttime) / 1000}  seconds")
     wrap([$class: 'TimestamperBuildWrapper']) {  //wrap each Jenkins job console output line with timestamp
+        stage "build setup"
+        checkout scm
+        whereami()
+
         def flow = load 'flow.groovy'
         println "doing flow"
         flow.doBuild()
         println "flow complete!"
     }
+}
+private void whereami() {
+    /**
+     * Runs a bunch of tools that we assume are installed on this node
+     */
+    echo "Build is running with these settings:"
+    sh "pwd"
+    sh "ls -la"
+    sh "echo path is \$PATH"
+    sh """
+uname -a
+java -version
+mvn -v
+docker ps
+docker info
+docker-compose -f src/main/docker/app.yml ps
+docker-compose version
+npm version
+gulp --version
+bower --version
+"""
 }
