@@ -218,3 +218,19 @@ echo "user home directory is \$HOME"
 }
 
 return this;
+
+private void tooloverride() {
+    try {
+        def javaHOME = tool 'Oracle JDK 8u25' //tool name must match JDK installation in Jenkins->Configuration
+        echo "tool override: using Java from Jenkins->configuration->JDK installations"
+        env.PATH = "${javaHOME}/bin:${env.PATH}"
+    } catch (Exception e) {
+    }
+
+    try{
+        def mvnHome = tool 'M3' //tool name must match maven installation in Jenkins->Configuration
+        echo "tool override: using Maven from Jenkins->configuration->Maven installations"
+        env.PATH = "${mvnHome}/bin:${env.PATH}"
+    } catch (Exception e){
+    }
+}
