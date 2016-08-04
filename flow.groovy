@@ -163,7 +163,7 @@ def doBuild() {
     stage "parallel build"
     parallel quickBuildBranch: {
         parallel qbb_fastWarDockerBranch: {
-            node('master') {
+            node('nodejs4') {
                 fastWar()
                 createDockerImage()
             }
@@ -185,7 +185,7 @@ def doBuild() {
 }
 
 def doFullBuildOnly() {
-    node('master') {
+    node('nodejs4') {
         fullBuild()
     }
 }
