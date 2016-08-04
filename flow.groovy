@@ -163,21 +163,21 @@ def doBuild() {
     stage "parallel build"
     parallel quickBuildBranch: {
         parallel qbb_fastWarDockerBranch: {
-            node('nodejs4') {
+//            node('nodejs4') {
                 fastWar()
                 createDockerImage()
-            }
+//            }
         },qbb_stopCoreOsBranch: {
-            node('nodejs4') {
+//            node('nodejs4') {
                 stopCopper(NINE)
-            }
+//            }
         }
         startcoreos NINE
         runSmokeTest(NINE)
     }, fullBuildBranch: {
-        node('nodejs4') {
+//        node('nodejs4') {
             fullBuild()
-        }
+//        }
     }
     stage "archive"
     step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
