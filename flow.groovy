@@ -185,7 +185,7 @@ def doBuild() {
 }
 
 def doFullBuildOnly() {
-    node('nodejs4') {
+    node('coreosnode') {
         fullBuild()
     }
 }
