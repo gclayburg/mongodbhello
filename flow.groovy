@@ -142,7 +142,7 @@ def fullBuild(){
 
 def stopCopper(instance) {
     sh "pwd"
-    unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
+//    unarchive mapping: ['pom.xml' : 'pom.xml', 'policyconsole/' : '.', 'service-core/': '.', 'smoketest/' : '.', 'docker/' : '.', 'flow.groovy' : 'flow.groovy'  ]
     stopcoreos(instance)
 
 }
