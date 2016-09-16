@@ -138,5 +138,15 @@ http://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#us
             <version>1.0b</version>
         </dependency>
         -->
+        <dependency>
+            <!-- CRaSH shell for monitoring and management over ssh -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-remote-shell</artifactId>
+        </dependency>
+        <dependency>
+            <!-- embed HAL api browser in app https://github.com/mikekelly/hal-browser -->
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-rest-hal-browser</artifactId>
+        </dependency>
     </dependencies>
 </project>
