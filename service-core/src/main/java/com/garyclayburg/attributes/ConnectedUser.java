@@ -18,53 +18,38 @@
 
 package com.garyclayburg.attributes;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.garyclayburg.persistence.domain.CharacterStatus;
 import com.garyclayburg.persistence.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
- * Created by IntelliJ IDEA.
- * Date: 5/3/16
- * Time: 5:36 PM
+ * This User has access to see user attributes from connected systems, but not to any generated attributes
+ * Date: 9/24/16
+ * Time: 9:29 PM
  *
  * @author Gary Clayburg
  */
-public class DynamicUser extends ConnectedUser {
+public class ConnectedUser extends User {
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(DynamicUser.class);
+    private static final Logger log = LoggerFactory.getLogger(ConnectedUser.class);
+    protected CharacterStatus CStatus;
+    Map<String, String> characterStatusSheet;
 
-    @JsonIgnore
-    List<GeneratedAttributesBean> attributes;
-
-    Map<String, String> dynamicAttributes;
-
-    public DynamicUser() {
+    public ConnectedUser() {
     }
 
-    public DynamicUser(User u) {
+    public ConnectedUser(User u) {
         super(u);
-        dynamicAttributes = new HashMap<>();
+    }
+    public void setCStatus(CharacterStatus CStatus) {
+        this.CStatus = CStatus;
     }
 
-    public List<GeneratedAttributesBean> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(List<GeneratedAttributesBean> attributes) {
-        this.attributes = attributes;
-        for (GeneratedAttributesBean attribute : attributes) {
-            dynamicAttributes.put(attribute.getAttributeName(),attribute.getAttributeValue());
-        }
-    }
-
-    //    @JsonAnyGetter
-    public Map<String, String> getDynamicAttributes() {
-        return dynamicAttributes;
+    public CharacterStatus getCStatus() {
+        return CStatus;
     }
 
 }

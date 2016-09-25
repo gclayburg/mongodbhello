@@ -1,5 +1,7 @@
 package com.initech
+
 import com.garyclayburg.attributes.AttributesClass
+import com.garyclayburg.attributes.ConnectedUser
 import com.garyclayburg.attributes.TargetAttribute
 import com.garyclayburg.persistence.domain.User
 
@@ -48,5 +50,12 @@ class GeneratedAttributes {
     @TargetAttribute(target = "myAD")
     static String buildDisplayName(User user){
         return user.lastname + ", " + user.firstname;
+    }
+
+    @TargetAttribute(target = "myAD")
+    static String userdead(User user){
+        def connectedUser = (ConnectedUser) user
+        def status = connectedUser.getCStatus()
+        return user.lastname + "-"+ status.getDeadnow()
     }
 }

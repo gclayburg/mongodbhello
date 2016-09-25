@@ -19,6 +19,7 @@
 package com.garyclayburg.persistence.repository;
 
 import com.garyclayburg.attributes.AttributeService;
+import com.garyclayburg.attributes.ConnectedUser;
 import com.garyclayburg.attributes.DynamicUser;
 import com.garyclayburg.attributes.GeneratedUser;
 import com.garyclayburg.persistence.UserChangeController;
@@ -166,16 +167,19 @@ public class UserStore {
     @RequestMapping(value = "/findDynamicUserByFirstname",method = RequestMethod.GET)
     public @ResponseBody DynamicUser findDynamicUserByFirstname(@RequestParam(value = "firstname",required = true) String name) {
         User u = findByFirstname(name);
-        DynamicUser generatedUser = null;
+        DynamicUser dynamicUser = null;
+        ConnectedUser connectedUser = null;
         if (u != null) {
-            generatedUser = new DynamicUser(u);
-            generatedUser.setAttributes(attributeService.getGeneratedAttributesBean(u));
-            if (generatedUser.getCharacterStatus_id() != null){
-                CharacterStatus characterStatus = characterStatusRepo.findById(generatedUser.getCharacterStatus_id());
-                generatedUser.setCStatus(characterStatus);
+            dynamicUser = new DynamicUser(u);
+            connectedUser = new ConnectedUser(u);
+            if (dynamicUser.getCharacterStatus_id() != null){
+                CharacterStatus characterStatus = characterStatusRepo.findById(dynamicUser.getCharacterStatus_id());
+                connectedUser.setCStatus(characterStatus);  // so that groovy scripts can access connected systems' attributes
+                dynamicUser.setCStatus(characterStatus); // so that return value includes connected systems' attributes
             }
+            dynamicUser.setAttributes(attributeService.getGeneratedAttributesBean(connectedUser));  // we want the groovy polices to be able to view connected user attributes, but not any generated attributes - which would be confusing since they don't exist yet
         }
-        return generatedUser;
+        return dynamicUser;
     }
 }
 

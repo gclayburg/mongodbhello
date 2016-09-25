@@ -1,6 +1,6 @@
 /*
  * VisualSync - a tool to visualize user data synchronization
- * Copyright (c) 2014 Gary Clayburg
+ * Copyright (c) 2016 Gary Clayburg
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -18,12 +18,11 @@
 
 package com.garyclayburg.attributes;
 
-import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.MongoInMemoryTestBase;
+import com.garyclayburg.persistence.domain.CharacterStatus;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.repository.CharacterStatusRepo;
 import com.garyclayburg.persistence.repository.UserStore;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,8 +33,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
 
@@ -47,10 +48,10 @@ import static org.junit.Assert.assertEquals;
  * @author Gary Clayburg
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-public class AttributeServiceSpringDefaultTest extends MongoInMemoryTestBase {
+public class AttributeServiceConnectedUserTest extends MongoInMemoryTestBase {
 
     @SuppressWarnings("UnusedDeclaration")
-    private static final Logger log = LoggerFactory.getLogger(AttributeServiceSpringDefaultTest.class);
+    private static final Logger log = LoggerFactory.getLogger(AttributeServiceConnectedUserTest.class);
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
@@ -69,61 +70,52 @@ public class AttributeServiceSpringDefaultTest extends MongoInMemoryTestBase {
     private CharacterStatusRepo characterStatusRepo;
 
     @Rule
-    public TestName testName = new TestName();
+    public  TestName  testName = new TestName();
+    private User luke;
 
     @Before
     public void setUp() throws IOException, URISyntaxException {
         log.debug("Running test setUp: " + testName.getMethodName());
-    }
+        URL groovyURL = this.getClass().getClassLoader().getResource("groovies/emptyscript.groovy");
 
-    @After
-    public void tearDown() throws Exception {
-        log.debug("TearDown test: " + testName.getMethodName());
+        assert groovyURL != null;
+
+        String scriptRoot = new File(groovyURL.toURI()).getParentFile().getPath();
+        scriptRunner.setRoot(new String[]{scriptRoot});
+
+        attributeService.setScriptRunner(scriptRunner);
 
     }
 
     @Test
-    public void testGeneratedUser() {
-//        AttributeService attributeService = new AttributeService();
+    public void testGroovyCstatus(){
         User luke = new User();
-        luke.setFirstname("Luke");
+        luke.setFirstname("lbryan");
         luke.setLastname("Bryan");
-        luke.setId("11223344");
+        luke.setId("11223349");
+        luke.setCharacterStatus_id("lukeluke");
         auditedUserRepo.save(luke);
-        log.debug("luke is saved");
-        GeneratedUser lukeFound = auditedUserRepo.findGeneratedUserByFirstname("Luke");
+        CharacterStatus cs = new CharacterStatus("lukeluke","last","hi","alive");
+        characterStatusRepo.save(cs);
+        DynamicUser lukeFound = auditedUserRepo.findDynamicUserByFirstname("lbryan");
+        assertEquals("Bryan-alive",lukeFound.getDynamicAttributes().get("userdead"));
+    }
+
+    @Test
+    public void testDynamicUserWithCharacterStatus() {
+        User luke = new User();
+        luke.setFirstname("lbryan");
+        luke.setLastname("Bryan");
+        luke.setId("11223349");
+        luke.setCharacterStatus_id("lukeluke");
+        auditedUserRepo.save(luke);
+        CharacterStatus cs = new CharacterStatus("lukeluke","last","hi","alive");
+        characterStatusRepo.save(cs);
+        DynamicUser lukeFound = auditedUserRepo.findDynamicUserByFirstname("lbryan");
         log.debug("check attributes");
         assertEquals("Bryan",lukeFound.getLastname());
-        log.debug("check another attribute");
-        assertEquals("Luke Bryan",lukeFound.getAttribute("cn"));
+        assertEquals("alive",lukeFound.getCStatus().getDeadnow());
     }
 
-    @Test
-    public void testDynamicUser() {
-        User luke = new User();
-        luke.setFirstname("Luke");
-        luke.setLastname("Bryan");
-        luke.setId("11223344");
-        auditedUserRepo.save(luke);
-        log.debug("luke is saved");
-        DynamicUser lukeFound = auditedUserRepo.findDynamicUserByFirstname("Luke");
-        log.debug("check attributes");
-        assertEquals("Bryan",lukeFound.getLastname());
-        log.debug("check another attribute");
-        assertEquals("Luke Bryan",lukeFound.getDynamicAttributes().get("cn"));
-    }
-
-
-    @Test
-    public void testSpringBootPropertiesWiring() throws Exception {
-        ApplicationSettings applicationSettings = attributeService.getApplicationSettings();
-        assertEquals("overriddenInApplicationProperties",applicationSettings.getStandardName());
-    }
-
-    @Test
-    public void testSpringBootPropertiesWiringBoolean() throws Exception {
-        ApplicationSettings applicationSettings = attributeService.getApplicationSettings();
-        assertEquals(true,applicationSettings.isForceRecompileEntryPoints());
-    }
 
 }
