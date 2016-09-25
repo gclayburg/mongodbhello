@@ -160,7 +160,9 @@ def doBuild() {
     env.FLEETCTL_TUNNEL="mink"
     env.FLEETCTL_ENDPOINT="http://192.168.1.67:4001"
 
+
     stage "parallel build"
+    tooloverride()
     parallel quickBuildBranch: {
         parallel qbb_fastWarDockerBranch: {
 //            node('nodejs4') {
