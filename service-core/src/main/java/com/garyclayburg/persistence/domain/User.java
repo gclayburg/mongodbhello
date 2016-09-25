@@ -62,6 +62,8 @@ public class User {
 
     List<UserAccount> userAccounts;
 
+    protected String characterStatus_id;
+
     public User() {
     }
 
@@ -77,6 +79,7 @@ public class User {
 
         this.createDate = u.getCreateDate();
         this.modifiedDate = u.getModifiedDate();
+        this.characterStatus_id = u.getCharacterStatus_id();
     }
     public List<UserAccount> getUserAccounts() {
         return userAccounts;
@@ -194,6 +197,14 @@ public class User {
     @SuppressWarnings("UnusedDeclaration")
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getCharacterStatus_id() {
+        return characterStatus_id;
+    }
+
+    public void setCharacterStatus_id(String characterStatus_id) {
+        this.characterStatus_id = characterStatus_id;
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.garyclayburg.attributes.AttributeService;
 import com.garyclayburg.attributes.DynamicUser;
 import com.garyclayburg.attributes.GeneratedUser;
 import com.garyclayburg.persistence.UserChangeController;
+import com.garyclayburg.persistence.domain.CharacterStatus;
 import com.garyclayburg.persistence.domain.User;
 import com.garyclayburg.persistence.domain.UserAudit;
 import org.slf4j.Logger;
@@ -45,6 +46,10 @@ import java.util.List;
 public class UserStore {
     @SuppressWarnings("UnusedDeclaration")
     private static final Logger log = LoggerFactory.getLogger(UserStore.class);
+
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiringInspection")  // IntelliJ confused by spring-boot wiring
+    private CharacterStatusRepo characterStatusRepo;
 
     @Autowired
     @SuppressWarnings("SpringJavaAutowiringInspection")  // IntelliJ confused by spring-boot wiring
@@ -165,6 +170,10 @@ public class UserStore {
         if (u != null) {
             generatedUser = new DynamicUser(u);
             generatedUser.setAttributes(attributeService.getGeneratedAttributesBean(u));
+            if (generatedUser.getCharacterStatus_id() != null){
+                CharacterStatus characterStatus = characterStatusRepo.findById(generatedUser.getCharacterStatus_id());
+                generatedUser.setCStatus(characterStatus);
+            }
         }
         return generatedUser;
     }

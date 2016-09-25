@@ -19,6 +19,7 @@
 package com.garyclayburg.attributes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.garyclayburg.persistence.domain.CharacterStatus;
 import com.garyclayburg.persistence.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,8 @@ public class DynamicUser extends User {
     List<GeneratedAttributesBean> attributes;
 
     Map<String, String> dynamicAttributes;
+    Map<String, String> characterStatusSheet;
+    private CharacterStatus CStatus;
 
     public DynamicUser() {
     }
@@ -65,5 +68,13 @@ public class DynamicUser extends User {
     //    @JsonAnyGetter
     public Map<String, String> getDynamicAttributes() {
         return dynamicAttributes;
+    }
+
+    public void setCStatus(CharacterStatus CStatus) {
+        this.CStatus = CStatus;
+    }
+
+    public CharacterStatus getCStatus() {
+        return CStatus;
     }
 }

@@ -20,7 +20,9 @@ package com.garyclayburg.attributes;
 
 import com.garyclayburg.ApplicationSettings;
 import com.garyclayburg.MongoInMemoryTestBase;
+import com.garyclayburg.persistence.domain.CharacterStatus;
 import com.garyclayburg.persistence.domain.User;
+import com.garyclayburg.persistence.repository.CharacterStatusRepo;
 import com.garyclayburg.persistence.repository.UserStore;
 import org.junit.After;
 import org.junit.Before;
@@ -63,6 +65,10 @@ public class AttributeServiceSpringDefaultTest extends MongoInMemoryTestBase {
     @SuppressWarnings("SpringJavaAutowiredMembersInspection")
     private UserStore auditedUserRepo;
 
+    @Autowired
+    @SuppressWarnings("SpringJavaAutowiredMembersInspection")
+    private CharacterStatusRepo characterStatusRepo;
+
     @Rule
     public TestName testName = new TestName();
 
@@ -91,6 +97,37 @@ public class AttributeServiceSpringDefaultTest extends MongoInMemoryTestBase {
         assertEquals("Bryan",lukeFound.getLastname());
         log.debug("check another attribute");
         assertEquals("Luke Bryan",lukeFound.getAttribute("cn"));
+    }
+
+    @Test
+    public void testDynamicUser() {
+        User luke = new User();
+        luke.setFirstname("Luke");
+        luke.setLastname("Bryan");
+        luke.setId("11223344");
+        auditedUserRepo.save(luke);
+        log.debug("luke is saved");
+        DynamicUser lukeFound = auditedUserRepo.findDynamicUserByFirstname("Luke");
+        log.debug("check attributes");
+        assertEquals("Bryan",lukeFound.getLastname());
+        log.debug("check another attribute");
+        assertEquals("Luke Bryan",lukeFound.getDynamicAttributes().get("cn"));
+    }
+
+    @Test
+    public void testDynamicUserWithCharacterStatus() {
+        User luke = new User();
+        luke.setFirstname("lbryan");
+        luke.setLastname("Bryan");
+        luke.setId("11223349");
+        luke.setCharacterStatus_id("lukeluke");
+        auditedUserRepo.save(luke);
+        CharacterStatus cs = new CharacterStatus("lukeluke","last","hi","alive");
+        characterStatusRepo.save(cs);
+        DynamicUser lukeFound = auditedUserRepo.findDynamicUserByFirstname("lbryan");
+        log.debug("check attributes");
+        assertEquals("Bryan",lukeFound.getLastname());
+        assertEquals("alive",lukeFound.getCStatus().getDeadnow());
     }
 
     @Test
